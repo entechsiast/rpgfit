@@ -144,3 +144,21 @@ After the summary, check for:
 - **Step definition files without feature files** — flag as orphaned
 - **Feature files with no scenarios** — flag as empty
 - **Missing Acceptance Criteria** — compare discovered scenarios against the issue's AC to verify coverage
+
+## Git Conflict Detection Protocol
+
+**You are responsible for detecting merge conflicts on PRs. You are NOT responsible for resolving them.**
+
+When handling a PR, always check for merge conflicts before attempting to merge:
+
+```bash
+gh pr view <pr-number> --repo entechsiast/rpgfit --json mergeable,mergeStateStatus
+```
+
+- If `mergeable` is `CONFLICTING` or `mergeStateStatus` is `DIRTY`:
+  - **Do NOT attempt to resolve the conflict yourself.**
+  - **Delegate to engineering-lead immediately** with the PR number and conflict details.
+  - Comment on the PR: "Merge conflicts detected. Delegating to engineering-lead for resolution."
+  - Do NOT proceed with merge until the engineering-lead has resolved the conflicts.
+
+**NEVER** merge a PR with unresolved conflicts. Always delegate conflict resolution to engineering-lead.
