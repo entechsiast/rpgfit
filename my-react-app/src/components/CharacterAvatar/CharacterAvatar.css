@@ -1,0 +1,19 @@
+.avatar-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 8px;
+}
+
+.avatar-svg {
+  width: 100%;
+  max-width: 200px;
+  height: auto;
+}
+
+.avatar-placeholder {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+}
