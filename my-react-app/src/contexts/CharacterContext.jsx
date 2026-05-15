@@ -519,3 +519,6 @@ export function useCharacterDispatch() {
 }
 
 export { getXpProgress, getDungeonsForLevel };
+
+// Exported for testing
+export { reducer, initialState, getEquippedBonuses, getAllBonuses, recalcHPAndMP, createEmptyEquipment };

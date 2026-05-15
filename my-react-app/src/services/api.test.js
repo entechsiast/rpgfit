@@ -141,4 +141,42 @@ describe('services/api.js', () => {
       expect(result.success).toBe(true);
     });
   });
+
+  describe('loadCharacterById', () => {
+    it('should return null when character does not exist', async () => {
+      const result = await api.loadCharacterById('nonexistent_char_id');
+      expect(result).toBeNull();
+    });
+
+    it('should return the character and set current reference', async () => {
+      const character = {
+        name: 'ById Hero',
+        class: { id: 'rogue', name: 'Rogue' },
+        race: { id: 'halfling', name: 'Halfling' },
+        stats: { str: 8, dex: 14, con: 10, int: 8, wis: 8, cha: 10 },
+        pointsRemaining: 13,
+        appearance: { hairColor: 'white', skinTone: 'light', eyeColor: 'green', hairStyle: 'short', build: 'slim' },
+        selectedSkillIds: new Set(['sneak_attack', 'stealth']),
+      };
+
+      const saved = await api.saveCharacter(character);
+      const loaded = await api.loadCharacterById(saved.id);
+
+      expect(loaded).not.toBeNull();
+      expect(loaded.name).toBe('ById Hero');
+      expect(loaded.class.id).toBe('rogue');
+      expect(loaded.race.id).toBe('halfling');
+      expect(loaded.stats.dex).toBe(14);
+      expect(loaded.selectedSkillIds).toBeInstanceOf(Set);
+      expect(loaded.selectedSkillIds.has('sneak_attack')).toBe(true);
+      // Should have set the current character reference
+      expect(localStorage.getItem('rpg_current_character')).toBe(saved.id);
+    });
+
+    it('should return null for corrupted data in list', async () => {
+      localStorage.setItem('rpg_characters', 'invalid json');
+      const result = await api.loadCharacterById('any_id');
+      expect(result).toBeNull();
+    });
+  });
 });
