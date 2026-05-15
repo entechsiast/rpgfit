@@ -1,0 +1,17 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Verify and close issue #21 - Wizard starting skills",
+      "description": "The frontend agent has completed the code changes for issue #21. Please:\n1. Verify the changes in `my-react-app/src/data/skills.js`:\n   - Fireball updated with damage: '4d6', damageType: 'fire', mpCost: 15, class: 'Wizard'\n   - Magic Missile added with damage: '2d4+2', damageType: 'force', mpCost: 8, class: 'Wizard'\n   - Arcane Shield added with mpCost: 10, effect: 'damage_reduction_50%', effectDuration: 1, class: 'Wizard'\n2. Comment on the issue with the changes summary (gh CLI not available in this environment)\n3. Update kanban status to Done\n4. Assign to release agent for shipping",
+      "testStrategy": "Build passes (verified). All acceptance criteria met in the code changes.",
+      "status": "pending",
+      "priority": "high",
+      "created_at": "2026-05-15T20:29:35.384Z",
+      "updated_at": "2026-05-15T20:29:35.384Z"
+    }
+  ],
+  "agents": [],
+  "updated_at": "2026-05-15T20:29:35.384Z"
+}
