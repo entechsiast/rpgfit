@@ -1,70 +1,182 @@
-# Getting Started with Create React App
+# RPG Fit
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+An RPG character creator and combat simulator built with React 19. Design your hero, explore dungeons, and battle monsters — all in the browser.
 
-## Available Scripts
+**Work tracking:** [GitHub Project Board](https://github.com/users/entechsiast/projects/2)
 
-In the project directory, you can run:
+---
 
-### `npm start`
+## Features
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- **Class & Race Selection** — Choose from multiple character classes and races, each with unique stats and abilities
+- **Stat Allocation** — Distribute attribute points across Strength, Dexterity, Constitution, Intelligence, Wisdom, and Charisma
+- **Appearance Customization** — Customize your character's look with avatar head, hair, eyes, body features, and armor options
+- **Skill Trees** — Unlock and allocate skill points across a branching skill tree
+- **Equipment System** — Equip weapons, armor, and accessories with an inventory grid
+- **Dungeon Exploration** — Browse and enter dungeons with varying difficulty
+- **Turn-Based Combat** — Engage in combat with monsters using skills, equipment bonuses, and consumables
+- **Leveling System** — Gain XP, level up, and allocate new stat points as your character grows
+- **Save / Load / Reset** — Persist character data to localStorage and manage multiple characters
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+---
 
-### `npm test`
+## Tech Stack
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+| Category | Technology |
+|---|---|
+| Framework | React 19 |
+| Routing | React Router v7 |
+| Testing (Unit) | Jest, @testing-library/react |
+| Testing (BDD/E2E) | Playwright, Cucumber |
+| Build Tool | React Scripts (CRA) |
+| Icons | react-icons |
+| Persistence | localStorage API |
 
-### `npm run build`
+---
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Getting Started
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Prerequisites
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- Node.js 18+ and npm 9+
 
-### `npm run eject`
+### Installation
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+```bash
+cd my-react-app
+npm install
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Development
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+```bash
+npm start
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Opens the app in your browser at [http://localhost:3000](http://localhost:3000). Edit files and the page reloads automatically.
 
-## Learn More
+### Testing
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```bash
+# Unit tests (Jest)
+npm test
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+# BDD / E2E tests (Cucumber + Playwright)
+npm run test:bdd
 
-### Code Splitting
+# BDD tests in headed mode (visible browser)
+npm run test:bdd:headed
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+# BDD tests CI-friendly (headless)
+npm run test:bdd:ci
+```
 
-### Analyzing the Bundle Size
+### Production Build
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+```bash
+npm run build
+```
 
-### Making a Progressive Web App
+Outputs a minified production build to the `build/` folder.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+---
 
-### Advanced Configuration
+## Project Structure
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+```
+my-react-app/
+├── public/                  # Static assets
+├── src/
+│   ├── components/          # React components (26 components)
+│   │   ├── AppearanceCustomizer/
+│   │   ├── AvatarArmor/
+│   │   ├── AvatarBody/
+│   │   ├── AvatarEyes/
+│   │   ├── AvatarFeatures/
+│   │   ├── AvatarHair/
+│   │   ├── AvatarHead/
+│   │   ├── CharacterAvatar/
+│   │   ├── CharacterPreview/
+│   │   ├── ClassSelector/
+│   │   ├── CombatResults/
+│   │   ├── CombatSimulator/
+│   │   ├── ConsumablesDisplay/
+│   │   ├── DungeonDetail/
+│   │   ├── DungeonList/
+│   │   ├── DungeonsTab/
+│   │   ├── EquipmentGrid/
+│   │   ├── EquipmentItemCard/
+│   │   ├── EquipmentSlot/
+│   │   ├── GoldDisplay/
+│   │   ├── HpMpDisplay/
+│   │   ├── LevelUpModal/
+│   │   ├── RaceSelector/
+│   │   ├── SkillTree/
+│   │   ├── StatAllocator/
+│   │   └── XpBar/
+│   ├── contexts/            # React Context (CharacterContext with reducer + state)
+│   ├── data/                # Game data definitions (classes, races, skills, equipment, dungeons, etc.)
+│   ├── pages/               # Page components (Home, RPGCharacterCreator, Adventure, SavedCharacters)
+│   ├── services/            # API layer (localStorage persistence)
+│   ├── App.js               # App root with routing
+│   └── index.js             # Entry point
+├── tests/
+│   ├── features/            # Cucumber Gherkin feature files (10 features)
+│   ├── step-definitions/    # Step definition implementations
+│   └── support/             # Playwright configuration
+├── build/                   # Production build output
+├── package.json
+└── README.md
+```
 
-### Deployment
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+## Contribution Guidelines
 
-### `npm run build` fails to minify
+### Before You Start
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+1. Check the [GitHub Project Board](https://github.com/users/entechsiast/projects/2) for open issues and current sprint priorities.
+2. Pick an issue assigned to you. If none are available, [create a new issue](https://github.com/entechsiast/rpgfit/issues/new).
+
+### Workflow
+
+1. **Create a feature branch** from `main`:
+   ```bash
+   git checkout -b feature/<issue-number>-<short-desc>
+   ```
+2. **Make your changes** in `my-react-app/`.
+3. **Run tests** before committing:
+   ```bash
+   cd my-react-app
+   npm test -- --watchAll=false
+   ```
+4. **Commit with descriptive messages** using conventional commits:
+   ```bash
+   git commit -m "feat: add dungeon combat feature"
+   ```
+5. **Push and create a Pull Request** targeting `main`:
+   ```bash
+   git push -u origin feature/<issue-number>-<short-desc>
+   ```
+6. **Request review** and address any feedback.
+
+### Commit Types
+
+- `feat` — New feature
+- `fix` — Bug fix
+- `refactor` — Code change that neither fixes a bug nor adds a feature
+- `test` — Adding or updating tests
+- `docs` — Documentation changes
+- `chore` — Maintenance tasks (dependencies, config, etc.)
+
+### Pull Requests
+
+- All PRs must pass CI (tests + build).
+- All PRs require at least 1 approval before merging.
+- PRs are squash merged into `main`.
+
+---
+
+## License
+
+This project is open source and available under the [MIT License](LICENSE).
