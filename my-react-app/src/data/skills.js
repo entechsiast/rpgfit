@@ -6,9 +6,13 @@ export const ALL_SKILLS = [
   { id: 'swordsmanship', name: 'Swordsmanship', description: 'Proficiency with blades and slashing weapons', category: 'combat', stat: 'str' },
   { id: 'shield_bash', name: 'Shield Bash', description: 'Use your shield to stun opponents', category: 'combat', stat: 'str' },
   { id: 'war_cry', name: 'War Cry', description: 'Inspire allies and demoralize foes', category: 'combat', stat: 'cha' },
-  { id: 'fireball', name: 'Fireball', description: 'Hurl a ball of flames that explodes on impact', category: 'combat', stat: 'int' },
+  { id: 'fireball', name: 'Fireball', description: 'Hurl a ball of flames that explodes on impact', category: 'combat', stat: 'int', damage: '4d6', damageType: 'fire', mpCost: 15, class: 'Wizard' },
   { id: 'ice_storm', name: 'Ice Storm', description: 'Create a storm of ice shards that damages and slows', category: 'combat', stat: 'int' },
   { id: 'arcane_bolt', name: 'Arcane Bolt', description: 'Channel raw magical energy into a precise attack', category: 'combat', stat: 'int' },
+
+  // Wizard-exclusive skills
+  { id: 'magic_missile', name: 'Magic Missile', description: 'Launches magical darts that deal force damage', category: 'combat', stat: 'int', damage: '2d4+2', damageType: 'force', mpCost: 8, class: 'Wizard' },
+  { id: 'arcane_shield', name: 'Arcane Shield', description: 'Reduces incoming damage by 50% for 1 turn', category: 'combat', stat: 'int', mpCost: 10, effect: 'damage_reduction_50%', effectDuration: 1, class: 'Wizard' },
   { id: 'sneak_attack', name: 'Sneak Attack', description: 'Strike a vulnerable target for extra damage', category: 'combat', stat: 'dex' },
   { id: 'archery', name: 'Archery', description: 'Proficiency with bows and ranged weapons', category: 'combat', stat: 'dex' },
   { id: 'smite_evil', name: 'Smite Evil', description: 'Channel divine power to damage undead and fiends', category: 'combat', stat: 'cha' },

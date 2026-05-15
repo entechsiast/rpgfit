@@ -71,6 +71,21 @@ export const EQUIPMENT = {
 
   chest: [
     {
+      id: 'cloth_robe',
+      name: 'Cloth Robe',
+      slot: 'chest',
+      type: 'armor',
+      rarity: 'common',
+      defense: 2,
+      statBonuses: { int: 1 },
+      svgPaths: [
+        { d: 'M68 170 L132 170 L140 260 L60 260 Z', fill: '#e0e7ff' },
+        { d: 'M80 170 L80 260', fill: 'none', stroke: '#c7d2fe', strokeWidth: '1' },
+        { d: 'M100 170 L100 260', fill: 'none', stroke: '#c7d2fe', strokeWidth: '1' },
+        { d: 'M120 170 L120 260', fill: 'none', stroke: '#c7d2fe', strokeWidth: '1' },
+      ],
+    },
+    {
       id: 'leather_vest',
       name: 'Leather Vest',
       slot: 'chest',
@@ -277,6 +292,21 @@ export const EQUIPMENT = {
   ],
 
   rightHand: [
+    {
+      id: 'apprentice_staff',
+      name: 'Apprentice Staff',
+      slot: 'rightHand',
+      type: 'weapon',
+      rarity: 'common',
+      damage: '1d6',
+      magicBonus: 1,
+      statBonuses: { int: 1, wis: 1 },
+      svgPaths: [
+        { d: 'M148 135 L152 135 L152 245 L148 245 Z', fill: '#92400e' },
+        { d: 'M146 125 Q152 115 158 125 Q152 135 146 125 Z', fill: '#818cf8' },
+        { d: 'M148 123 Q152 117 156 123 Q152 129 148 123 Z', fill: '#c7d2fe' },
+      ],
+    },
     {
       id: 'longsword',
       name: 'Longsword',
@@ -555,4 +585,43 @@ export function getItemsByRarity(rarity) {
 
 export function getItemsByType(type) {
   return getAllItems().filter(item => item.type === type);
+}
+
+export const STARTING_EQUIPMENT = {
+  Fighter: {
+    head: 'iron_helm',
+    chest: 'leather_vest',
+    pants: 'leather_trousers',
+    boots: 'leather_boots',
+    rightHand: 'longsword',
+    leftHand: 'tower_shield',
+  },
+  Wizard: {
+    head: 'mage_hood',
+    chest: 'cloth_robe',
+    pants: 'mage_leggings',
+    boots: 'mage_sandals',
+    rightHand: 'apprentice_staff',
+    leftHand: 'tome',
+  },
+  Ranger: {
+    head: 'leather_cap',
+    chest: 'ranger_cloak',
+    pants: 'ranger_pants',
+    boots: 'ranger_boots',
+    rightHand: 'long_bow',
+    leftHand: 'off_hand_dagger',
+  },
+  Paladin: {
+    head: 'iron_helm',
+    chest: 'paladin_armor',
+    pants: 'iron_leggings',
+    boots: 'iron_greaves',
+    rightHand: 'holy_mace',
+    leftHand: 'holy_symbol',
+  },
+};
+
+export function getStartingEquipment(classId) {
+  return STARTING_EQUIPMENT[classId] || null;
 }

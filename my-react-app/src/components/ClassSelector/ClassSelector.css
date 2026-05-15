@@ -56,3 +56,43 @@
   border-radius: 4px;
   padding: 4px 8px;
 }
+
+.class-card-skills {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.class-card-skills-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.class-card-skills-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.class-card-skill-tag {
+  font-size: 10px;
+  color: #3b82f6;
+  background: #eff6ff;
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+.class-card-proficiencies {
+  margin-top: 6px;
+  font-size: 10px;
+  color: #6b7280;
+}
+
+.class-card-prof-label {
+  font-weight: 600;
+  color: #374151;
+}
