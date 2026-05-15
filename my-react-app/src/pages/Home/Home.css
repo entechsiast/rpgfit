@@ -3,43 +3,75 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f9fafb;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
 }
 
 .home-content {
   text-align: center;
-  max-width: 480px;
+  max-width: 520px;
   padding: 32px;
 }
 
 .home-title {
-  font-size: 36px;
+  font-size: 42px;
   font-weight: 800;
-  color: #111827;
-  margin: 0 0 12px 0;
+  color: #fbbf24;
+  margin: 0 0 16px 0;
   letter-spacing: -0.5px;
+  text-shadow: 0 2px 8px rgba(234, 179, 8, 0.3);
 }
 
 .home-subtitle {
   font-size: 16px;
-  color: #6b7280;
-  margin: 0 0 32px 0;
+  color: #9ca3af;
+  margin: 0 0 36px 0;
   line-height: 1.6;
+}
+
+.home-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
 }
 
 .home-button {
   display: inline-block;
   padding: 14px 40px;
-  background: #3b82f6;
   color: #fff;
   font-size: 16px;
   font-weight: 600;
   text-decoration: none;
   border-radius: 8px;
-  transition: background 0.15s, transform 0.1s;
+  transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+  min-width: 240px;
 }
 
 .home-button:hover {
-  background: #2563eb;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+}
+
+.btn-create {
+  background: linear-gradient(135deg, #eab308, #f59e0b);
+  color: #1a1a2e;
+}
+
+.btn-create:hover {
+  box-shadow: 0 6px 16px rgba(234, 179, 8, 0.4);
+}
+
+.btn-characters {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+}
+
+.btn-characters:hover {
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+}
+
+.btn-adventure {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+}
+
+.btn-adventure:hover {
+  box-shadow: 0 6px 16px rgba(34, 197, 94, 0.4);
 }
