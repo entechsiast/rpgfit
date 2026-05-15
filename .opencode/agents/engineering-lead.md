@@ -57,7 +57,7 @@ To update project fields (you'll need the item ID from `gh project item-list`):
 # Set Status = In Progress
 gh project item-edit --project-id PVT_kwHOAWZJdM4BXz_q --id <item-id> --field-id PVTSSF_lAHOAWZJdM4BXz_qzhS-TLM --single-select-option-id 47fc9ee4
 # Set Agent = frontend
-gh project item-edit --project-id PVT_kwHOAWZJdM4BXz_q --id <item-id> --field-id PVTSSF_lAHOAWZJdM4BXz_qzhS-TPE --single-select-option-id 2b54cf99
+gh project item-edit --project-id PVT_kwHOAWZJdM4BXz_q --id <item-id> --field-id PVTSSF_lAHOAWZJdM4BXz_qzhS-TPE --single-select-option-id 1b64d5ed
 # Set Effort = M
 gh project item-edit --project-id PVT_kwHOAWZJdM4BXz_q --id <item-id> --field-id PVTSSF_lAHOAWZJdM4BXz_qzhS-TPU --single-select-option-id c2e4660b
 ```
@@ -119,12 +119,14 @@ PHASE 4: SHIP      → Agent = release (commits, pushes)
 | `@frontend` | Domain | `my-react-app/src/` — all React: components, pages, contexts, data, services, styles |
 | `@test` | Cross-cutting | `my-react-app/tests/`, `**/*.test.js` — BDD + unit tests |
 | `@document` | Cross-cutting | `README.md`, documentation |
+| `@scrum-master` | Primary | Backlog refinement — breaks high-level needs into user stories on the project board |
 | `@release` | Cross-cutting | Git operations, build, CI/CD |
 
 ## Delegation Table
 
 | Task involves... | Delegate to... |
 |-----------------|----------------|
+| Breaking high-level needs into user stories | `@scrum-master` |
 | React components, pages, data, contexts, services | `@frontend` |
 | Writing or running tests, BDD features | `@test` |
 | Documentation, README | `@document` |

@@ -35,11 +35,12 @@ At the beginning of every session, before doing any work:
   - In Progress: `47fc9ee4`
   - Done: `98236657`
 - **Agent field:** `PVTSSF_lAHOAWZJdM4BXz_qzhS-TPE`
-  - engineering-lead: `d9460617`
-  - frontend: `2b54cf99`
-  - test: `e48c3152`
-  - document: `3a84528b`
-  - release: `db8dc433`
+  - engineering-lead: `9dc3ee5f`
+  - frontend: `1b64d5ed`
+  - test: `3df83358`
+  - document: `d4e115e9`
+  - release: `d196d986`
+  - scrum-master: `bd230d1e`
 - **Effort field:** `PVTSSF_lAHOAWZJdM4BXz_qzhS-TPU`
   - S: `beda8ca2`
   - M: `c2e4660b`
@@ -91,7 +92,7 @@ C:\dev\rpgfit\
 |   +-- build/                   <- Production build output
 +-- my-csharp-backend/           <- (empty, for future backend)
 +-- .opencode/
-|   +-- agents/                  <- Agent definitions (5 agents)
+|   +-- agents/                  <- Agent definitions (6 agents)
 |   +-- commands/                <- Custom slash commands
 +-- .github/workflows/           <- CI/CD pipelines
 ```
