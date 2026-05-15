@@ -1,4 +1,4 @@
-﻿import React, { createContext, useContext, useReducer } from 'react';
+import React, { createContext, useContext, useReducer } from 'react';
 import { getClassById } from '../data/classes';
 import { getRaceById } from '../data/races';
 import { STATS, BASE_STAT, MAX_STAT, TOTAL_POINTS } from '../data/stats';
@@ -432,8 +432,6 @@ function reducer(state, action) {
       const effectiveStr = state.stats.str + equippedBonuses.str;
       const effectiveDex = state.stats.dex + equippedBonuses.dex;
       const effectiveCon = state.stats.con + equippedBonuses.con;
-      const effectiveInt = state.stats.int + equippedBonuses.int;
-      const effectiveWis = state.stats.wis + equippedBonuses.wis;
       const effectiveCha = state.stats.cha + equippedBonuses.cha;
 
       const playerAttack = effectiveStr + Math.floor(effectiveDex / 2) + Math.floor(effectiveCha / 4);
