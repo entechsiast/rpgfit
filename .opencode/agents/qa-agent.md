@@ -145,6 +145,167 @@ After the summary, check for:
 - **Feature files with no scenarios** — flag as empty
 - **Missing Acceptance Criteria** — compare discovered scenarios against the issue's AC to verify coverage
 
+## Test Execution Workflow
+
+When the task requires running Gherkin (Cucumber) tests against the React dev server, follow this workflow.
+
+### Step 1 — Start the Dev Server
+
+Use the global-setup.ts pattern to start the dev server programmatically:
+
+```powershell
+# Option A: Start dev server via npm (from my-react-app directory)
+cd C:\dev\rpgfit\my-react-app
+$env:BROWSER = 'none'
+$env:FAST_DEV = '1'
+Start-Process -NoNewWindow -FilePath 'npx' -ArgumentList 'react-scripts', 'start'
+
+# Wait for it to be ready (poll until "Compiled successfully" appears in output)
+# Option B: Use the global-setup.ts pattern directly
+# Run global-setup.ts via ts-node to start the server and wait for readiness
+```
+
+**Detecting readiness:** The dev server prints "Compiled successfully" to stdout when ready. Poll for this message or wait ~15 seconds for a typical startup.
+
+### Step 2 — Check if Dev Server is Already Running
+
+Before starting a new dev server, check if one is already running on port 3000:
+
+```powershell
+# Check if port 3000 is in use
+netstat -ano | findstr :3000
+```
+
+If the output shows a process listening on port 3000, the dev server is already running. **Do not start a second instance.** Proceed directly to Step 3.
+
+If the output is empty, start the dev server as described in Step 1.
+
+### Step 3 — Run Cucumber Tests
+
+Run the Gherkin tests against the running dev server:
+
+```powershell
+# Default (headless mode)
+cd C:\dev\rpgfit\my-react-app
+npx cucumber-js --config tests/cucumber.json
+
+# Headed mode (with browser UI visible)
+cd C:\dev\rpgfit\my-react-app
+$env:headed = 'true'
+npx cucumber-js --config tests/cucumber.json
+
+# CI headless mode (Playwright headless)
+cd C:\dev\rpgfit\my-react-app
+$env:PLAYWRIGHT_HEADLESS = 'true'
+npx cucumber-js --config tests/cucumber.json
+```
+
+The available npm scripts (from `package.json`):
+- `npm run test:bdd` — headless Cucumber tests (default)
+- `npm run test:bdd:headed` — headed Cucumber tests (browser UI visible)
+- `npm run test:bdd:ci` — CI headless mode
+
+### Step 4 — Capture and Parse Test Results
+
+Cucumber outputs results in a structured text format. Parse the output to detect pass/fail status:
+
+```powershell
+# Run and capture output to a file
+cd C:\dev\rpgfit\my-react-app
+npx cucumber-js --config tests/cucumber.json 2>&1 | Tee-Object -FilePath tests-output.txt
+
+# Check for pass/fail in the output
+if (Select-String -Path tests-output.txt -Pattern "\d+ scenarios \(\d+ passed\)" -Quiet) {
+    Write-Output "All tests passed"
+} elseif (Select-String -Path tests-output.txt -Pattern "\d+ scenarios (\d+ failed)" -Quiet) {
+    Write-Output "Some tests failed"
+}
+```
+
+**Key patterns in Cucumber output:**
+- `X scenario (X passed)` — all passed
+- `X scenario (X failed)` — some failed
+- `X scenario (X passed, X undefined)` — scenarios exist but have no step definitions
+- `X scenario (X passed, X skipped)` — some skipped
+- Exit code `0` — all tests passed
+- Exit code `1` — some tests failed
+- Exit code `2` — undefined steps
+- Exit code `4` — missing steps
+
+**PowerShell exit code check:**
+
+```powershell
+cd C:\dev\rpgfit\my-react-app
+npx cucumber-js --config tests/cucumber.json 2>&1 | Tee-Object -FilePath tests-output.txt
+$exitCode = $LASTEXITCODE
+if ($exitCode -eq 0) {
+    Write-Output "All tests passed"
+} elseif ($exitCode -eq 1) {
+    Write-Output "Some tests failed"
+} elseif ($exitCode -eq 2) {
+    Write-Output "Undefined steps detected"
+} elseif ($exitCode -eq 4) {
+    Write-Output "Missing step definitions"
+} else {
+    Write-Output "Unexpected exit code: $exitCode"
+}
+```
+
+### Step 5 — Stop the Dev Server
+
+When testing is complete, stop the dev server if you started it:
+
+```powershell
+# Find and kill the dev server process
+$process = Get-Process -Name node -ErrorAction SilentlyContinue | Where-Object {
+    $_.CommandLine -like '*react-scripts*' -and $_.CommandLine -like '*start*'
+}
+if ($process) {
+    Stop-Process -Id $process.Id -Force
+    Write-Output "Dev server stopped (PID: $($process.Id))"
+} else {
+    Write-Output "No dev server process found to stop"
+}
+
+# Alternative: kill all node processes listening on port 3000
+$ports = netstat -ano | findstr :3000
+if ($ports) {
+    $pid = ($ports -split '\s+')[-1]
+    if ($pid -match '^\d+$') {
+        Stop-Process -Id [int]$pid -Force
+        Write-Output "Killed process $pid on port 3000"
+    }
+}
+```
+
+**Important:** If the dev server was already running before you started (detected in Step 2), **do not stop it** — it belongs to another session.
+
+### Step 6 — Report Test Results
+
+Summarize the test results:
+
+```
+## Test Execution Results
+
+- **Mode:** headless / headed
+- **Dev server:** started by agent / already running
+- **Total scenarios:** X
+- **Passed:** X
+- **Failed:** X
+- **Skipped:** X
+- **Exit code:** X
+
+### Failed Scenarios
+
+| # | Feature | Scenario | Error |
+|---|---------|----------|-------|
+| 1 | Feature Name | Scenario Name | Error message |
+
+### Notes
+
+[Any additional observations]
+```
+
 ## Git Conflict Detection Protocol
 
 **You are responsible for detecting merge conflicts on PRs. You are NOT responsible for resolving them.**
