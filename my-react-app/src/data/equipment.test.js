@@ -3,11 +3,13 @@ import {
   SLOT_LABELS,
   SLOT_ORDER,
   RARITY_COLORS,
+  STARTING_EQUIPMENT,
   getItemsBySlot,
   getAllItems,
   getItemById,
   getItemsByRarity,
   getItemsByType,
+  getStartingEquipment,
 } from './equipment';
 
 describe('data/equipment.js', () => {
@@ -208,6 +210,111 @@ describe('data/equipment.js', () => {
         .concat(getItemsByType('weapon'))
         .concat(getItemsByType('accessory'));
       expect(all.length).toBe(getAllItems().length);
+    });
+  });
+
+  describe('STARTING_EQUIPMENT', () => {
+    it('should have entries for all 4 classes', () => {
+      expect(STARTING_EQUIPMENT).toHaveProperty('Fighter');
+      expect(STARTING_EQUIPMENT).toHaveProperty('Wizard');
+      expect(STARTING_EQUIPMENT).toHaveProperty('Ranger');
+      expect(STARTING_EQUIPMENT).toHaveProperty('Paladin');
+    });
+
+    it('should have 6 slots per class (head, chest, pants, boots, rightHand, leftHand)', () => {
+      Object.values(STARTING_EQUIPMENT).forEach(eq => {
+        expect(eq).toHaveProperty('head');
+        expect(eq).toHaveProperty('chest');
+        expect(eq).toHaveProperty('pants');
+        expect(eq).toHaveProperty('boots');
+        expect(eq).toHaveProperty('rightHand');
+        expect(eq).toHaveProperty('leftHand');
+      });
+    });
+
+    it('should have valid item IDs for each starting slot', () => {
+      Object.values(STARTING_EQUIPMENT).forEach(eq => {
+        Object.values(eq).forEach(itemId => {
+          const item = getItemById(itemId);
+          expect(item).toBeDefined();
+          expect(item.id).toBe(itemId);
+        });
+      });
+    });
+
+    it('should have appropriate gear per class', () => {
+      // Fighter should have heavy armor and melee weapon
+      const fighter = STARTING_EQUIPMENT.Fighter;
+      expect(fighter.head).toBe('iron_helm');
+      expect(fighter.chest).toBe('leather_vest');
+      expect(fighter.rightHand).toBe('longsword');
+      expect(fighter.leftHand).toBe('tower_shield');
+
+      // Wizard should have light armor and staff
+      const wizard = STARTING_EQUIPMENT.Wizard;
+      expect(wizard.head).toBe('mage_hood');
+      expect(wizard.chest).toBe('cloth_robe');
+      expect(wizard.rightHand).toBe('apprentice_staff');
+      expect(wizard.leftHand).toBe('tome');
+
+      // Ranger should have light armor and bow
+      const ranger = STARTING_EQUIPMENT.Ranger;
+      expect(ranger.head).toBe('leather_cap');
+      expect(ranger.chest).toBe('ranger_cloak');
+      expect(ranger.rightHand).toBe('long_bow');
+      expect(ranger.leftHand).toBe('off_hand_dagger');
+
+      // Paladin should have heavy armor and holy mace
+      const paladin = STARTING_EQUIPMENT.Paladin;
+      expect(paladin.head).toBe('iron_helm');
+      expect(paladin.chest).toBe('paladin_armor');
+      expect(paladin.rightHand).toBe('holy_mace');
+      expect(paladin.leftHand).toBe('holy_symbol');
+    });
+  });
+
+  describe('getStartingEquipment', () => {
+    it('should return correct starting equipment for Fighter', () => {
+      const eq = getStartingEquipment('Fighter');
+      expect(eq).not.toBeNull();
+      expect(eq.head).toBe('iron_helm');
+      expect(eq.chest).toBe('leather_vest');
+      expect(eq.rightHand).toBe('longsword');
+      expect(eq.leftHand).toBe('tower_shield');
+    });
+
+    it('should return correct starting equipment for Wizard', () => {
+      const eq = getStartingEquipment('Wizard');
+      expect(eq).not.toBeNull();
+      expect(eq.head).toBe('mage_hood');
+      expect(eq.chest).toBe('cloth_robe');
+      expect(eq.rightHand).toBe('apprentice_staff');
+      expect(eq.leftHand).toBe('tome');
+    });
+
+    it('should return correct starting equipment for Ranger', () => {
+      const eq = getStartingEquipment('Ranger');
+      expect(eq).not.toBeNull();
+      expect(eq.head).toBe('leather_cap');
+      expect(eq.chest).toBe('ranger_cloak');
+      expect(eq.rightHand).toBe('long_bow');
+      expect(eq.leftHand).toBe('off_hand_dagger');
+    });
+
+    it('should return correct starting equipment for Paladin', () => {
+      const eq = getStartingEquipment('Paladin');
+      expect(eq).not.toBeNull();
+      expect(eq.head).toBe('iron_helm');
+      expect(eq.chest).toBe('paladin_armor');
+      expect(eq.rightHand).toBe('holy_mace');
+      expect(eq.leftHand).toBe('holy_symbol');
+    });
+
+    it('should return null for unknown classId', () => {
+      expect(getStartingEquipment('unknown')).toBeNull();
+      expect(getStartingEquipment(null)).toBeNull();
+      expect(getStartingEquipment(undefined)).toBeNull();
+      expect(getStartingEquipment('')).toBeNull();
     });
   });
 });

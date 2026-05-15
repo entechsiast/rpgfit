@@ -1,4 +1,4 @@
-import { MONSTERS, getMonstersByDungeon, getBossByDungeon } from './monsters';
+import { MONSTERS, getMonstersByDungeon, getMonstersByLevel, getBossByDungeon } from './monsters';
 
 describe('data/monsters.js', () => {
   describe('MONSTERS', () => {
@@ -294,6 +294,102 @@ describe('data/monsters.js', () => {
           }
         }
       });
+    });
+  });
+
+  describe('getMonstersByLevel', () => {
+    it('should return monsters within level range of the given level', () => {
+      // Level 1: monsters with level 1-3
+      const result = getMonstersByLevel(1);
+      expect(result.length).toBeGreaterThan(0);
+      result.forEach(m => {
+        expect(m.level).toBeGreaterThanOrEqual(Math.max(1, 1 - 2));
+        expect(m.level).toBeLessThanOrEqual(1 + 2);
+      });
+    });
+
+    it('should return Goblin Caves monsters at level 1', () => {
+      const result = getMonstersByLevel(1);
+      const ids = result.map(m => m.id);
+      expect(ids).toContain('goblin_scout');
+      expect(ids).toContain('goblin_thug');
+      expect(ids).toContain('goblin_shaman');
+    });
+
+    it('should return appropriate monsters at level 3', () => {
+      const result = getMonstersByLevel(3);
+      const ids = result.map(m => m.id);
+      // Goblin Caves monsters (levels 1-3)
+      expect(ids).toContain('goblin_chieftain');
+      // Dark Forest Ruins monsters (levels 3-5)
+      expect(ids).toContain('forest_wolf');
+    });
+
+    it('should return appropriate monsters at level 5', () => {
+      const result = getMonstersByLevel(5);
+      const ids = result.map(m => m.id);
+      // Dark Forest Ruins (levels 3-5)
+      expect(ids).toContain('forest_wraith');
+      // Abandoned Mine (levels 5-7)
+      expect(ids).toContain('mine_golem');
+    });
+
+    it('should return appropriate monsters at level 7', () => {
+      const result = getMonstersByLevel(7);
+      const ids = result.map(m => m.id);
+      // Abandoned Mine (levels 5-7)
+      expect(ids).toContain('cave_troll');
+      // Dragon Peak (levels 7-10)
+      expect(ids).toContain('drake');
+    });
+
+    it('should return appropriate monsters at level 10', () => {
+      const result = getMonstersByLevel(10);
+      const ids = result.map(m => m.id);
+      // Dragon Peak (levels 7-10)
+      expect(ids).toContain('elder_dragon');
+      // Abyssal Throne (levels 10-15)
+      expect(ids).toContain('abyssal_fiend');
+    });
+
+    it('should return all monsters at level 10 (overlap of multiple dungeons)', () => {
+      const result = getMonstersByLevel(10);
+      // At level 10, we should get monsters from dragons_peak (8-12) and abyssal_throne (8-12)
+      // plus potentially some from abandoned_mine (3-9)
+      expect(result.length).toBeGreaterThan(0);
+    });
+
+    it('should return appropriate monsters at level 15', () => {
+      const result = getMonstersByLevel(15);
+      const ids = result.map(m => m.id);
+      // Abyssal Throne (levels 10-15)
+      expect(ids).toContain('abyssal_lord');
+    });
+
+    it('should return empty array for very low level', () => {
+      const result = getMonstersByLevel(-10);
+      expect(result).toHaveLength(0);
+    });
+
+    it('should return empty array for very high level', () => {
+      const result = getMonstersByLevel(999);
+      expect(result).toHaveLength(0);
+    });
+
+    it('should return at least one monster for every level from 1 to 15', () => {
+      for (let level = 1; level <= 15; level++) {
+        const result = getMonstersByLevel(level);
+        expect(result.length).toBeGreaterThan(0);
+      }
+    });
+
+    it('should return unique monsters for each level (no duplicates)', () => {
+      for (let level = 1; level <= 15; level++) {
+        const result = getMonstersByLevel(level);
+        const ids = result.map(m => m.id);
+        const unique = new Set(ids);
+        expect(unique.size).toBe(ids.length);
+      }
     });
   });
 });
