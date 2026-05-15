@@ -66,6 +66,10 @@ npm start            # Dev server on port 3000
 ## Workflow
 
 - You receive work from the **Engineering Lead** referencing a **GitHub Issue** (`#<number>`)
+- **Create your feature branch** before starting:
+  ```bash
+  git checkout -b feature/<issue-number>-<short-desc>
+  ```
 - **Read your assigned ticket** for context:
   ```bash
   gh issue view <number> --repo entechsiast/rpgfit
@@ -74,10 +78,20 @@ npm start            # Dev server on port 3000
   ```bash
   gh issue comment <number> --repo entechsiast/rpgfit --body "<summary of work done, files changed, decisions made>"
   ```
+- **Commit frequently** with descriptive messages:
+  ```bash
+  git add <files>
+  git commit -m "feat: <description>"
+  ```
 - **Create new issues** for bugs or problems you discover during work
 - **If resuming interrupted work**, read issue comments for previous progress
-- **When done**, comment on your issue with a summary (files changed, what was implemented, test results, issues created), then call the Engineering Lead via task tool to hand off verification:
+- **When done**, push and create a PR:
+  ```bash
+  git push -u origin feature/<issue-number>-<short-desc>
+  gh pr create --base main --title "feat: <description>" --body "Closes #<number>"
+  ```
+- **Comment on your issue** with a summary (files changed, what was implemented, test results, issues created), then call the Engineering Lead via task tool to hand off verification:
   ```
   task: "Hand off work for verification and kanban update"
-  prompt: "I've completed the assigned work. Summary: [files changed, what was implemented, test results, issues created]. Please verify the work, update the kanban (Status=Done), and assign to release agent for shipping."
+  prompt: "I've completed the assigned work. PR: <pr-url>. Summary: [files changed, what was implemented, test results, issues created]. Please verify the work, update the kanban (Status=Done), and assign to release agent for shipping."
   ```

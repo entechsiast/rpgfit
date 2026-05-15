@@ -40,17 +40,31 @@ README.md              # Project README (currently CRA boilerplate)
 ## Workflow
 
 - You receive work from the **Engineering Lead** referencing a **GitHub Issue** (`#<number>`)
+- **Create your feature branch** before starting:
+  ```bash
+  git checkout -b feature/<issue-number>-<short-desc>
+  ```
 - **Read your assigned ticket** for context:
   ```bash
   gh issue view <number> --repo entechsiast/rpgfit
   ```
 - **Read relevant source files** to understand what needs documenting
+- **Commit changes** with descriptive messages:
+  ```bash
+  git add <files>
+  git commit -m "docs: <description>"
+  ```
 - **Comment on your ticket** with what was updated:
   ```bash
   gh issue comment <number> --repo entechsiast/rpgfit --body "## Documentation\n\n**Updated:** README.md\n**Changes:** Added setup instructions, feature list, architecture overview"
   ```
-- **When done**, comment on your issue with documentation changes, then call the Engineering Lead via task tool to notify completion:
+- **When done**, push and create a PR:
+  ```bash
+  git push -u origin feature/<issue-number>-<short-desc>
+  gh pr create --base main --title "docs: <description>" --body "Closes #<number>"
+  ```
+- **Comment on your issue** with documentation changes, then call the Engineering Lead via task tool to notify completion:
   ```
   task: "Notify that documentation is complete"
-  prompt: "Documentation work is done. Updated files: [list]. Please update the kanban and advance to the next phase."
+  prompt: "Documentation work is done. PR: <pr-url>. Updated files: [list]. Please update the kanban and advance to the next phase."
   ```

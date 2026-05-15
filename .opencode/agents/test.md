@@ -56,12 +56,21 @@ npx playwright test --config tests/playwright.config.ts  # Run Playwright tests
 ## Workflow
 
 - You receive work from the **Engineering Lead** referencing a **GitHub Issue** (`#<number>`)
+- **Create your feature branch** before starting:
+  ```bash
+  git checkout -b feature/<issue-number>-<short-desc>
+  ```
 - **Read your assigned ticket** for context:
   ```bash
   gh issue view <number> --repo entechsiast/rpgfit
   ```
 - **Phase 1 (TDD)**: Write failing tests that define expected behavior before implementation
 - **Phase 3 (Verify)**: Run tests after implementation, report pass/fail
+- **Commit changes** with descriptive messages:
+  ```bash
+  git add <files>
+  git commit -m "test: <description>"
+  ```
 - **Comment on your ticket** with structured results:
   ```bash
   gh issue comment <number> --repo entechsiast/rpgfit --body "## Tests\n\n**Results:** 12/12 passing\n**New tests:** test_equip_weapon, test_unequip_armor\n**Bugs found:** #42 (HP calculation off by 2)"
@@ -70,8 +79,13 @@ npx playwright test --config tests/playwright.config.ts  # Run Playwright tests
   ```bash
   gh issue create --repo entechsiast/rpgfit --title "Bug: <description>" --label "bug" --body "<details>"
   ```
-- **When done**, comment on your issue with test results, then call the Engineering Lead via task tool to notify verification is complete:
+- **When done**, push and create a PR:
+  ```bash
+  git push -u origin feature/<issue-number>-<short-desc>
+  gh pr create --base main --title "test: <description>" --body "Closes #<number>"
+  ```
+- **Comment on your issue** with test results, then call the Engineering Lead via task tool to notify verification is complete:
   ```
   task: "Notify that verification is complete"
-  prompt: "Phase X is done. Test results: [passing/failed count]. Please update the kanban and advance to the next phase."
+  prompt: "Phase X is done. PR: <pr-url>. Test results: [passing/failed count]. Please update the kanban and advance to the next phase."
   ```

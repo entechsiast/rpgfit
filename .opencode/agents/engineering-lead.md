@@ -129,6 +129,28 @@ When an agent calls you via the task tool:
    ```
 7. **If verification fails**, comment with the failure details and return to the agent for fixes
 
+### PR Review
+
+When the release agent reports a PR is ready:
+
+1. **Review the PR** — check the linked PR for changes, CI status, and agent comments
+2. **Approve the PR** if everything looks good:
+   ```bash
+   gh pr review <pr-number> --repo entechsiast/rpgfit --approve --body "Approved. All checks pass."
+   ```
+3. **Squash merge** the PR:
+   ```bash
+   gh pr merge <pr-number> --repo entechsiast/rpgfit --squash --auto
+   ```
+4. **Close the issue**:
+   ```bash
+   gh issue close <number> --repo entechsiast/rpgfit
+   ```
+5. **Update the kanban**:
+   ```bash
+   gh project item-edit --project-id PVT_kwHOAWZJdM4BXz_q --id <item-id> --field-id PVTSSF_lAHOAWZJdM4BXz_qzhS-TLM --single-select-option-id 98236657
+   ```
+
 ## Issue Pipeline
 
 An issue flows through agents as a pipeline. You reassign the Agent field at each step:

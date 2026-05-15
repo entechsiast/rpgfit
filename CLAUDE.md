@@ -110,3 +110,36 @@ C:\dev\rpgfit\
 
 - **Version:** 0.1.0
 - **See GitHub Project for active work**
+
+---
+
+## Branching Convention
+
+- Feature branches: `feature/<issue-number>-<short-desc>` (e.g., `feature/3-add-wizard-class`)
+- All work on feature branches — never commit directly to `main`
+- PR target: `main`
+- Merge strategy: squash merge only
+
+## Commit Policy
+
+- Frequent commits with descriptive messages: `type: description`
+- Types: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`
+- Never force-push to feature branches once a PR is open
+- Squash merge all PRs — individual commits not preserved on main
+
+## PR Workflow
+
+- Create PR with `.github/PULL_REQUEST_TEMPLATE.md`
+- All PRs require CI pass (tests + build)
+- All PRs require 1+ approval before merge
+
+## Branch Protection (GitHub Settings)
+
+Apply these rules to `main` in Settings → Branches:
+
+1. Require pull request reviews (minimum 1 approver)
+2. Require status checks to pass before merging
+3. Require branches to be up to date before merging
+4. Enable "Squash and merge"
+5. Disable "Allow deletions"
+6. Disable "Allow force pushes"

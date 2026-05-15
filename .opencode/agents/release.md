@@ -56,11 +56,11 @@ npm test         # Run unit tests
 - **Commit changes** from completed work:
   ```bash
   git add <files>
-  git commit -m "feat: add wizard class"
+  git commit -m "chore: <description>"
   ```
-- **Push to remote**:
+- **Push to feature branch**:
   ```bash
-  git push origin master
+  git push -u origin feature/<issue-number>-<short-desc>
   ```
 - **Verify build** succeeds:
   ```bash
@@ -68,7 +68,7 @@ npm test         # Run unit tests
   ```
 - **Comment on your ticket** with commit details:
   ```bash
-  gh issue comment <number> --repo entechsiast/rpgfit --body "## Release\n\n**Commits:** abc1234\n**Build:** Successful\n**Status:** Pushed to master"
+  gh issue comment <number> --repo entechsiast/rpgfit --body "## Release\n\n**Commits:** abc1234\n**Build:** Successful\n**PR:** <pr-url>"
   ```
 - **When done**, close the GitHub Issue and update the kanban:
   ```bash
