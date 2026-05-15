@@ -1,7 +1,8 @@
 ---
 description: Scrum Master — breaks down high-level needs into user stories on the GitHub Project board. Creates epics, stories, and acceptance criteria.
 mode: primary
-model: lmstudio/qwen/qwen3.6-35b-a3b
+# model: opencode/big-pickle
+model: opencode/big-pickle
 temperature: 0.3
 tools:
   write: false
