@@ -5,6 +5,9 @@ import { RACES } from '../../data/races';
 import { STATS } from '../../data/stats';
 import { APPEARANCE_OPTIONS } from '../../data/appearanceOptions';
 import CharacterAvatar from '../CharacterAvatar/CharacterAvatar';
+import HpMpDisplay from '../HpMpDisplay/HpMpDisplay';
+import XpBar from '../XpBar/XpBar';
+import GoldDisplay from '../GoldDisplay/GoldDisplay';
 import './CharacterPreview.css';
 
 function getRaceFinalStats(character) {
@@ -104,6 +107,7 @@ export default function CharacterPreview() {
           ) : (
             <div className="preview-name-group" onClick={() => setIsEditing(true)}>
               <h2 className="preview-name" data-testid="preview-name">{displayName}</h2>
+              <span className="preview-level-badge" data-testid="preview-level">Lv.{character.level}</span>
               <span className="preview-name-edit-hint">✎</span>
             </div>
           )}
@@ -114,6 +118,12 @@ export default function CharacterPreview() {
 
         <div className="preview-avatar">
           <CharacterAvatar />
+        </div>
+
+        <div className="preview-stats-bar">
+          <HpMpDisplay />
+          <XpBar />
+          <GoldDisplay />
         </div>
 
         <div className="preview-body">
