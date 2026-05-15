@@ -1,6 +1,6 @@
 import React from 'react';
 import { useCharacter, useCharacterDispatch } from '../../contexts/CharacterContext';
-import { getDungeonsForLevel, getDungeonById } from '../../data/dungeons';
+import { getDungeonsForLevel } from '../../data/dungeons';
 import './DungeonList.css';
 
 export default function DungeonList() {

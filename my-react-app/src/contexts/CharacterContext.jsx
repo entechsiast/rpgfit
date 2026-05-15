@@ -1,12 +1,13 @@
-import React, { createContext, useContext, useReducer } from 'react';
-import { CLASSES, getClassById } from '../data/classes';
-import { RACES, getRaceById } from '../data/races';
+﻿import React, { createContext, useContext, useReducer } from 'react';
+import { getClassById } from '../data/classes';
+import { getRaceById } from '../data/races';
 import { STATS, BASE_STAT, MAX_STAT, TOTAL_POINTS } from '../data/stats';
 import { getDungeonById, getDungeonsForLevel } from '../data/dungeons';
 import { getMonstersByDungeon, getBossByDungeon } from '../data/monsters';
-import { calculateMaxHp, calculateHpGainOnLevelUp, calculateMaxMp, calculateMpGainOnLevelUp, getHitDieValue } from '../data/combat';
+import { calculateMaxHp, calculateHpGainOnLevelUp, calculateMaxMp, calculateMpGainOnLevelUp } from '../data/combat';
 import { getXpToNextLevel, getTotalXpToLevel, getXpProgress, MAX_LEVEL } from '../data/xp';
 import { getItemById, getRandomLoot } from '../data/loot';
+import { CONSUMABLES } from '../data/consumables';
 
 const SLOT_ORDER = ['head', 'chest', 'pants', 'boots', 'rightHand', 'leftHand', 'accessory1', 'accessory2', 'accessory3'];
 
@@ -42,6 +43,8 @@ const initialState = {
   combatLog: [],
   completedDungeons: [],
   statPointsToSpend: 0,
+  consumables: {},
+  temporaryBuffs: { str: 0, dex: 0, con: 0, int: 0, wis: 0, cha: 0 },
 };
 
 function calculatePointsRemaining(stats) {
@@ -60,6 +63,20 @@ function getEquippedBonuses(equipment) {
     }
   });
   return bonuses;
+}
+
+function getTemporaryBuffs(state) {
+  return state.temporaryBuffs || { str: 0, dex: 0, con: 0, int: 0, wis: 0, cha: 0 };
+}
+
+function getAllBonuses(state) {
+  const equipped = getEquippedBonuses(state.equipment);
+  const buffs = getTemporaryBuffs(state);
+  const result = { ...equipped };
+  Object.keys(buffs).forEach(stat => {
+    result[stat] = (equipped[stat] || 0) + (buffs[stat] || 0);
+  });
+  return result;
 }
 
 function recalcHPAndMP(state) {
@@ -243,6 +260,93 @@ function reducer(state, action) {
     case 'ADD_GOLD':
       return { ...state, gold: state.gold + action.payload };
 
+    case 'ADD_CONSUMABLE': {
+      const { itemId, quantity = 1 } = action.payload;
+      const current = state.consumables?.[itemId] || 0;
+      return { ...state, consumables: { ...state.consumables, [itemId]: current + quantity } };
+    }
+
+    case 'REMOVE_CONSUMABLE': {
+      const { itemId, quantity = 1 } = action.payload;
+      const current = state.consumables?.[itemId] || 0;
+      const newCount = current - quantity;
+      if (newCount <= 0) {
+        const newConsumables = { ...state.consumables };
+        delete newConsumables[itemId];
+        return { ...state, consumables: newConsumables };
+      }
+      return { ...state, consumables: { ...state.consumables, [itemId]: newCount } };
+    }
+
+    case 'USE_CONSUMABLE': {
+      const itemId = action.payload;
+      const consumable = CONSUMABLES.find(c => c.id === itemId);
+      if (!consumable || !state.consumables?.[itemId]) return state;
+
+      const effect = consumable.effect;
+      let newState = { ...state };
+
+      if (effect.type === 'heal') {
+        newState = {
+          ...newState,
+          currentHP: Math.min(newState.maxHP, newState.currentHP + effect.value),
+        };
+      } else if (effect.type === 'mana') {
+        newState = {
+          ...newState,
+          currentMP: Math.min(newState.maxMP, newState.currentMP + effect.value),
+        };
+      } else if (effect.type === 'full_restore') {
+        newState = {
+          ...newState,
+          currentHP: newState.maxHP,
+          currentMP: newState.maxMP,
+        };
+      } else if (effect.type === 'buff' && effect.stat) {
+        const buffs = { ...getTemporaryBuffs(newState) };
+        buffs[effect.stat] = (buffs[effect.stat] || 0) + effect.value;
+        newState.temporaryBuffs = buffs;
+      } else if (effect.type === 'buff_multi') {
+        const buffs = { ...getTemporaryBuffs(newState) };
+        Object.entries(effect).forEach(([stat, val]) => {
+          if (stat !== 'type') {
+            buffs[stat] = (buffs[stat] || 0) + val;
+          }
+        });
+        newState.temporaryBuffs = buffs;
+      }
+
+      // Remove one from inventory
+      const current = newState.consumables[itemId] - 1;
+      if (current <= 0) {
+        const newConsumables = { ...newState.consumables };
+        delete newConsumables[itemId];
+        newState.consumables = newConsumables;
+      } else {
+        newState.consumables = { ...newState.consumables, [itemId]: current };
+      }
+
+      return { ...newState, combatLog: [...newState.combatLog, { type: 'consumable_used', itemId: consumable.name, timestamp: Date.now() }] };
+    }
+
+    case 'BUY_ITEM': {
+      const { itemId, quantity = 1 } = action.payload;
+      const item = CONSUMABLES.find(c => c.id === itemId);
+      if (!item) return state;
+      const cost = item.price * quantity;
+      if (state.gold < cost) return state;
+
+      let newState = {
+        ...state,
+        gold: state.gold - cost,
+        consumables: { ...state.consumables, [itemId]: (state.consumables?.[itemId] || 0) + quantity },
+      };
+      return { ...newState, combatLog: [...newState.combatLog, { type: 'purchase', itemId: item.name, cost, timestamp: Date.now() }] };
+    }
+
+    case 'CLEAR_BUFFS':
+      return { ...state, temporaryBuffs: { str: 0, dex: 0, con: 0, int: 0, wis: 0, cha: 0 } };
+
     case 'REST': {
       const goldCost = Math.max(1, Math.floor(state.level * 5));
       const hpGain = state.maxHP - state.currentHP;
@@ -277,6 +381,29 @@ function reducer(state, action) {
       if (!dungeon) return state;
       const monsters = getMonstersByDungeon(action.payload);
       return { ...state, combatState: { active: true, monsters: monsters.map(m => ({ ...m, currentHp: m.hp })), boss: getBossByDungeon(action.payload), currentMonsterIndex: 0, monstersDefeated: 0, bossDefeated: false, totalXp: 0, totalGold: 0, lootDrops: [] } };
+    }
+
+    case 'FLEE_COMBAT': {
+      if (!state.combatState || !state.combatState.active) return state;
+      const cs = state.combatState;
+      // 50% chance to flee
+      const succeeded = Math.random() < 0.5;
+      if (succeeded) {
+        return {
+          ...state,
+          currentHP: state.currentHP - Math.floor(state.maxHP * 0.1),
+          combatState: { active: false, monsters: [], boss: null, currentMonsterIndex: 0, monstersDefeated: 0, bossDefeated: false, totalXp: 0, totalGold: 0, lootDrops: [] },
+          combatLog: [...state.combatLog, { type: 'fled', timestamp: Date.now() }],
+        };
+      }
+      // Failed flee - take penalty damage
+      const currentMonster = cs.monsters[cs.currentMonsterIndex] || cs.boss;
+      const penaltyDamage = currentMonster ? Math.floor(currentMonster.attack * 1.5) : 10;
+      return {
+        ...state,
+        currentHP: Math.max(0, state.currentHP - penaltyDamage),
+        combatLog: [...state.combatLog, { type: 'fled_failed', penaltyDamage, timestamp: Date.now() }],
+      };
     }
 
     case 'RESOLVE_COMBAT': {
@@ -355,6 +482,8 @@ function reducer(state, action) {
         ...hpMp,
         completedDungeons: action.payload.completedDungeons || [],
         statPointsToSpend: action.payload.statPointsToSpend || 0,
+        consumables: action.payload.consumables || {},
+        temporaryBuffs: { str: 0, dex: 0, con: 0, int: 0, wis: 0, cha: 0 },
       };
     }
 
@@ -372,9 +501,10 @@ const CharacterDispatchContext = createContext(null);
 export function CharacterProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState);
   const equippedBonuses = getEquippedBonuses(state.equipment);
+  const allBonuses = getAllBonuses(state);
 
   return (
-    <CharacterContext.Provider value={{ ...state, equippedBonuses }}>
+    <CharacterContext.Provider value={{ ...state, equippedBonuses, allBonuses }}>
       <CharacterDispatchContext.Provider value={dispatch}>
         {children}
       </CharacterDispatchContext.Provider>

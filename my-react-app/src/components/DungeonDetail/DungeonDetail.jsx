@@ -1,6 +1,7 @@
 import React from 'react';
 import { useCharacter, useCharacterDispatch } from '../../contexts/CharacterContext';
-import { getDungeonById, getMonstersByDungeon } from '../../data/dungeons';
+import { getDungeonById } from '../../data/dungeons';
+import { getMonstersByDungeon } from '../../data/monsters';
 import { getBossByDungeon } from '../../data/monsters';
 import './DungeonDetail.css';
 
