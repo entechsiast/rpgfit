@@ -38,13 +38,6 @@ export default function AdventurePage() {
     }
   }, [character.xp, character.level, character.statPointsToSpend]);
 
-  // Check for death
-  useEffect(() => {
-    if (character.currentHP <= 0 && !character.combatState?.active) {
-      handleDeath();
-    }
-  }, [character.currentHP, character.combatState?.active]);
-
   const handleDeath = useCallback(() => {
     const goldLost = Math.floor(character.gold * 0.1);
     dispatch({ type: 'ADD_GOLD', payload: -goldLost });
@@ -55,6 +48,13 @@ export default function AdventurePage() {
     // But for death, we want no gold cost and a warning
     alert(`You have fallen in battle! Lost ${goldLost} gold as a memento.`);
   }, [character.gold, dispatch]);
+
+  // Check for death
+  useEffect(() => {
+    if (character.currentHP <= 0 && !character.combatState?.active) {
+      handleDeath();
+    }
+  }, [character.currentHP, character.combatState?.active, handleDeath]);
 
   const handleLevelUpConfirm = (statId) => {
     if (statId) {
