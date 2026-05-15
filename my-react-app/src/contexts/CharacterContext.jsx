@@ -444,7 +444,7 @@ function reducer(state, action) {
 
       if (newCurrentHp <= 0) {
         let newCs = { ...cs, monstersDefeated: cs.monstersDefeated + (cs.currentMonsterIndex < cs.monsters.length ? 1 : 0), totalXp: cs.totalXp + Math.floor(currentMonster.xpReward / 2), totalGold: cs.totalGold + Math.floor(Math.random() * (currentMonster.goldReward[1] - currentMonster.goldReward[0]) + currentMonster.goldReward[0]), lootDrops: [...cs.lootDrops, getRandomLoot(currentMonster.lootTable || [])].filter(Boolean), currentMonsterIndex: cs.currentMonsterIndex + 1 };
-        if (cs.currentMonsterIndex >= cs.monsters.length && cs.boss) {
+        if (cs.currentMonsterIndex + 1 >= cs.monsters.length && cs.boss) {
           newCs.bossDefeated = true;
           newCs.bossHp = 0;
         }
