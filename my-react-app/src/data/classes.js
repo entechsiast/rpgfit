@@ -59,6 +59,18 @@ export const CLASSES = [
     startingSkills: ['smite_evil', 'lay_on_hands', 'divine_aura'],
     hitDie: 'd10',
   },
+  {
+    id: 'wizard',
+    name: 'Wizard',
+    description: 'A scholarly mage who studies the arcane arts. Wizards rely on intellect and wisdom to cast powerful spells, but their fragile constitution makes them vulnerable in close combat.',
+    statBonuses: { int: 2, wis: 1, str: -1 },
+    primaryStat: 'int',
+    skillProficiencies: 2,
+    startingSkills: ['fireball', 'magic_missile'],
+    hitDie: 'd6',
+    weaponProficiencies: ['staff', 'dagger'],
+    armorProficiencies: ['cloth'],
+  },
 ];
 
 export function getClassById(id) {

@@ -8,6 +8,7 @@ import AppearanceCustomizer from '../../components/AppearanceCustomizer/Appearan
 import SkillTree from '../../components/SkillTree/SkillTree';
 import EquipmentGrid from '../../components/EquipmentGrid/EquipmentGrid';
 import CharacterPreview from '../../components/CharacterPreview/CharacterPreview';
+import DungeonsTab from '../../components/DungeonsTab/DungeonsTab';
 import './RPGCharacterCreator.css';
 
 const TABS = [
@@ -17,6 +18,7 @@ const TABS = [
   { id: 'appearance', label: 'Appearance' },
   { id: 'skills', label: 'Skills' },
   { id: 'equipment', label: 'Equipment' },
+  { id: 'dungeons', label: 'Dungeons' },
 ];
 
 export default function RPGCharacterCreator() {
@@ -62,6 +64,8 @@ export default function RPGCharacterCreator() {
         return <SkillTree />;
       case 'equipment':
         return <EquipmentGrid />;
+      case 'dungeons':
+        return <DungeonsTab />;
       default:
         return <ClassSelector />;
     }
