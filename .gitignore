@@ -1,0 +1,10 @@
+# OpenCode
+.opencode/node_modules/
+.opencode/package.json
+.opencode/package-lock.json
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
