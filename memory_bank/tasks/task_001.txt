@@ -1,0 +1,15 @@
+# Task ID: 1
+# Title: Verify and close issue #21 - Wizard starting skills
+# Status: pending
+# Dependencies: None
+# Priority: high
+# Description: The frontend agent has completed the code changes for issue #21. Please:
+1. Verify the changes in `my-react-app/src/data/skills.js`:
+   - Fireball updated with damage: '4d6', damageType: 'fire', mpCost: 15, class: 'Wizard'
+   - Magic Missile added with damage: '2d4+2', damageType: 'force', mpCost: 8, class: 'Wizard'
+   - Arcane Shield added with mpCost: 10, effect: 'damage_reduction_50%', effectDuration: 1, class: 'Wizard'
+2. Comment on the issue with the changes summary (gh CLI not available in this environment)
+3. Update kanban status to Done
+4. Assign to release agent for shipping
+# Test Strategy:
+Build passes (verified). All acceptance criteria met in the code changes.
