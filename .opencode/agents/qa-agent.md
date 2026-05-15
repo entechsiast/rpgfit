@@ -144,3 +144,48 @@ After the summary, check for:
 - **Step definition files without feature files** — flag as orphaned
 - **Feature files with no scenarios** — flag as empty
 - **Missing Acceptance Criteria** — compare discovered scenarios against the issue's AC to verify coverage
+
+## Git Conflict Resolution Protocol
+
+When a PR has merge conflicts, **do NOT merge it**. Follow this exact sequence:
+
+1. **Check merge state**:
+   `ash
+   gh pr view <pr-number> --repo entechsiast/rpgfit --json mergeable,mergeStateStatus
+   `
+   If mergeable is CONFLICTING or mergeStateStatus is DIRTY, proceed to step 2.
+
+2. **Rebase the feature branch**:
+   `ash
+   git fetch origin master
+   git rebase origin/master
+   `
+
+3. **Resolve conflicts if any**:
+   - If git rebase reports conflicts, resolve them manually
+   - After resolving, continue the rebase:
+     `ash
+     git add <resolved-files>
+     git rebase --continue
+     `
+   - If conflicts are complex or unclear, **delegate to engineering-lead** with the conflict details
+
+4. **Force push the resolved branch**:
+   `ash
+   git push --force-with-lease origin feature/<branch-name>
+   `
+
+5. **Wait for CI to re-run**:
+   `ash
+   Start-Sleep -Seconds 30
+   gh pr view <pr-number> --repo entechsiast/rpgfit --json statusCheckRollup
+   `
+   Wait until CI is COMPLETED before proceeding.
+
+6. **Only then** check merge state again:
+   `ash
+   gh pr view <pr-number> --repo entechsiast/rpgfit --json mergeable,mergeStateStatus
+   `
+   If mergeable is MERGEABLE and mergeStateStatus is CLEAN, proceed to merge.
+
+**NEVER** merge a PR with unresolved conflicts. Always rebase and resolve first.
