@@ -143,6 +143,18 @@ describe('data/xp.js', () => {
       // XP to reach level 5 = 618
       expect(calculateLevelFromXp(618)).toBe(5);
     });
+
+    it('should cap at level 60 when XP exceeds maximum', () => {
+      const maxXp = getTotalXpToLevel(60);
+      // Even with XP far beyond what level 60 needs
+      expect(calculateLevelFromXp(maxXp + 1000000)).toBe(60);
+      expect(calculateLevelFromXp(maxXp * 2)).toBe(60);
+    });
+
+    it('should return level 60 for exactly the XP needed to reach level 60', () => {
+      const totalTo60 = getTotalXpToLevel(60);
+      expect(calculateLevelFromXp(totalTo60)).toBe(60);
+    });
   });
 
   describe('getXpProgress', () => {
