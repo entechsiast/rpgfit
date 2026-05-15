@@ -1,0 +1,162 @@
+.level-up-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.level-up-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 480px;
+  width: 90%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.level-up-header {
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.level-up-header h3 {
+  margin: 0;
+  font-size: 20px;
+  color: #eab308;
+}
+
+.level-up-level {
+  display: block;
+  font-size: 14px;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+.level-up-text {
+  text-align: center;
+  font-size: 14px;
+  color: #374151;
+  margin: 0 0 16px 0;
+}
+
+.level-up-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.level-up-stat {
+  padding: 10px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.level-up-stat:hover {
+  border-color: #9ca3af;
+}
+
+.level-up-stat.selected {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.stat-abb {
+  display: block;
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.stat-name {
+  display: block;
+  font-size: 10px;
+  color: #6b7280;
+  margin: 2px 0;
+}
+
+.stat-value {
+  display: block;
+  font-size: 12px;
+  color: #3b82f6;
+  font-weight: 600;
+}
+
+.level-up-alloc {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.level-up-alloc label {
+  font-size: 13px;
+  color: #374151;
+  font-weight: 500;
+}
+
+.level-up-alloc input {
+  width: 60px;
+  padding: 6px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.level-up-actions {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.level-up-auto,
+.level-up-allocate {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.level-up-auto {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.level-up-auto:hover {
+  background: #e5e7eb;
+}
+
+.level-up-allocate {
+  background: #3b82f6;
+  color: #fff;
+}
+
+.level-up-allocate:hover {
+  background: #2563eb;
+}
+
+.level-up-info {
+  padding: 10px;
+  background: #f0fdf4;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #166534;
+}
+
+.level-up-info p {
+  margin: 4px 0;
+}

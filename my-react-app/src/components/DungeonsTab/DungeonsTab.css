@@ -1,0 +1,40 @@
+.dungeons-tab {
+  padding: 8px;
+}
+
+.dungeons-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.dungeons-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.dungeons-content {
+  display: flex;
+  gap: 16px;
+  min-height: 300px;
+}
+
+.dungeons-placeholder {
+  text-align: center;
+  padding: 48px 24px;
+  color: #6b7280;
+}
+
+.dungeons-placeholder h3 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  color: #374151;
+}
+
+.dungeons-placeholder p {
+  margin: 0;
+  font-size: 13px;
+}

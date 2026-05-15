@@ -1,0 +1,66 @@
+export const CLASSES = [
+  {
+    id: 'warrior',
+    name: 'Warrior',
+    description: 'A mighty fighter who excels in close combat. Warriors use their strength and endurance to dominate the battlefield.',
+    statBonuses: { str: 2, con: 1 },
+    primaryStat: 'str',
+    skillProficiencies: 3,
+    startingSkills: ['swordsmanship', 'shield_bash', 'war_cry'],
+    hitDie: 'd12',
+  },
+  {
+    id: 'mage',
+    name: 'Mage',
+    description: 'A master of arcane arts who wields powerful spells. Mages rely on intellect and wisdom to shape reality.',
+    statBonuses: { int: 2, wis: 1 },
+    primaryStat: 'int',
+    skillProficiencies: 4,
+    startingSkills: ['fireball', 'ice_storm', 'arcane_bolt'],
+    hitDie: 'd4',
+  },
+  {
+    id: 'rogue',
+    name: 'Rogue',
+    description: 'A cunning trickster who strikes from the shadows. Rogues depend on dexterity and charisma for their deceptive arts.',
+    statBonuses: { dex: 2, cha: 1 },
+    primaryStat: 'dex',
+    skillProficiencies: 5,
+    startingSkills: ['sneak_attack', 'stealth', 'lockpicking'],
+    hitDie: 'd8',
+  },
+  {
+    id: 'cleric',
+    name: 'Cleric',
+    description: 'A devoted healer and warrior of the gods. Clerics draw power from wisdom and charisma to protect the faithful.',
+    statBonuses: { wis: 2, cha: 1 },
+    primaryStat: 'wis',
+    skillProficiencies: 3,
+    startingSkills: ['healing_word', 'turn_undead', 'divine_shield'],
+    hitDie: 'd8',
+  },
+  {
+    id: 'ranger',
+    name: 'Ranger',
+    description: 'A skilled hunter who thrives in the wilderness. Rangers combine dexterity and wisdom to track and defeat their prey.',
+    statBonuses: { dex: 1, wis: 1 },
+    primaryStat: 'dex',
+    skillProficiencies: 4,
+    startingSkills: ['archery', 'tracking', 'nature_sense'],
+    hitDie: 'd10',
+  },
+  {
+    id: 'paladin',
+    name: 'Paladin',
+    description: 'A holy knight sworn to a sacred oath. Paladins blend strength and charisma to smite evil and protect the innocent.',
+    statBonuses: { str: 1, cha: 1 },
+    primaryStat: 'str',
+    skillProficiencies: 2,
+    startingSkills: ['smite_evil', 'lay_on_hands', 'divine_aura'],
+    hitDie: 'd10',
+  },
+];
+
+export function getClassById(id) {
+  return CLASSES.find(c => c.id === id);
+}

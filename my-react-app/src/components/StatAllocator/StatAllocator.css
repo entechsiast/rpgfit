@@ -1,0 +1,89 @@
+.stat-allocator {
+  padding: 16px;
+}
+
+.stat-allocator h3 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6b7280;
+}
+
+.points-remaining {
+  font-size: 13px;
+  color: #374151;
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  background: #f3f4f6;
+  border-radius: 6px;
+  text-align: center;
+}
+
+.points-remaining.empty {
+  color: #059669;
+  background: #ecfdf5;
+}
+
+.stat-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  margin-bottom: 6px;
+}
+
+.stat-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  min-width: 80px;
+}
+
+.stat-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stat-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: #374151;
+  transition: background 0.1s;
+}
+
+.stat-btn:hover:not(:disabled) {
+  background: #f3f4f6;
+}
+
+.stat-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.stat-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+  min-width: 24px;
+  text-align: center;
+}
+
+.stat-bonus {
+  font-size: 11px;
+  color: #6b7280;
+  min-width: 36px;
+  text-align: right;
+}

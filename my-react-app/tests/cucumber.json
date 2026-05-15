@@ -1,0 +1,8 @@
+{
+  "default": {
+    "require": ["tests/step-definitions/**/*.ts"],
+    "paths": ["tests/features/**/*.feature"],
+    "requireModule": ["ts-node/register"],
+    "format": ["cucumber-pretty"]
+  }
+}

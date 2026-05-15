@@ -1,0 +1,122 @@
+.combat-simulator {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow-y: auto;
+}
+
+.combat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.combat-status {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.combat-progress {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.combat-monster-card {
+  padding: 12px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.boss-item .combat-monster-card {
+  background: #fef3c7;
+  border-color: #fde68a;
+}
+
+.combat-monster-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 4px;
+}
+
+.combat-monster-level {
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+
+.combat-hp-bar {
+  height: 10px;
+  background: #e5e7eb;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.combat-hp-fill {
+  height: 100%;
+  background: #ef4444;
+  border-radius: 5px;
+  transition: width 0.3s ease;
+}
+
+.combat-hp-text {
+  font-size: 11px;
+  color: #374151;
+}
+
+.combat-log {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 8px;
+  background: #f9fafb;
+  border-radius: 6px;
+}
+
+.combat-log-entry {
+  display: flex;
+  gap: 12px;
+  font-size: 11px;
+  padding: 4px 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.log-monster {
+  font-weight: 600;
+  color: #111827;
+  min-width: 100px;
+}
+
+.log-damage {
+  color: #6b7280;
+  flex: 1;
+}
+
+.log-hp {
+  color: #ef4444;
+  font-weight: 600;
+  min-width: 60px;
+  text-align: right;
+}
+
+.combat-player-stats {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  color: #374151;
+  padding: 8px;
+  background: #f0fdf4;
+  border-radius: 6px;
+  justify-content: center;
+  font-weight: 500;
+}
