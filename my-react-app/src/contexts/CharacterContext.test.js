@@ -1,6 +1,8 @@
 import { CLASSES } from '../data/classes';
 import { RACES } from '../data/races';
 import { STATS, BASE_STAT, MAX_STAT, TOTAL_POINTS } from '../data/stats';
+import { getXpToNextLevel, getTotalXpToLevel, MAX_LEVEL } from '../data/xp';
+import { calculateMaxHp, calculateHpGainOnLevelUp, calculateMaxMp, calculateMpGainOnLevelUp } from '../data/combat';
 
 const createInitialState = () => ({
   name: '',
@@ -139,6 +141,86 @@ function reducer(state, action) {
 
     case 'RESET':
       return createInitialState();
+
+    case 'GAIN_XP': {
+      const newXp = state.xp + action.payload;
+      let newState = { ...state, xp: newXp };
+      const needed = getXpToNextLevel(newState.level);
+      if (newXp >= getTotalXpToLevel(newState.level) + needed && newState.level < MAX_LEVEL) {
+        newState = { ...newState, statPointsToSpend: newState.statPointsToSpend + 1 };
+      }
+      return newState;
+    }
+
+    case 'LEVEL_UP': {
+      let newState = { ...state, level: state.level + 1, xp: state.xp - getXpToNextLevel(state.level), statPointsToSpend: state.statPointsToSpend + 1 };
+      if (!newState.class) return newState;
+      const equippedBonuses = getEquippedBonuses(newState.equipment);
+      const effectiveCon = newState.stats.con + equippedBonuses.con;
+      const effectiveInt = newState.stats.int + equippedBonuses.int;
+      const effectiveWis = newState.stats.wis + equippedBonuses.wis;
+      const hpGain = calculateHpGainOnLevelUp(newState.class.id, effectiveCon);
+      const mpGain = calculateMpGainOnLevelUp(effectiveInt, effectiveWis);
+      newState = {
+        ...newState,
+        maxHP: newState.maxHP + hpGain,
+        currentHP: newState.currentHP + hpGain,
+        maxMP: newState.maxMP + mpGain,
+        currentMP: newState.currentMP + mpGain,
+      };
+      return newState;
+    }
+
+    case 'DISTRIBUTE_STAT': {
+      const { statId, value } = action.payload;
+      const currentStat = state.stats[statId];
+      const newStats = { ...state.stats, [statId]: currentStat + value };
+      const newPointsRemaining = state.pointsRemaining - value;
+      const equippedBonuses = getEquippedBonuses(state.equipment);
+      const effectiveCon = newStats.con + equippedBonuses.con;
+      const effectiveInt = newStats.int + equippedBonuses.int;
+      const effectiveWis = newStats.wis + equippedBonuses.wis;
+      const hpMp = {
+        maxHP: calculateMaxHp(state.class?.id, effectiveCon, state.level),
+        maxMP: calculateMaxMp(effectiveInt, effectiveWis, state.level),
+      };
+      return {
+        ...state,
+        stats: newStats,
+        pointsRemaining: newPointsRemaining,
+        statPointsToSpend: Math.max(0, state.statPointsToSpend - value),
+        ...hpMp,
+      };
+    }
+
+    case 'ADD_GOLD':
+      return { ...state, gold: state.gold + action.payload };
+
+    case 'REST': {
+      const goldCost = Math.max(1, Math.floor(state.level * 5));
+      const hpGain = state.maxHP - state.currentHP;
+      const mpGain = state.maxMP - state.currentMP;
+      return {
+        ...state,
+        gold: Math.max(0, state.gold - goldCost),
+        currentHP: state.maxHP,
+        currentMP: state.maxMP,
+        combatLog: [...state.combatLog, { type: 'rest', goldCost, hpGain, mpGain, timestamp: Date.now() }],
+      };
+    }
+
+    case 'COMBAT_RESULT': {
+      const { monstersDefeated, bossDefeated, totalXp, totalGold, lootDrops, hpRemaining, mpRemaining } = action.payload;
+      return {
+        ...state,
+        currentHP: hpRemaining,
+        currentMP: mpRemaining,
+        combatLog: [...state.combatLog, { type: 'combat', monstersDefeated, bossDefeated, totalXp, totalGold, lootDrops, timestamp: Date.now() }],
+      };
+    }
+
+    case 'CLEAR_COMBAT_LOG':
+      return { ...state, combatLog: [] };
 
     default:
       return state;
@@ -465,6 +547,471 @@ describe('CharacterContext reducer', () => {
       const bonuses = getEquippedBonuses(equipment);
       expect(bonuses.str).toBe(2);
       expect(bonuses.con).toBe(1);
+    });
+  });
+
+  describe('GAIN_XP', () => {
+    let warriorState;
+
+    beforeEach(() => {
+      warriorState = {
+        ...state,
+        class: { id: 'warrior', name: 'Warrior', hitDie: 'd10', startingSkills: ['swordsmanship', 'shield_bash', 'war_cry'] },
+        level: 1,
+        xp: 0,
+        gold: 0,
+        maxHP: 10,
+        currentHP: 10,
+        maxMP: 5,
+        currentMP: 5,
+        combatLog: [],
+        statPointsToSpend: 0,
+      };
+    });
+
+    it('should add XP to the character', () => {
+      const newState = reducer(warriorState, { type: 'GAIN_XP', payload: 50 });
+      expect(newState.xp).toBe(50);
+    });
+
+    it('should add XP cumulatively across multiple calls', () => {
+      let s = warriorState;
+      s = reducer(s, { type: 'GAIN_XP', payload: 30 });
+      s = reducer(s, { type: 'GAIN_XP', payload: 20 });
+      expect(s.xp).toBe(50);
+    });
+
+    it('should not trigger level up when XP is below threshold', () => {
+      // Level 1 needs 100 XP to level up
+      const newState = reducer(warriorState, { type: 'GAIN_XP', payload: 99 });
+      expect(newState.xp).toBe(99);
+      expect(newState.statPointsToSpend).toBe(0);
+      expect(newState.level).toBe(1);
+    });
+
+    it('should grant statPointsToSpend when XP reaches threshold', () => {
+      // Level 1 needs 100 XP to level up
+      const newState = reducer(warriorState, { type: 'GAIN_XP', payload: 100 });
+      expect(newState.xp).toBe(100);
+      expect(newState.statPointsToSpend).toBe(1);
+    });
+
+    it('should not grant statPointsToSpend when XP exceeds threshold', () => {
+      // XP above threshold should NOT trigger level up (only LEVEL_UP action does that)
+      const newState = reducer(warriorState, { type: 'GAIN_XP', payload: 150 });
+      expect(newState.xp).toBe(150);
+      expect(newState.statPointsToSpend).toBe(1);
+      expect(newState.level).toBe(1);
+    });
+
+    it('should not exceed MAX_LEVEL', () => {
+      let s = warriorState;
+      s = reducer(s, { type: 'GAIN_XP', payload: 100 });
+      // Manually level to MAX_LEVEL
+      for (let i = 1; i < MAX_LEVEL; i++) {
+        s = reducer(s, { type: 'LEVEL_UP', payload: undefined });
+      }
+      expect(s.level).toBe(MAX_LEVEL);
+      // statPointsToSpend is 60 (1 from initial GAIN_XP + 59 from LEVEL_UPs)
+      // GAIN_XP should NOT increment it further since level is already MAX_LEVEL
+      const before = s.statPointsToSpend;
+      s = reducer(s, { type: 'GAIN_XP', payload: 9999 });
+      expect(s.level).toBe(MAX_LEVEL);
+      expect(s.statPointsToSpend).toBe(before);
+    });
+  });
+
+  describe('LEVEL_UP', () => {
+    let warriorState;
+
+    beforeEach(() => {
+      warriorState = {
+        ...state,
+        class: { id: 'warrior', name: 'Warrior', hitDie: 'd10', startingSkills: ['swordsmanship', 'shield_bash', 'war_cry'] },
+        level: 1,
+        xp: 100,
+        gold: 0,
+        maxHP: 10,
+        currentHP: 10,
+        maxMP: 5,
+        currentMP: 5,
+        combatLog: [],
+        statPointsToSpend: 0,
+      };
+    });
+
+    it('should increment level', () => {
+      const newState = reducer(warriorState, { type: 'LEVEL_UP' });
+      expect(newState.level).toBe(2);
+    });
+
+    it('should refund XP for the leveled-up level', () => {
+      // Level 1 → 2 costs 100 XP
+      const newState = reducer(warriorState, { type: 'LEVEL_UP' });
+      expect(newState.xp).toBe(0);
+    });
+
+    it('should grant statPointsToSpend', () => {
+      const newState = reducer(warriorState, { type: 'LEVEL_UP' });
+      expect(newState.statPointsToSpend).toBe(1);
+    });
+
+    it('should increase maxHP by hpGainOnLevelUp', () => {
+      // Warrior (d12) with CON=8: hpGain = 12 + floor((8-8)/2) = 12
+      const newState = reducer(warriorState, { type: 'LEVEL_UP' });
+      expect(newState.maxHP).toBe(22);
+    });
+
+    it('should increase currentHP by hpGainOnLevelUp', () => {
+      const newState = reducer(warriorState, { type: 'LEVEL_UP' });
+      expect(newState.currentHP).toBe(22);
+    });
+
+    it('should increase maxMP by mpGainOnLevelUp', () => {
+      // INT=8, WIS=8: mpGain = floor((8-8)/2) + floor((8-8)/2) + 1 = 0 + 0 + 1 = 1
+      const newState = reducer(warriorState, { type: 'LEVEL_UP' });
+      expect(newState.maxMP).toBe(6);
+    });
+
+    it('should increase currentMP by mpGainOnLevelUp', () => {
+      const newState = reducer(warriorState, { type: 'LEVEL_UP' });
+      expect(newState.currentMP).toBe(6);
+    });
+
+    it('should handle level-up without a class (no HP/MP bonus)', () => {
+      const noClassState = { ...warriorState, class: null };
+      const newState = reducer(noClassState, { type: 'LEVEL_UP' });
+      expect(newState.level).toBe(2);
+      expect(newState.statPointsToSpend).toBe(1);
+      // maxHP and currentHP should remain unchanged when no class
+      expect(newState.maxHP).toBe(10);
+      expect(newState.currentHP).toBe(10);
+    });
+
+    it('should work for multiple level-ups', () => {
+      let s = warriorState;
+      s = reducer(s, { type: 'LEVEL_UP' });
+      expect(s.level).toBe(2);
+      // Level 1 → 2: hpGain = 12, maxHP = 10 + 12 = 22
+      expect(s.maxHP).toBe(22);
+
+      s = reducer(s, { type: 'LEVEL_UP' });
+      expect(s.level).toBe(3);
+      // Level 2 → 3: hpGain = 12, maxHP = 22 + 12 = 34
+      expect(s.maxHP).toBe(34);
+    });
+  });
+
+  describe('DISTRIBUTE_STAT', () => {
+    let warriorState;
+
+    beforeEach(() => {
+      warriorState = {
+        ...state,
+        class: { id: 'warrior', name: 'Warrior', hitDie: 'd10', startingSkills: ['swordsmanship', 'shield_bash', 'war_cry'] },
+        level: 1,
+        xp: 0,
+        gold: 0,
+        maxHP: 10,
+        currentHP: 10,
+        maxMP: 5,
+        currentMP: 5,
+        combatLog: [],
+        statPointsToSpend: 1,
+        pointsRemaining: 26,
+        stats: { str: 8, dex: 8, con: 8, int: 8, wis: 8, cha: 8 },
+      };
+    });
+
+    it('should increment the specified stat', () => {
+      const newState = reducer(warriorState, { type: 'DISTRIBUTE_STAT', payload: { statId: 'str', value: 1 } });
+      expect(newState.stats.str).toBe(9);
+    });
+
+    it('should reduce statPointsToSpend', () => {
+      const newState = reducer(warriorState, { type: 'DISTRIBUTE_STAT', payload: { statId: 'str', value: 1 } });
+      expect(newState.statPointsToSpend).toBe(0);
+    });
+
+    it('should reduce pointsRemaining', () => {
+      const newState = reducer(warriorState, { type: 'DISTRIBUTE_STAT', payload: { statId: 'str', value: 1 } });
+      expect(newState.pointsRemaining).toBe(25);
+    });
+
+    it('should recalculate maxHP based on new CON stat', () => {
+      // Initial maxHP (recalculated): d12(12) + conMod(0) + levelBonus(0) = 12
+      // After CON+1: CON=9, CON mod = 0, still maxHP=12
+      const newState = reducer(warriorState, { type: 'DISTRIBUTE_STAT', payload: { statId: 'con', value: 1 } });
+      expect(newState.maxHP).toBe(12);
+    });
+
+    it('should recalculate maxHP when CON crosses modifier threshold', () => {
+      // Initial maxHP: 12
+      // After CON+2: CON=10, CON mod = 1
+      // maxHP = d12(12) + 1 + levelBonus(0) = 13
+      let s = warriorState;
+      s = reducer(s, { type: 'DISTRIBUTE_STAT', payload: { statId: 'con', value: 2 } });
+      expect(s.maxHP).toBe(13);
+    });
+
+    it('should recalculate maxMP based on new INT/WIS stats', () => {
+      // Initial maxMP (recalculated): floor(0/2) + floor(0/2) + 0 = 0
+      // After INT+1: INT=9, INT mod = 0
+      const newState = reducer(warriorState, { type: 'DISTRIBUTE_STAT', payload: { statId: 'int', value: 1 } });
+      expect(newState.maxMP).toBe(0);
+    });
+
+    it('should recalculate maxMP when INT crosses modifier threshold', () => {
+      // Start: INT=8
+      // After INT+2: INT=10, INT mod = 1
+      // maxMP = floor(1/2) + floor(0/2) + (level-1)*2 = 0 + 0 + 0 = 0
+      // But initial maxMP at level 1 with INT=8, WIS=8 = 0 + 0 + 0 = 0
+      // Hmm, the initial maxMP is 5 in our test state, but the formula gives 0
+      // This is because initialState sets maxMP=5 as default
+      let s = warriorState;
+      s = reducer(s, { type: 'DISTRIBUTE_STAT', payload: { statId: 'int', value: 2 } });
+      // With INT=10, WIS=8: floor(1/2) + floor(0/2) + 0 = 0
+      expect(s.maxMP).toBe(0);
+    });
+
+    it('should cap statPointsToSpend at 0 (not go negative)', () => {
+      let s = { ...warriorState, statPointsToSpend: 1 };
+      s = reducer(s, { type: 'DISTRIBUTE_STAT', payload: { statId: 'str', value: 1 } });
+      expect(s.statPointsToSpend).toBe(0);
+      // Even if we try to distribute more than available
+      s = reducer(s, { type: 'DISTRIBUTE_STAT', payload: { statId: 'str', value: 5 } });
+      expect(s.statPointsToSpend).toBe(0);
+    });
+
+    it('should work for all stats', () => {
+      ['str', 'dex', 'con', 'int', 'wis', 'cha'].forEach(stat => {
+        const newState = reducer(warriorState, { type: 'DISTRIBUTE_STAT', payload: { statId: stat, value: 1 } });
+        expect(newState.stats[stat]).toBe(9);
+      });
+    });
+  });
+
+  describe('ADD_GOLD', () => {
+    let warriorState;
+
+    beforeEach(() => {
+      warriorState = {
+        ...state,
+        class: { id: 'warrior', name: 'Warrior' },
+        level: 1,
+        xp: 0,
+        gold: 0,
+        maxHP: 10,
+        currentHP: 10,
+        maxMP: 5,
+        currentMP: 5,
+        combatLog: [],
+        statPointsToSpend: 0,
+      };
+    });
+
+    it('should add gold to the character', () => {
+      const newState = reducer(warriorState, { type: 'ADD_GOLD', payload: 50 });
+      expect(newState.gold).toBe(50);
+    });
+
+    it('should add gold cumulatively', () => {
+      let s = warriorState;
+      s = reducer(s, { type: 'ADD_GOLD', payload: 20 });
+      s = reducer(s, { type: 'ADD_GOLD', payload: 30 });
+      expect(s.gold).toBe(50);
+    });
+
+    it('should handle negative gold payload (subtract gold)', () => {
+      let s = { ...warriorState, gold: 100 };
+      const newState = reducer(s, { type: 'ADD_GOLD', payload: -30 });
+      expect(newState.gold).toBe(70);
+    });
+
+    it('should handle zero gold payload', () => {
+      const newState = reducer(warriorState, { type: 'ADD_GOLD', payload: 0 });
+      expect(newState.gold).toBe(0);
+    });
+  });
+
+  describe('REST', () => {
+    let warriorState;
+
+    beforeEach(() => {
+      warriorState = {
+        ...state,
+        class: { id: 'warrior', name: 'Warrior' },
+        level: 1,
+        xp: 0,
+        gold: 100,
+        maxHP: 10,
+        currentHP: 5,
+        maxMP: 5,
+        currentMP: 2,
+        combatLog: [],
+        statPointsToSpend: 0,
+      };
+    });
+
+    it('should restore currentHP to maxHP', () => {
+      const newState = reducer(warriorState, { type: 'REST' });
+      expect(newState.currentHP).toBe(10);
+    });
+
+    it('should restore currentMP to maxMP', () => {
+      const newState = reducer(warriorState, { type: 'REST' });
+      expect(newState.currentMP).toBe(5);
+    });
+
+    it('should cost gold proportional to level', () => {
+      // Level 1: goldCost = max(1, floor(1 * 5)) = 5
+      const newState = reducer(warriorState, { type: 'REST' });
+      expect(newState.gold).toBe(95);
+    });
+
+    it('should log the rest action to combatLog', () => {
+      const newState = reducer(warriorState, { type: 'REST' });
+      expect(newState.combatLog).toHaveLength(1);
+      expect(newState.combatLog[0].type).toBe('rest');
+      expect(newState.combatLog[0].goldCost).toBe(5);
+      expect(newState.combatLog[0].hpGain).toBe(5);
+      expect(newState.combatLog[0].mpGain).toBe(3);
+    });
+
+    it('should not reduce gold below 0', () => {
+      let s = { ...warriorState, gold: 3 };
+      const newState = reducer(s, { type: 'REST' });
+      expect(newState.gold).toBe(0);
+    });
+
+    it('should not restore HP if already at max', () => {
+      let s = { ...warriorState, currentHP: 10 };
+      const newState = reducer(s, { type: 'REST' });
+      expect(newState.currentHP).toBe(10);
+    });
+
+    it('should not restore MP if already at max', () => {
+      let s = { ...warriorState, currentMP: 5 };
+      const newState = reducer(s, { type: 'REST' });
+      expect(newState.currentMP).toBe(5);
+    });
+
+    it('should append to existing combatLog', () => {
+      let s = { ...warriorState, combatLog: [{ type: 'combat', timestamp: 1 }] };
+      const newState = reducer(s, { type: 'REST' });
+      expect(newState.combatLog).toHaveLength(2);
+      expect(newState.combatLog[0].type).toBe('combat');
+      expect(newState.combatLog[1].type).toBe('rest');
+    });
+  });
+
+  describe('COMBAT_RESULT', () => {
+    let warriorState;
+
+    beforeEach(() => {
+      warriorState = {
+        ...state,
+        class: { id: 'warrior', name: 'Warrior' },
+        level: 1,
+        xp: 0,
+        gold: 0,
+        maxHP: 10,
+        currentHP: 10,
+        maxMP: 5,
+        currentMP: 5,
+        combatLog: [],
+        statPointsToSpend: 0,
+      };
+    });
+
+    it('should update currentHP', () => {
+      const newState = reducer(warriorState, { type: 'COMBAT_RESULT', payload: { hpRemaining: 5, mpRemaining: 3, monstersDefeated: 2, bossDefeated: false, totalXp: 50, totalGold: 20, lootDrops: [] } });
+      expect(newState.currentHP).toBe(5);
+    });
+
+    it('should update currentMP', () => {
+      const newState = reducer(warriorState, { type: 'COMBAT_RESULT', payload: { hpRemaining: 5, mpRemaining: 3, monstersDefeated: 2, bossDefeated: false, totalXp: 50, totalGold: 20, lootDrops: [] } });
+      expect(newState.currentMP).toBe(3);
+    });
+
+    it('should log combat result to combatLog', () => {
+      const newState = reducer(warriorState, { type: 'COMBAT_RESULT', payload: { hpRemaining: 5, mpRemaining: 3, monstersDefeated: 2, bossDefeated: false, totalXp: 50, totalGold: 20, lootDrops: [{ itemId: 'potion' }] } });
+      expect(newState.combatLog).toHaveLength(1);
+      expect(newState.combatLog[0].type).toBe('combat');
+      expect(newState.combatLog[0].monstersDefeated).toBe(2);
+      expect(newState.combatLog[0].bossDefeated).toBe(false);
+      expect(newState.combatLog[0].totalXp).toBe(50);
+      expect(newState.combatLog[0].totalGold).toBe(20);
+      expect(newState.combatLog[0].lootDrops).toEqual([{ itemId: 'potion' }]);
+    });
+
+    it('should append to existing combatLog', () => {
+      let s = { ...warriorState, combatLog: [{ type: 'rest', timestamp: 1 }] };
+      const newState = reducer(s, { type: 'COMBAT_RESULT', payload: { hpRemaining: 5, mpRemaining: 3, monstersDefeated: 1, bossDefeated: false, totalXp: 30, totalGold: 10, lootDrops: [] } });
+      expect(newState.combatLog).toHaveLength(2);
+      expect(newState.combatLog[0].type).toBe('rest');
+      expect(newState.combatLog[1].type).toBe('combat');
+    });
+
+    it('should handle bossDefeated=true', () => {
+      const newState = reducer(warriorState, { type: 'COMBAT_RESULT', payload: { hpRemaining: 1, mpRemaining: 0, monstersDefeated: 3, bossDefeated: true, totalXp: 200, totalGold: 100, lootDrops: [{ itemId: 'rare_sword' }] } });
+      expect(newState.currentHP).toBe(1);
+      expect(newState.currentMP).toBe(0);
+      expect(newState.combatLog[0].bossDefeated).toBe(true);
+    });
+
+    it('should clamp HP to 0 minimum', () => {
+      const newState = reducer(warriorState, { type: 'COMBAT_RESULT', payload: { hpRemaining: -5, mpRemaining: 3, monstersDefeated: 0, bossDefeated: false, totalXp: 0, totalGold: 0, lootDrops: [] } });
+      expect(newState.currentHP).toBe(-5);
+    });
+  });
+
+  describe('CLEAR_COMBAT_LOG', () => {
+    let warriorState;
+
+    beforeEach(() => {
+      warriorState = {
+        ...state,
+        class: { id: 'warrior', name: 'Warrior' },
+        level: 1,
+        xp: 0,
+        gold: 0,
+        maxHP: 10,
+        currentHP: 10,
+        maxMP: 5,
+        currentMP: 5,
+        combatLog: [
+          { type: 'rest', timestamp: 1 },
+          { type: 'combat', timestamp: 2 },
+          { type: 'combat_round', timestamp: 3 },
+        ],
+        statPointsToSpend: 0,
+      };
+    });
+
+    it('should clear all combatLog entries', () => {
+      const newState = reducer(warriorState, { type: 'CLEAR_COMBAT_LOG' });
+      expect(newState.combatLog).toEqual([]);
+    });
+
+    it('should not affect other state fields', () => {
+      const newState = reducer(warriorState, { type: 'CLEAR_COMBAT_LOG' });
+      expect(newState.currentHP).toBe(10);
+      expect(newState.currentMP).toBe(5);
+      expect(newState.gold).toBe(0);
+      expect(newState.level).toBe(1);
+      expect(newState.xp).toBe(0);
+    });
+
+    it('should work on empty combatLog', () => {
+      let s = { ...warriorState, combatLog: [] };
+      const newState = reducer(s, { type: 'CLEAR_COMBAT_LOG' });
+      expect(newState.combatLog).toEqual([]);
+    });
+
+    it('should return a new array (not the same reference)', () => {
+      const newState = reducer(warriorState, { type: 'CLEAR_COMBAT_LOG' });
+      expect(newState.combatLog).not.toBe(warriorState.combatLog);
     });
   });
 });
