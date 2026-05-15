@@ -2,8 +2,8 @@ import { ALL_SKILLS, getSkillsByCategory, getSkillsForClassAndRace } from './ski
 
 describe('data/skills.js', () => {
   describe('ALL_SKILLS', () => {
-    it('should have 34 skills', () => {
-      expect(ALL_SKILLS).toHaveLength(34);
+    it('should have 36 skills', () => {
+      expect(ALL_SKILLS).toHaveLength(36);
     });
 
     it('should have a valid category for each skill', () => {
@@ -47,7 +47,7 @@ describe('data/skills.js', () => {
 
     it('should return correct number of skills per category', () => {
       const categories = getSkillsByCategory();
-      expect(categories.combat.length).toBe(10);
+      expect(categories.combat.length).toBe(12);
       expect(categories.utility.length).toBe(7);
       expect(categories.social.length).toBe(4);
       expect(categories.knowledge.length).toBe(7);
