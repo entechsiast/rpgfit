@@ -23,7 +23,7 @@ export default function CombatSimulator() {
       dispatch({ type: 'RESOLVE_COMBAT' });
     }, 800);
     return () => clearTimeout(timer);
-  }, [cs, cs?.currentMonsterIndex, cs?.bossDefeated]);
+  }, [cs, cs?.currentMonsterIndex, cs?.bossDefeated, dispatch]);
 
   if (!cs || !cs.active) return null;
 
