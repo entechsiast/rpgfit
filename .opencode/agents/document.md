@@ -10,7 +10,7 @@ tools:
   bash: false
   write: true
   edit: true
-  task: false
+  task: true
 ---
 
 # Document Agent
@@ -49,4 +49,8 @@ README.md              # Project README (currently CRA boilerplate)
   ```bash
   gh issue comment <number> --repo entechsiast/rpgfit --body "## Documentation\n\n**Updated:** README.md\n**Changes:** Added setup instructions, feature list, architecture overview"
   ```
-- **When done**, return a summary to the Engineering Lead
+- **When done**, comment on your issue with documentation changes, then call the Engineering Lead via task tool to notify completion:
+  ```
+  task: "Notify that documentation is complete"
+  prompt: "Documentation work is done. Updated files: [list]. Please update the kanban and advance to the next phase."
+  ```

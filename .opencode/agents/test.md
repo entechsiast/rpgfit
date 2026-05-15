@@ -10,7 +10,7 @@ tools:
   bash: true
   write: true
   edit: true
-  task: false
+  task: true
 ---
 
 # Test Agent
@@ -70,4 +70,8 @@ npx playwright test --config tests/playwright.config.ts  # Run Playwright tests
   ```bash
   gh issue create --repo entechsiast/rpgfit --title "Bug: <description>" --label "bug" --body "<details>"
   ```
-- **When done**, return a summary to the Engineering Lead
+- **When done**, comment on your issue with test results, then call the Engineering Lead via task tool to notify verification is complete:
+  ```
+  task: "Notify that verification is complete"
+  prompt: "Phase X is done. Test results: [passing/failed count]. Please update the kanban and advance to the next phase."
+  ```

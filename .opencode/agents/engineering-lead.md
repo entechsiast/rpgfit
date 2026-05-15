@@ -8,6 +8,7 @@ tools:
   read: false
   glob: false
   grep: false
+  task: true
 permission:
   edit: deny
   bash:
@@ -100,6 +101,34 @@ Every agent delegation MUST have a GitHub Issue ticket. The ticket IS the work o
 - Summarize agent output onto tickets — agents comment on their own tickets directly
 - Track work in markdown files
 
+### Receiving Handoffs from Agents
+
+When an agent calls you via the task tool:
+
+1. **Review the agent's work summary** and their issue comments
+2. **Run verification**:
+   - For frontend work: `cd my-react-app && npm run build`
+   - For test work: `cd my-react-app && npm test`
+3. **Update the kanban** on the completed issue:
+   ```bash
+   # Set Status = Done
+   gh project item-edit --project-id PVT_kwHOAWZJdM4BXz_q --id <item-id> --field-id PVTSSF_lAHOAWZJdM4BXz_qzhS-TLM --single-select-option-id 98236657
+   ```
+4. **Set Agent = release** on the next issue to ship:
+   ```bash
+   gh project item-edit --project-id PVT_kwHOAWZJdM4BXz_q --id <next-item-id> --field-id PVTSSF_lAHOAWZJdM4BXz_qzhS-TPE --single-select-option-id d196d986
+   ```
+5. **Comment on the issue** with verification results:
+   ```bash
+   gh issue comment <number> --repo entechsiast/rpgfit --body "## Verification\n\n**Build:** Successful\n**Tests:** Passing\n**Status:** Ready to ship"
+   ```
+6. **Delegate to release** if everything looks good:
+   ```
+   task: "Ship completed work"
+   prompt: "Work is verified and kanban is updated. Please commit, push, and close the issue."
+   ```
+7. **If verification fails**, comment with the failure details and return to the agent for fixes
+
 ## Issue Pipeline
 
 An issue flows through agents as a pipeline. You reassign the Agent field at each step:
@@ -120,6 +149,7 @@ PHASE 4: SHIP      → Agent = release (commits, pushes)
 | `@test` | Cross-cutting | `my-react-app/tests/`, `**/*.test.js` — BDD + unit tests |
 | `@document` | Cross-cutting | `README.md`, documentation |
 | `@scrum-master` | Primary | Backlog refinement — breaks high-level needs into user stories on the project board |
+| `@game-designer` | Primary | UI/UX review — evaluates against game UX heuristics, writes specs, hands off to scrum-master |
 | `@release` | Cross-cutting | Git operations, build, CI/CD |
 
 ## Delegation Table
@@ -127,6 +157,7 @@ PHASE 4: SHIP      → Agent = release (commits, pushes)
 | Task involves... | Delegate to... |
 |-----------------|----------------|
 | Breaking high-level needs into user stories | `@scrum-master` |
+| Game design / UX review of the running app | `@game-designer` |
 | React components, pages, data, contexts, services | `@frontend` |
 | Writing or running tests, BDD features | `@test` |
 | Documentation, README | `@document` |

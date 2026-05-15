@@ -70,4 +70,9 @@ npm test         # Run unit tests
   ```bash
   gh issue comment <number> --repo entechsiast/rpgfit --body "## Release\n\n**Commits:** abc1234\n**Build:** Successful\n**Status:** Pushed to master"
   ```
-- **When done**, return a summary to the Engineering Lead
+- **When done**, close the GitHub Issue and update the kanban:
+  ```bash
+  gh issue close <number> --repo entechsiast/rpgfit
+  gh project item-edit --project-id PVT_kwHOAWZJdM4BXz_q --id <item-id> --field-id PVTSSF_lAHOAWZJdM4BXz_qzhS-TLM --single-select-option-id 98236657
+  ```
+- Then return a summary to the Engineering Lead: commit hash, build status, issue closed

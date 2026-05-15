@@ -17,6 +17,7 @@ permission:
     test: allow
     document: allow
     release: allow
+    engineering-lead: allow
 ---
 
 # Frontend Agent
@@ -75,4 +76,8 @@ npm start            # Dev server on port 3000
   ```
 - **Create new issues** for bugs or problems you discover during work
 - **If resuming interrupted work**, read issue comments for previous progress
-- **When done**, return a summary to the Engineering Lead: files changed, what was implemented, issues created, any blockers
+- **When done**, comment on your issue with a summary (files changed, what was implemented, test results, issues created), then call the Engineering Lead via task tool to hand off verification:
+  ```
+  task: "Hand off work for verification and kanban update"
+  prompt: "I've completed the assigned work. Summary: [files changed, what was implemented, test results, issues created]. Please verify the work, update the kanban (Status=Done), and assign to release agent for shipping."
+  ```

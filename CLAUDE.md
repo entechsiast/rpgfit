@@ -92,8 +92,10 @@ C:\dev\rpgfit\
 |   +-- build/                   <- Production build output
 +-- my-csharp-backend/           <- (empty, for future backend)
 +-- .opencode/
-|   +-- agents/                  <- Agent definitions (6 agents)
+|   +-- agents/                  <- Agent definitions (7 agents)
 |   +-- commands/                <- Custom slash commands
++-- docs/
+|   +-- specs/                   <- Game design review spec documents
 +-- .github/workflows/           <- CI/CD pipelines
 ```
 

@@ -3,6 +3,14 @@
   "model": "lmstudio/qwen/qwen3.6-35b-a3b",
   "small_model": "lmstudio/qwen/qwen3.6-35b-a3b",
   "provider": {
+    "opencode": {
+      "name": "OpenCode Built-in",
+      "models": {
+        "big-pickle": {
+          "name": "Big Pickle (built-in)"
+        }
+      }
+    },
     "lmstudio": {
       "npm": "@ai-sdk/openai-compatible",
       "name": "LM Studio (local)",
