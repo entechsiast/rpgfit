@@ -1,4 +1,4 @@
-import { EQUIPMENT, SLOT_ORDER } from './equipment';
+import { EQUIPMENT } from './equipment';
 
 export const LOOT_TABLES = {
   goblin_caves: [
