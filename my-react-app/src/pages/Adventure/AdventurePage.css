@@ -658,6 +658,50 @@
   }
 }
 
+/* Reward Notification Banner */
+.reward-banner {
+  position: fixed;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-align: center;
+  z-index: 1000;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  animation: rewardSlideIn 0.3s ease-out, rewardFadeOut 0.5s ease-in 3s forwards;
+  pointer-events: none;
+}
+
+@keyframes rewardSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+@keyframes rewardFadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .reward-banner {
+    font-size: 1rem;
+    padding: 0.75rem 1.5rem;
+  }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .adventure-topbar {
