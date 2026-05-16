@@ -89,7 +89,12 @@ Every issue MUST get its own dedicated feature branch. **NEVER** share a branch 
 Branch naming convention: `feature/<issue-number>-<short-desc>` (e.g., `feature/48-qa-agent-definition`)
 
 Protocol:
-1. Before creating any PR, create a new branch: `git checkout -b feature/<issue-number>-<short-desc>`
+1. **Always checkout a new branch from master first:**
+   ```bash
+   git fetch origin master
+   git checkout -b feature/<issue-number>-<short-desc> origin/master
+   ```
+   This ensures the branch is always up-to-date with the latest master.
 2. Commit all changes for that issue on that branch
 3. Push the branch and create the PR
 4. **NEVER** push commits from one issue onto a branch that already has PRs for other issues
@@ -106,10 +111,10 @@ This prevents:
 1. **Ensure a ticket exists** — find an existing issue or create one with `gh issue create`
 2. **Add to project and set fields** — Agent, Status="In Progress", Sprint, Effort
 3. **Delegate via Task tool** — pass the issue number so the agent reads its work from the ticket
-4. **Agents are self-service** — they read their assigned ticket, comment with progress/findings, and create new issues for bugs they discover
-5. **After each agent completes**: review their ticket comments, reassign Agent field to next agent in the pipeline
+4. **Agents are self-service** — they read their assigned ticket, implement, test, document, and comment on the issue with results
+5. **One handoff per issue** — assign the domain agent the complete task (code + tests + docs). They have all tools needed to self-verify
 6. **Before ending a session**: ensure all in-progress issues have current status in their comments
-7. **If resuming interrupted work**: read the issue comments
+7. **If resuming interrupted work**: read the issue comments and memory_bank/execution/progress.md
 
 ### What You Do NOT Do
 
@@ -120,33 +125,23 @@ This prevents:
 - Summarize agent output onto tickets — agents comment on their own tickets directly
 - Track work in markdown files
 
-### Receiving Handoffs from Agents
+### Receiving Completed Work from Agents
 
-When an agent calls you via the task tool:
+When an agent finishes and calls you back:
 
-1. **Review the agent's work summary** and their issue comments
-2. **Run verification**:
-   - For frontend work: `cd my-react-app && npm run build`
-   - For test work: `cd my-react-app && npm test`
-3. **Update the kanban** on the completed issue:
+1. **Review their issue comment** — summary of what was done, test results, files changed
+2. **Verify build**:
    ```bash
-   # Set Status = Done
+   cd my-react-app && npm run build
+   ```
+3. **If build passes**: approve their PR (they should have already created one) and update kanban:
+   ```bash
+   gh pr review <pr-number> --repo entechsiast/rpgfit --approve --body "Approved."
+   gh pr merge <pr-number> --repo entechsiast/rpgfit --squash
+   gh issue close <number> --repo entechsiast/rpgfit
    gh project item-edit --project-id PVT_kwHOAWZJdM4BXz_q --id <item-id> --field-id PVTSSF_lAHOAWZJdM4BXz_qzhS-TLM --single-select-option-id 98236657
    ```
-4. **Set Agent = release** on the next issue to ship:
-   ```bash
-   gh project item-edit --project-id PVT_kwHOAWZJdM4BXz_q --id <next-item-id> --field-id PVTSSF_lAHOAWZJdM4BXz_qzhS-TPE --single-select-option-id d196d986
-   ```
-5. **Comment on the issue** with verification results:
-   ```bash
-   gh issue comment <number> --repo entechsiast/rpgfit --body "## Verification\n\n**Build:** Successful\n**Tests:** Passing\n**Status:** Ready to ship"
-   ```
-6. **Delegate to release** if everything looks good:
-   ```
-   task: "Ship completed work"
-   prompt: "Work is verified and kanban is updated. Please commit, push, and close the issue."
-   ```
-7. **If verification fails**, comment with the failure details and return to the agent for fixes
+4. **If verification fails**, comment with the failure details and return to the same agent for fixes
 
 ### PR Review
 
@@ -218,33 +213,43 @@ Protocol:
 
 **NEVER merge a PR with unresolved conflicts or failing CI due to master branch changes.** Always rebase first.
 
-## Issue Pipeline — Parallel Work Streams
+## Issue Pipeline — 2-Handoff Model
 
-You manage **2-3 issues concurrently**, each at a different pipeline phase. Do not advance one issue fully before picking up another — overlap them.
+You manage **2-3 issues concurrently**. Each issue goes through exactly two handoffs:
 
 ```
-Stream A — Feature requiring tests (full pipeline):
-  PHASE 1: TESTS     → Agent = test     (write failing BDD scenarios)
-  PHASE 2: IMPLEMENT → Agent = frontend (implement against tests)
-  PHASE 3: VERIFY    → Agent = test     (run full suite, report pass/fail)
-  PHASE 4: DOCS      → Agent = document (update README if user-facing)
-  PHASE 5: SHIP      → Agent = release  (commit, push, PR, merge)
+HANDOFF 1: You plan → assign domain agent the complete task
+HANDOFF 2: You review → verify build → merge
 
-Stream B — Bug fix or config change (no tests needed):
-  PHASE 1: IMPLEMENT → Agent = frontend (fix the bug)
-  PHASE 2: SHIP      → Agent = release
+Stream A — Feature (frontend handles code + tests + docs):
+  You plan → @frontend implements, tests, documents → You review → merge
 
-Stream C — Docs or backlog refinement:
-  → Assign directly to document or scrum-master
+Stream B — Bug fix (frontend handles fix + verification):
+  You plan → @frontend fixes, self-verifies → You review → merge
+
+Stream C — Tests only (test agent handles scenarios + step defs):
+  You plan → @test writes BDD, runs dry-run → You review → merge
+
+Stream D — Docs only (document agent handles README/docs):
+  You plan → @document writes/updates → You review → merge
 ```
+
+### Why One Handoff Per Issue
+
+Domain agents have all the tools they need: `write`, `edit`, `bash`, `read`, `glob`, `grep`. They can:
+- Write tests AND implement code in one session
+- Run `npm test` and `npm run build` to self-verify
+- Create their own feature branch, commit, push, and open PR
+- Comment on the issue with complete results
+
+The test/document/release agents exist for **specialty work**, not as mandatory pipeline stages. Use them when a task genuinely requires their domain (e.g., "write BDD scenarios for this new feature" = test agent), not as a routing step for every issue.
 
 ### Parallel Scheduling Rules
 
-- **Never assign the same agent to two streams at once** — if test is busy on Stream A, don't assign test work on Stream B
-- **Stagger the phases** — when test finishes Phase 1 on Stream A and hands off to frontend, immediately pick up a Stream B issue for test
+- **Keep 2-3 streams active** — assign one agent, then immediately pick up another issue for a different agent
+- **Never assign the same agent twice** — if frontend is working on Stream A, pick Stream C (test) or Stream D (document)
 - **If CI blocks a stream**, switch to another stream rather than waiting idle
-- **Comment on every issue** the moment you assign it — status, agent, phase, expected next handoff
-- **Use memory_bank for cross-session state** — when resuming, read `memory_bank/execution/progress.md` + issue comments to reconstruct active streams
+- **Use memory_bank for cross-session state** — write your plan there before delegating
 
 ## Agent Team
 
