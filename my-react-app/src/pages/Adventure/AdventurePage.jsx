@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useCharacter, useCharacterDispatch } from '../../contexts/CharacterContext';
 import { getXpProgress } from '../../data/xp';
 import { getFloorRequirements } from '../../data/floors';
 import { CONSUMABLES } from '../../data/consumables';
+import { getItemById } from '../../data/equipment';
 import ActivityLogger from '../../components/ActivityLogger/ActivityLogger';
 import DungeonList from '../../components/DungeonList/DungeonList';
 import DungeonDetail from '../../components/DungeonDetail/DungeonDetail';
@@ -29,6 +30,25 @@ export default function AdventurePage() {
   const dispatch = useCharacterDispatch();
   const [activeTab, setActiveTab] = useState('adventure');
   const [showLevelUp, setShowLevelUp] = useState(false);
+  const [latestReward, setLatestReward] = useState(null);
+  const rewardTimer = useRef(null);
+
+  // Watch for new rewards and show notification
+  useEffect(() => {
+    const log = character.rewardLog || [];
+    if (log.length > 0) {
+      const last = log[log.length - 1];
+      // Only show if it's a new reward (not already displayed)
+      if (last.timestamp > (latestReward?.timestamp || 0)) {
+        setLatestReward(last);
+        if (rewardTimer.current) clearTimeout(rewardTimer.current);
+        rewardTimer.current = setTimeout(() => setLatestReward(null), 3500);
+      }
+    }
+    return () => {
+      if (rewardTimer.current) clearTimeout(rewardTimer.current);
+    };
+  }, [character.rewardLog, latestReward]);
 
   // Check for level up after XP changes
   useEffect(() => {
@@ -294,6 +314,9 @@ export default function AdventurePage() {
           onSkip={handleLevelUpSkip}
         />
       )}
+
+      {/* Reward Notification Banner */}
+      {latestReward && <RewardBanner reward={latestReward} />}
     </div>
   );
 }
@@ -392,6 +415,61 @@ function ShopPanel() {
           ))
         )}
       </div>
+    </div>
+  );
+}
+
+function RewardBanner({ reward }) {
+  const getItemName = (itemId) => {
+    if (!itemId) return null;
+    const item = getItemById(itemId);
+    return item ? item.name : itemId;
+  };
+
+  const getConsumableName = (itemId) => {
+    if (!itemId) return null;
+    const found = CONSUMABLES.find(item => item.id === itemId);
+    return found ? found.name : itemId;
+  };
+
+  let bannerStyle = {};
+  let content = '';
+
+  switch (reward.type) {
+    case 'guaranteed':
+      bannerStyle = { backgroundColor: '#16a34a', color: '#fff' };
+      content = `+${reward.gold.toLocaleString()} Gold!`;
+      break;
+    case 'bonus':
+      if (reward.bonusType === 'gold') {
+        bannerStyle = { backgroundColor: '#a855f7', color: '#fff' };
+        content = `Bonus! +${reward.amount.toLocaleString()} Gold`;
+      } else if (reward.bonusType === 'equipment') {
+        bannerStyle = { backgroundColor: '#eab308', color: '#1a1a1a' };
+        content = `Bonus: ${getItemName(reward.item)}!`;
+      } else if (reward.bonusType === 'consumable') {
+        bannerStyle = { backgroundColor: '#eab308', color: '#1a1a1a' };
+        content = `Bonus: ${getConsumableName(reward.item)}!`;
+      }
+      break;
+    case 'milestone':
+      bannerStyle = { backgroundColor: '#ea580c', color: '#fff' };
+      content = `Floor Complete! +${reward.gold.toLocaleString()} Gold${reward.itemName ? ` + ${reward.itemName}!` : '!'}`;
+      break;
+    default:
+      content = 'Reward!';
+      bannerStyle = { backgroundColor: '#16a34a', color: '#fff' };
+  }
+
+  return (
+    <div
+      className="reward-banner"
+      data-testid="reward-display"
+      style={bannerStyle}
+    >
+      <span data-testid={reward.type === 'guaranteed' ? 'guaranteed-reward' : reward.type === 'milestone' ? 'milestone-reward' : 'bonus-reward'}>
+        {content}
+      </span>
     </div>
   );
 }
