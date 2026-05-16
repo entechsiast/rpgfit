@@ -74,3 +74,70 @@
   background: var(--rarity, #3b82f6);
   color: #fff;
 }
+
+/* Mobile: touch-friendly EquipmentItemCard */
+@media (max-width: 768px) {
+  .equipment-item-card {
+    padding: 12px;
+  }
+
+  .item-name {
+    font-size: 14px;
+  }
+
+  .item-equip-btn {
+    padding: 10px;
+    font-size: 14px;
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 480px) {
+  .equipment-item-card {
+    padding: 10px;
+  }
+
+  .item-name {
+    font-size: 13px;
+  }
+
+  .item-rarity {
+    font-size: 9px;
+  }
+
+  .item-details {
+    gap: 6px;
+  }
+
+  .item-slot,
+  .item-type {
+    font-size: 9px;
+  }
+
+  .item-stats {
+    gap: 3px;
+  }
+
+  .item-stat {
+    font-size: 10px;
+  }
+
+  .item-equip-btn {
+    padding: 12px;
+    font-size: 13px;
+    min-height: 48px;
+  }
+}
+
+/* Touch device: larger hit areas */
+@media (hover: none) and (pointer: coarse) {
+  .equipment-item-card {
+    padding: 14px;
+  }
+
+  .item-equip-btn {
+    padding: 14px;
+    min-height: 52px;
+    font-size: 15px;
+  }
+}
