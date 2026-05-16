@@ -1,0 +1,54 @@
+## Problem
+
+12 step definitions are duplicated across files, causing Cucumber to abort with "Multiple step definitions match" errors. CI BDD tests cannot run until these are resolved.
+
+## Duplicate Step Definitions
+
+| # | Step Text | File A (keep) | File B (remove) | Notes |
+|---|-----------|---------------|-----------------|-------|
+| 1 | `I have selected the {string} race` | `avatar.steps.ts:15` | `skills.steps.ts:40` | Keep avatar (domain owns race selection) |
+| 2 | `I have selected the {string} class` | `avatar.steps.ts:28` | `skills.steps.ts:33` | Keep avatar (domain owns class selection) |
+| 3 | `I view the character preview` | `avatar.steps.ts:4` | `hp-mp.steps.ts:31` | Keep avatar (domain owns preview) |
+| 4 | `I am in an active dungeon combat` | `combat-simulation.steps.ts:15` | `reward-system.steps.ts:15` | Keep combat (domain owns combat state) |
+| 5 | `combat should begin` | `combat-simulation.steps.ts:29` | `dungeon-combat.steps.ts:57` | Keep combat-simulation (domain owns combat) |
+| 6 | `I have a saved character` | `combat-simulation.steps.ts:5` | `dungeon-combat.steps.ts:5` | Keep combat-simulation (domain owns character state) |
+| 7 | `I should see the consumables section` | `consumables.steps.ts:19` | `dungeon-combat.steps.ts:141` | Keep consumables (domain owns consumables) |
+| 8 | `I should see {string}` | `equipment.steps.ts:30` | `stat-allocation.steps.ts:62` | Keep equipment (more specific context) |
+| 9 | `I have a saved character with class and race selected` | `hp-mp.steps.ts:5` | `leveling-system.steps.ts:5` | Keep hp-mp (used as background setup) |
+| 10 | `I have a saved character with class and race selected` | `hp-mp.steps.ts:5` | `reward-system.steps.ts:5` | Keep hp-mp (used as background setup) |
+| 11 | `{string} should display the value {int}` | `stat-allocation.steps.ts:56` | `leveling-system.steps.ts:170` | Keep stat-allocation (domain owns stat display) |
+| 12 | `{string} should display the value {int}` | `stat-allocation.steps.ts:56` | `wizard-class.steps.ts:15` | Keep stat-allocation (domain owns stat display) |
+
+## How to Fix
+
+For each duplicate:
+1. **Decide which file owns the step** — keep the one in the most semantically appropriate domain
+2. **Remove the step from the other file(s)** — delete the entire `Given/When/Then('step text', ...)` block
+3. **Verify no feature file references the removed step** — if a feature file uses the removed step, update it to use the kept step's exact text (they should be identical)
+
+## Verification
+
+1. Run locally: `npm run test:bdd -- --dry-run` — should show **ZERO** "Multiple step definitions match" errors
+2. Run: `npm run build` — should pass
+3. Push to a branch and verify CI **test-and-build** passes (not just the build step)
+
+## Files to Modify
+- `my-react-app/tests/step-definitions/avatar.steps.ts`
+- `my-react-app/tests/step-definitions/skills.steps.ts`
+- `my-react-app/tests/step-definitions/hp-mp.steps.ts`
+- `my-react-app/tests/step-definitions/combat-simulation.steps.ts`
+- `my-react-app/tests/step-definitions/reward-system.steps.ts`
+- `my-react-app/tests/step-definitions/dungeon-combat.steps.ts`
+- `my-react-app/tests/step-definitions/consumables.steps.ts`
+- `my-react-app/tests/step-definitions/equipment.steps.ts`
+- `my-react-app/tests/step-definitions/stat-allocation.steps.ts`
+- `my-react-app/tests/step-definitions/leveling-system.steps.ts`
+- `my-react-app/tests/step-definitions/wizard-class.steps.ts`
+
+## Acceptance Criteria
+
+- [ ] No step definition matches more than one file
+- [ ] `npm run test:bdd -- --dry-run` runs with ZERO "Multiple step definitions match" errors
+- [ ] `npm run build` passes
+- [ ] CI test-and-build passes on PR
+- [ ] All existing feature files still execute (no broken step references)
