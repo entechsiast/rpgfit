@@ -306,6 +306,71 @@ Summarize the test results:
 [Any additional observations]
 ```
 
+## Test Recording and Organization
+
+When running playwright tests, the qa-agent should record and organize test results for manual review:
+
+### Step 1 — Record Test Artifacts
+
+After each test run, save the following artifacts:
+
+```powershell
+# Save test output
+Get-Content tests-output.txt | Out-File -FilePath "tests-reports/$(Get-Date -Format 'yyyyMMdd-HHmmss')-test-output.txt"
+
+# Save screenshots if available
+if (Test-Path "tests/screenshots") {
+    Copy-Item -Path "tests/screenshots/*" -Destination "tests-reports/$(Get-Date -Format 'yyyyMMdd-HHmmss')/screenshots/" -Recurse -Force
+}
+
+# Save videos if available
+if (Test-Path "tests/videos") {
+    Copy-Item -Path "tests/videos/*" -Destination "tests-reports/$(Get-Date -Format 'yyyyMMdd-HHmmss')/videos/" -Recurse -Force
+}
+```
+
+### Step 2 — Organize Test Reports
+
+Create a structured test report file:
+
+```powershell
+$reportPath = "tests-reports/$(Get-Date -Format 'yyyyMMdd-HHmmss')/report.md"
+
+@'
+# Test Report
+
+## Summary
+- **Date:** $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')
+- **Mode:** headless / headed
+- **Total scenarios:** X
+- **Passed:** X
+- **Failed:** X
+- **Skipped:** X
+
+## Failed Scenarios
+| # | Feature | Scenario | Error | Screenshot |
+|---|---------|----------|-------|------------|
+
+## Notes
+[Any additional observations]
+'@ | Out-File -FilePath $reportPath
+```
+
+### Step 3 — Maintain Test History
+
+Keep a running index of all test runs:
+
+```powershell
+# Append to test history
+Add-Content -Path "tests-reports/HISTORY.md" -Value @"
+| Date | Mode | Passed | Failed | Skipped | Report |
+|------|------|--------|--------|---------|--------|
+YYYY-MM-DD HH:mm:ss | headless | X | Y | Z | [report.md](YYYY-MM-DD-HHMMSS/report.md) |
+"@
+```
+
+This ensures all test results are preserved and easily accessible for manual review.
+
 ## Git Conflict Detection Protocol
 
 **You are responsible for detecting merge conflicts on PRs. You are NOT responsible for resolving them.**
