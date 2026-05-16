@@ -9,6 +9,7 @@ import { getXpToNextLevel, getTotalXpToLevel, getXpProgress, MAX_LEVEL } from '.
 import { getItemById, getRandomLoot } from '../data/loot';
 import { CONSUMABLES } from '../data/consumables';
 import { getFloorRequirements } from '../data/floors';
+import { getAllItems } from '../data/equipment';
 
 const SLOT_ORDER = ['head', 'chest', 'pants', 'boots', 'rightHand', 'leftHand', 'accessory1', 'accessory2', 'accessory3'];
 
@@ -50,6 +51,10 @@ const initialState = {
   sessions: [],
   currentFloor: 1,
   currentFloorProgress: 0,
+  rewardStreak: 0,
+  todayRewardCount: 0,
+  lastRewardDate: null,
+  rewardLog: [],
 };
 
 function calculatePointsRemaining(stats) {
@@ -407,18 +412,115 @@ function reducer(state, action) {
       };
       const newSessions = [...(state.sessions || []), newSession];
       const newProgress = (state.currentFloorProgress || 0) + 1;
+
+      // --- Reward System ---
+      const today = new Date().toDateString();
+      let newTodayCount = state.todayRewardCount || 0;
+      let newLastDate = state.lastRewardDate;
+
+      // Reset daily counter if new day
+      if (newLastDate !== today) {
+        newTodayCount = 0;
+        newLastDate = today;
+      }
+
+      // Calculate base gold reward (scales with duration)
+      const baseGold = Math.max(5, Math.floor(action.payload.duration * 10));
+
+      // Check anti-farming: max 2 guaranteed rewards per day
+      let rewardGold = 0;
+      if (newTodayCount < 2) {
+        rewardGold = baseGold;
+        newTodayCount++;
+      }
+
+      // Pity timer logic
+      const streak = state.rewardStreak || 0;
+      const bonusChance = Math.min(1, 0.15 + streak * 0.15);
+      const gotBonus = Math.random() < bonusChance;
+
+      let bonusItem = null;
+      let newStreak = streak + 1;
+
+      if (gotBonus) {
+        newStreak = 0;
+        // Roll bonus reward type
+        const bonusRoll = Math.random();
+        if (bonusRoll < 0.4) {
+          // Extra gold: 2x-3x the base gold
+          bonusItem = { bonusType: 'gold', amount: Math.floor(baseGold * (2 + Math.random())) };
+        } else if (bonusRoll < 0.7) {
+          // Random common equipment
+          const equipItems = getAllItems().filter(i => i.rarity === 'common');
+          const picked = equipItems[Math.floor(Math.random() * equipItems.length)];
+          if (picked) bonusItem = { bonusType: 'equipment', item: picked.id };
+        } else {
+          // Random consumable
+          const consumable = CONSUMABLES[Math.floor(Math.random() * CONSUMABLES.length)];
+          if (consumable) bonusItem = { bonusType: 'consumable', item: consumable.id };
+        }
+      }
+      // --- End Reward System ---
+
+      const timestamp = Date.now();
+      const newRewardLog = [...(state.rewardLog || [])];
+
+      // Check for floor advancement
       const floorReq = getFloorRequirements(state.currentFloor || 1);
       const sessionsNeeded = floorReq.sessionsRequired;
 
       if (newProgress >= sessionsNeeded) {
         const nextFloor = (state.currentFloor || 1) + 1;
         const nextFloorReq = getFloorRequirements(nextFloor);
+
+        // Floor milestone: 500 gold + random Uncommon/Rare equipment
+        const rareItems = getAllItems().filter(i => i.rarity === 'uncommon' || i.rarity === 'rare');
+        const rareItem = rareItems[Math.floor(Math.random() * rareItems.length)];
+        const milestoneGold = 500;
+
+        let finalGold = state.gold + milestoneGold + rewardGold;
+        let finalOwned = [...(state.ownedEquipment || [])];
+
+        if (rareItem && rareItem.id && !finalOwned.includes(rareItem.id)) {
+          finalOwned.push(rareItem.id);
+        }
+
+        // Push milestone reward
+        newRewardLog.push({
+          type: 'milestone',
+          gold: milestoneGold,
+          item: rareItem ? rareItem.id : null,
+          itemName: rareItem ? rareItem.name : null,
+          floor: nextFloor,
+          floorName: nextFloorReq.name,
+          timestamp,
+        });
+
+        // Push guaranteed reward
+        if (rewardGold > 0) {
+          newRewardLog.push({
+            type: 'guaranteed',
+            gold: rewardGold,
+            date: today,
+            timestamp,
+          });
+        }
+
+        if (gotBonus) {
+          newRewardLog.push({ type: 'bonus', ...bonusItem, timestamp });
+        }
+
         return {
           ...state,
           sessions: newSessions,
           currentFloor: nextFloor,
           currentFloorProgress: 0,
-          gold: state.gold + 500,
+          gold: finalGold,
+          ownedEquipment: finalOwned,
+          rewardStreak: newStreak,
+          todayRewardCount: newTodayCount,
+          lastRewardDate: newLastDate,
+          rewardLog: newRewardLog,
           combatLog: [
             ...(state.combatLog || []),
             {
@@ -426,28 +528,72 @@ function reducer(state, action) {
               fromFloor: state.currentFloor,
               toFloor: nextFloor,
               floorName: nextFloorReq.name,
-              goldReward: 500,
-              timestamp: Date.now(),
+              goldReward: milestoneGold,
+              timestamp,
             },
           ],
         };
+      }
+
+      // Push guaranteed reward
+      const newRewardGold = rewardGold;
+      if (newRewardGold > 0) {
+        newRewardLog.push({
+          type: 'guaranteed',
+          gold: newRewardGold,
+          date: today,
+          timestamp,
+        });
+      }
+
+      if (gotBonus) {
+        newRewardLog.push({ type: 'bonus', ...bonusItem, timestamp });
       }
 
       return {
         ...state,
         sessions: newSessions,
         currentFloorProgress: newProgress,
+        gold: state.gold + newRewardGold,
+        rewardStreak: newStreak,
+        todayRewardCount: newTodayCount,
+        lastRewardDate: newLastDate,
+        rewardLog: newRewardLog,
       };
     }
 
     case 'ADVANCE_FLOOR': {
       const nextFloor = (state.currentFloor || 1) + 1;
       const nextFloorReq = getFloorRequirements(nextFloor);
+
+      // Floor milestone: random Uncommon/Rare equipment item
+      const rareItems = getAllItems().filter(i => i.rarity === 'uncommon' || i.rarity === 'rare');
+      const rareItem = rareItems[Math.floor(Math.random() * rareItems.length)];
+
+      let newOwned = [...(state.ownedEquipment || [])];
+      if (rareItem && rareItem.id && !newOwned.includes(rareItem.id)) {
+        newOwned.push(rareItem.id);
+      }
+
+      const timestamp = Date.now();
+      const newRewardLog = [...(state.rewardLog || [])];
+      newRewardLog.push({
+        type: 'milestone',
+        gold: 500,
+        item: rareItem ? rareItem.id : null,
+        itemName: rareItem ? rareItem.name : null,
+        floor: nextFloor,
+        floorName: nextFloorReq.name,
+        timestamp,
+      });
+
       return {
         ...state,
         currentFloor: nextFloor,
         currentFloorProgress: 0,
         gold: state.gold + 500,
+        ownedEquipment: newOwned,
+        rewardLog: newRewardLog,
         combatLog: [
           ...(state.combatLog || []),
           {
@@ -456,7 +602,7 @@ function reducer(state, action) {
             toFloor: nextFloor,
             floorName: nextFloorReq.name,
             goldReward: 500,
-            timestamp: Date.now(),
+            timestamp,
           },
         ],
       };
@@ -595,6 +741,10 @@ function reducer(state, action) {
         sessions: action.payload.sessions || [],
         currentFloor: action.payload.currentFloor || 1,
         currentFloorProgress: action.payload.currentFloorProgress || 0,
+        rewardStreak: action.payload.rewardStreak || 0,
+        todayRewardCount: action.payload.todayRewardCount || 0,
+        lastRewardDate: action.payload.lastRewardDate || null,
+        rewardLog: action.payload.rewardLog || [],
       };
     }
 
