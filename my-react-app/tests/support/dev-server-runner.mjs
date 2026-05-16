@@ -220,8 +220,12 @@ async function main() {
     HEADED: (process.env.HEADDED || process.env.headed) ?? 'false',
   };
 
+  // Run Cucumber with explicit paths (no config file to avoid path resolution issues)
   const cucumberArgs = [
-    '--config', resolve(ROOT, 'cucumber.json'),
+    '--require', 'step-definitions/**/*.ts',
+    '--paths', 'features/**/*.feature',
+    '--require-module', 'ts-node/register',
+    '--format', 'progress',
     ...(process.argv.slice(2)),   // forward any CLI args like --dry-run
   ];
 
