@@ -33,6 +33,7 @@ const initialState = {
   skills: [],
   selectedSkillIds: new Set(),
   equipment: createEmptyEquipment(),
+  ownedEquipment: [],
   level: 1,
   xp: 0,
   gold: 0,
@@ -168,6 +169,8 @@ function reducer(state, action) {
       const { slot, item } = action.payload;
       const newEquipment = { ...state.equipment };
       newEquipment[slot] = item;
+      // Remove from ownedEquipment when equipping
+      const newOwned = state.ownedEquipment?.filter(id => id !== item.id) || [];
       const equippedBonuses = getEquippedBonuses(newEquipment);
       const effectiveCon = state.stats.con + equippedBonuses.con;
       const effectiveInt = state.stats.int + equippedBonuses.int;
@@ -179,6 +182,7 @@ function reducer(state, action) {
       return {
         ...state,
         equipment: newEquipment,
+        ownedEquipment: newOwned,
         currentHP: Math.min(state.currentHP, hpMp.maxHP),
         currentMP: Math.min(state.currentMP, hpMp.maxMP),
         ...hpMp,
@@ -187,8 +191,14 @@ function reducer(state, action) {
 
     case 'UNEQUIP_ITEM': {
       const slot = action.payload;
+      const item = state.equipment[slot];
       const newEquipment = { ...state.equipment };
       newEquipment[slot] = null;
+      // Add unequipped item to ownedEquipment (no duplicates)
+      let newOwned = [...(state.ownedEquipment || [])];
+      if (item && !newOwned.includes(item.id)) {
+        newOwned.push(item.id);
+      }
       const equippedBonuses = getEquippedBonuses(newEquipment);
       const effectiveCon = state.stats.con + equippedBonuses.con;
       const effectiveInt = state.stats.int + equippedBonuses.int;
@@ -200,6 +210,7 @@ function reducer(state, action) {
       return {
         ...state,
         equipment: newEquipment,
+        ownedEquipment: newOwned,
         currentHP: Math.min(state.currentHP, hpMp.maxHP),
         currentMP: Math.min(state.currentMP, hpMp.maxMP),
         ...hpMp,
@@ -362,16 +373,40 @@ function reducer(state, action) {
 
     case 'COMBAT_RESULT': {
       const { monstersDefeated, bossDefeated, totalXp, totalGold, lootDrops, hpRemaining, mpRemaining } = action.payload;
+      // Add equipment loot to ownedEquipment
+      let newOwned = [...(state.ownedEquipment || [])];
+      if (lootDrops && Array.isArray(lootDrops)) {
+        lootDrops.forEach(loot => {
+          if (loot && loot.id && loot.slot && !newOwned.includes(loot.id)) {
+            newOwned.push(loot.id);
+          }
+        });
+      }
       return {
         ...state,
         currentHP: hpRemaining,
         currentMP: mpRemaining,
+        ownedEquipment: newOwned,
         combatLog: [...state.combatLog, { type: 'combat', monstersDefeated, bossDefeated, totalXp, totalGold, lootDrops, timestamp: Date.now() }],
       };
     }
 
     case 'CLEAR_COMBAT_LOG':
       return { ...state, combatLog: [] };
+
+    case 'ADD_EQUIPMENT_ITEM': {
+      const itemId = action.payload;
+      if (state.ownedEquipment?.includes(itemId)) return state;
+      return { ...state, ownedEquipment: [...(state.ownedEquipment || []), itemId] };
+    }
+
+    case 'REMOVE_EQUIPMENT_ITEM': {
+      const itemId = action.payload;
+      return {
+        ...state,
+        ownedEquipment: (state.ownedEquipment || []).filter(id => id !== itemId),
+      };
+    }
 
     case 'SET_CURRENT_DUNGEON':
       return { ...state, currentDungeon: action.payload };
@@ -414,10 +449,16 @@ function reducer(state, action) {
         const completionReward = dungeon.completionReward;
         const bonusGold = Math.floor(Math.random() * (completionReward.gold[1] - completionReward.gold[0])) + completionReward.gold[0];
         const guaranteedItem = getItemById(completionReward.guaranteedItem);
+        // Add guaranteed item to ownedEquipment
+        let newOwned = [...(state.ownedEquipment || [])];
+        if (guaranteedItem && guaranteedItem.id && !newOwned.includes(guaranteedItem.id)) {
+          newOwned.push(guaranteedItem.id);
+        }
         return {
           ...state,
           xp: state.xp + cs.totalXp + completionReward.xp,
           gold: state.gold + cs.totalGold + bonusGold,
+          ownedEquipment: newOwned,
           combatState: { active: false, monsters: [], boss: null, currentMonsterIndex: 0, monstersDefeated: 0, bossDefeated: false, totalXp: 0, totalGold: 0, lootDrops: [] },
           completedDungeons: state.completedDungeons.includes(state.currentDungeon) ? state.completedDungeons : [...state.completedDungeons, state.currentDungeon],
           combatLog: [...state.combatLog, { type: 'dungeon_complete', dungeonId: state.currentDungeon, totalXp: cs.totalXp + completionReward.xp, totalGold: cs.totalGold + bonusGold, guaranteedItem: guaranteedItem, timestamp: Date.now() }],
@@ -476,6 +517,7 @@ function reducer(state, action) {
         ...initialState,
         ...action.payload,
         equipment: loadedEquipment,
+        ownedEquipment: action.payload.ownedEquipment || [],
         selectedSkillIds: new Set(action.payload.selectedSkillIds || []),
         ...hpMp,
         completedDungeons: action.payload.completedDungeons || [],
