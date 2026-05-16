@@ -55,6 +55,7 @@ const initialState = {
   todayRewardCount: 0,
   lastRewardDate: null,
   rewardLog: [],
+  animationEnabled: true,
 };
 
 function calculatePointsRemaining(stats) {
@@ -750,6 +751,9 @@ function reducer(state, action) {
 
     case 'RESET':
       return { ...initialState };
+
+    case 'TOGGLE_ANIMATION':
+      return { ...state, animationEnabled: action.payload };
 
     default:
       return state;

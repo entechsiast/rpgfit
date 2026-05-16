@@ -1,9 +1,6 @@
 # Task ID: 7
-# Title: Fix 12 remaining duplicate step definitions (Issue #128)
+# Title: Consolidate Tower 1 design items into single spec
 # Status: claimed
 # Dependencies: None
 # Priority: medium
-# Test Strategy:
-1. Run `npm run test:bdd -- --dry-run` — ZERO "Multiple step definitions match" errors
-2. Run `npm run build` — passes
-3. CI test-and-build passes on PR
+# Description: Consolidate all 7 Tower 1 design items (#113-119) into a single comprehensive design spec document.
