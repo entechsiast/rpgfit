@@ -4,8 +4,8 @@ import { Page, expect } from '@playwright/test';
 // Background setup
 Given('I have a saved character with class and race selected', async function ({ page }: { page: Page }) {
   await page.goto('/creator');
-  await page.getByTestId('btn-select-warrior').click();
-  await page.getByTestId('btn-select-human').click();
+  await page.getByTestId('class-card-warrior').click();
+  await page.getByTestId('race-card-human').click();
   await page.getByTestId('tab-stats').click();
   await page.getByTestId('btn-save').click();
   await page.waitForTimeout(500);

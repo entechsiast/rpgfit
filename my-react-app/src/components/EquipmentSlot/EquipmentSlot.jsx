@@ -48,7 +48,7 @@ export default function EquipmentSlot({ slotId, item, onUnequip }) {
           </div>
           <div className="slot-item-info">
             <div className="slot-item-name" style={{ color: rarityColor }}>{item.name}</div>
-            <button className="slot-unequip-btn" onClick={() => onUnequip(slotId)}>✕</button>
+            <button className="slot-unequip-btn" onClick={() => onUnequip(slotId)} data-testid={`unequip-${slotId}`}>Unequip</button>
           </div>
         </div>
       ) : (

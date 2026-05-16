@@ -20,7 +20,7 @@ export default function ClassSelector() {
             key={cls.id}
             className={`class-card ${character.class?.id === cls.id ? 'selected' : ''}`}
             onClick={() => dispatch({ type: 'SET_CLASS', payload: cls.id })}
-            data-testid={`class-${cls.id}`}
+            data-testid={`class-card-${cls.id}`}
           >
             <div className="class-card-name">{cls.name}</div>
             <div className="class-card-desc">{cls.description}</div>

@@ -2,7 +2,16 @@ import { Given, When, Then } from '@cucumber/cucumber';
 import { Page, expect } from '@playwright/test';
 
 When('I filter by slot {string}', async function ({ page }: { page: Page }, slotName: string) {
-  const filterId = slotName.toLowerCase();
+  const slotMap: Record<string, string> = {
+    'Head': 'head',
+    'Chest': 'chest',
+    'Pants': 'pants',
+    'Boots': 'boots',
+    'Weapons': 'rightHand',
+    'Left Hand': 'leftHand',
+    'Accessories': 'accessory1',
+  };
+  const filterId = slotMap[slotName] || slotName;
   await page.getByTestId(`filter-slot-${filterId}`).click();
 });
 
@@ -18,6 +27,10 @@ When('I filter by rarity {string}', async function ({ page }: { page: Page }, ra
 
 Then('I should see {string}', async function ({ page }: { page: Page }, text: string) {
   await expect(page.getByText(text)).toBeVisible();
+});
+
+Then('I should see the {string} item', async function ({ page }: { page: Page }, itemName: string) {
+  await expect(page.getByText(itemName)).toBeVisible();
 });
 
 Then('I should not see {string}', async function ({ page }: { page: Page }, text: string) {
@@ -39,7 +52,7 @@ Then('the {string} slot should show {string}', async function ({ page }: { page:
 When('I unequip the item from the {string} slot', async function ({ page }: { page: Page }, slotName: string) {
   const slotId = slotName.toLowerCase();
   const slot = page.getByTestId(`equipment-slot-${slotId}`);
-  await slot.locator('.slot-unequip-btn').click();
+  await slot.getByTestId(`unequip-${slotId}`).click();
 });
 
 Then('the {string} slot should be empty', async function ({ page }: { page: Page }, slotName: string) {
