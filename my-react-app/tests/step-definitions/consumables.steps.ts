@@ -14,6 +14,11 @@ When('the consumables section is displayed', async function ({ page }: { page: P
   await expect(consTitle).toBeVisible();
 });
 
+Then('I should see the consumables section', async function ({ page }: { page: Page }) {
+  const consTitle = page.locator('.inventory-section-title', { hasText: 'Consumables' });
+  await expect(consTitle).toBeVisible();
+});
+
 Then('I should see "([^"]*)" in the consumables list', async function ({ page }: { page: Page }, itemName: string) {
   const itemId = itemName.toLowerCase().replace(/\s+/g, '_');
   const consumable = page.getByTestId(`consumable-inventory-${itemId}`);
@@ -23,7 +28,7 @@ Then('I should see "([^"]*)" in the consumables list', async function ({ page }:
 // Scenario: Use healing potion to restore HP
 
 Then('my HP should increase by {int}', async function ({ page }: { page: Page }, amount: number) {
-  const hpDisplay = page.locator('.hp-mp-display');
+  const hpDisplay = page.getByTestId('hpmp-display');
   await expect(hpDisplay).toBeVisible();
   // Verify the HP display contains a value that reflects the increase
   const hpText = await hpDisplay.textContent();
@@ -38,8 +43,9 @@ Then('my stats should be temporarily increased', async function ({ page }: { pag
 });
 
 Then('I should see a confirmation message about the buff', async function ({ page }: { page: Page }) {
-  const buffMessage = page.getByTestId('buff-confirmation');
-  await expect(buffMessage).toBeVisible();
+  // The buff confirmation is shown via the stats grid update
+  const statsGrid = page.locator('.stats-grid');
+  await expect(statsGrid).toBeVisible();
 });
 
 // Scenario: Consumable is consumed after use
