@@ -221,7 +221,7 @@ async function main() {
   };
 
   const cucumberArgs = [
-    '--config', resolve(__dirname, 'cucumber.json'),
+    '--config', resolve(ROOT, 'cucumber.json'),
     ...(process.argv.slice(2)),   // forward any CLI args like --dry-run
   ];
 
