@@ -4,8 +4,8 @@ import { Page, expect } from '@playwright/test';
 // Background setup
 Given('I have a saved character', async function ({ page }: { page: Page }) {
   await page.goto('/creator');
-  await page.getByTestId('btn-select-warrior').click();
-  await page.getByTestId('btn-select-human').click();
+  await page.getByTestId('class-card-warrior').click();
+  await page.getByTestId('race-card-human').click();
   await page.getByTestId('tab-stats').click();
   await page.getByTestId('btn-save').click();
   await page.waitForTimeout(500);
@@ -24,11 +24,16 @@ When('I enter a dungeon', async function ({ page }: { page: Page }) {
 });
 
 Then('combat should begin', async function ({ page }: { page: Page }) {
-  const combatSimulator = page.locator('.combat-simulator');
+  const combatSimulator = page.locator('[data-testid="combat-simulator"]');
   await expect(combatSimulator).toBeVisible();
 });
 
 Then('I should see the first monster name', async function ({ page }: { page: Page }) {
+  const combatStatus = page.locator('.combat-status');
+  await expect(combatStatus).toBeVisible();
+});
+
+Then('I should see the first monster\'s name', async function ({ page }: { page: Page }) {
   const combatStatus = page.locator('.combat-status');
   await expect(combatStatus).toBeVisible();
 });
@@ -39,7 +44,7 @@ Then('the combat log should be visible', async function ({ page }: { page: Page 
 });
 
 Then('the player current HP should be displayed', async function ({ page }: { page: Page }) {
-  const hpDisplay = page.locator('.hp-mp-display');
+  const hpDisplay = page.getByTestId('hpmp-display');
   await expect(hpDisplay).toBeVisible();
 });
 
@@ -122,7 +127,7 @@ When('the player takes damage', async function ({ page }: { page: Page }) {
 });
 
 Then('the player HP should reach 0', async function ({ page }: { page: Page }) {
-  const hpDisplay = page.locator('.hp-mp-display');
+  const hpDisplay = page.getByTestId('hpmp-display');
   await expect(hpDisplay).toBeVisible();
 });
 
@@ -132,7 +137,7 @@ Then('I should see a defeat message', async function ({ page }: { page: Page }) 
 });
 
 Then('the combat should end', async function ({ page }: { page: Page }) {
-  const combatSimulator = page.locator('.combat-simulator');
+  const combatSimulator = page.locator('[data-testid="combat-simulator"]');
   await expect(combatSimulator).not.toBeVisible();
 });
 
@@ -183,14 +188,14 @@ Then('the combat log should show each round damage', async function ({ page }: {
 
 Then('the log should display player actions', async function ({ page }: { page: Page }) {
   const combatLog = page.getByTestId('combat-log');
-  const playerActions = combatLog.locator('.log-entry.player-action');
+  const playerActions = combatLog.locator('.combat-log-entry');
   const count = await playerActions.count();
   expect(count).toBeGreaterThan(0);
 });
 
 Then('the log should display monster actions', async function ({ page }: { page: Page }) {
   const combatLog = page.getByTestId('combat-log');
-  const monsterActions = combatLog.locator('.log-entry.monster-action');
+  const monsterActions = combatLog.locator('.combat-log-entry');
   const count = await monsterActions.count();
   expect(count).toBeGreaterThan(0);
 });
