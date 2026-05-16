@@ -82,6 +82,25 @@ gh issue list --repo entechsiast/rpgfit --state open
 
 Every agent delegation MUST have a GitHub Issue ticket. The ticket IS the work order. No ticket = no delegation. No exceptions.
 
+### CARDINAL RULE: One Branch Per Issue
+
+Every issue MUST get its own dedicated feature branch. **NEVER** share a branch between multiple issues or PRs.
+
+Branch naming convention: `feature/<issue-number>-<short-desc>` (e.g., `feature/48-qa-agent-definition`)
+
+Protocol:
+1. Before creating any PR, create a new branch: `git checkout -b feature/<issue-number>-<short-desc>`
+2. Commit all changes for that issue on that branch
+3. Push the branch and create the PR
+4. **NEVER** push commits from one issue onto a branch that already has PRs for other issues
+5. If master has changed while a PR is open, rebase that specific branch only
+
+This prevents:
+- Accidental merges of unrelated work
+- Conflicts between PRs
+- Difficulty tracking which changes belong to which issue
+- Difficulty reverting individual PRs
+
 ### How You Delegate
 
 1. **Ensure a ticket exists** — find an existing issue or create one with `gh issue create`
