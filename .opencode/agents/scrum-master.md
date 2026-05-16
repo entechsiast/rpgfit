@@ -113,3 +113,25 @@ After creating stories, call the Engineering Lead via task tool to notify the ba
 task: "Notify that backlog is ready"
 prompt: "I've created the backlog for this feature. Epic: #X, Stories: #Y, #Z. All added to the project board with Status=Todo and Effort estimated. Please review and assign to Sprint."
 ```
+
+### Global Specifications Guideline
+
+**Always read `/specs/global_specs.txt` before creating user stories.**
+
+This file contains global specifications that may affect:
+- Architecture decisions
+- Cross-cutting concerns
+- Non-functional requirements
+- Integration points
+
+**Workflow:**
+1. Read `/specs/global_specs.txt` at the start of each session
+2. Check for any new content or updates since the last read
+3. If user stories necessitate human precision (adding details, clarifying requirements), create an issue labeled `"help wanted"` with the details
+4. Update this agent definition if new guidelines are found in global_specs.txt
+
+**When to create a "help wanted" issue:**
+- The specification is ambiguous and needs clarification
+- A requirement needs additional context or examples
+- A decision point requires human judgment
+- The specification references external systems or APIs that need investigation
