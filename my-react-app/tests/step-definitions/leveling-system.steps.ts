@@ -1,17 +1,6 @@
 import { Given, When, Then } from '@cucumber/cucumber';
 import { Page, expect } from '@playwright/test';
 
-// Background setup
-Given('I have a saved character with class and race selected', async function () {
-  const page = this.page as Page;
-  await page.goto('/creator');
-  await page.getByTestId('class-card-warrior').click();
-  await page.getByTestId('race-card-human').click();
-  await page.getByTestId('tab-stats').click();
-  await page.getByTestId('btn-save').click();
-  await page.waitForTimeout(500);
-});
-
 // Scenario: Character starts at level 1
 Given('my character is at level {int}', async function (level: number) {
   const page = this.page as Page;
@@ -167,13 +156,6 @@ Given('I have allocated a stat point to {string}', async function (statName: str
 });
 
 // Scenario: Stat point increases chosen stat
-Then('{string} should display the value {int}', async function (statName: string, value: number) {
-  const page = this.page as Page;
-  const statId = statName.toLowerCase();
-  const statValue = await page.locator(`[data-testid="stat-${statId}"] .preview-stat-value`).textContent();
-  expect(parseInt(statValue || '0')).toBe(value);
-});
-
 Then('other stats should remain unchanged', async function () {
   const page = this.page as Page;
   // Verify other stats haven't changed from their base values

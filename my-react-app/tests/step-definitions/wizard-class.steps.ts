@@ -12,8 +12,4 @@ Then('the Wizard card should be highlighted', async function () {
   await expect(page.getByTestId('class-card-wizard')).toHaveClass(/selected/);
 });
 
-Then('{string} should display the value {int}', async function (statName: string, value: number) {
-  const page = this.page as Page;
-  const statValue = await page.locator(`[data-testid="stat-${statName.toLowerCase()}"] .stat-value`).textContent();
-  expect(parseInt(statValue || '0')).toBe(value);
-});
+
