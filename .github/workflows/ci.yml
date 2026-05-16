@@ -17,5 +17,10 @@ jobs:
         working-directory: my-react-app
       - run: npm test
         working-directory: my-react-app
+      - name: Run BDD tests
+        working-directory: my-react-app
+        run: npm run test:bdd
+        env:
+          PLAYWRIGHT_HEADLESS: 'true'
       - run: npm run build
         working-directory: my-react-app
