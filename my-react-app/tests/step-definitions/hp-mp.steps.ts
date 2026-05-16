@@ -27,12 +27,6 @@ Given('my character has full HP and full MP', async function () {
   await page.waitForTimeout(500);
 });
 
-// Scenario: HP displayed in character preview
-When('I view the character preview', async function () {
-  const page = this.page as Page;
-  const preview = page.locator('[data-testid="preview-card"]');
-  await expect(preview).toBeVisible();
-});
 
 Then('the HP bar should be visible in the preview', async function () {
   const page = this.page as Page;

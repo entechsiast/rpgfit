@@ -1,0 +1,9 @@
+# Task ID: 6
+# Title: Add BDD test execution to CI workflow (Issue #122)
+# Status: claimed
+# Dependencies: None
+# Priority: medium
+# Test Strategy:
+1. Run `npm run test:bdd` locally (Windows) — verify it works
+2. Push to a branch and verify CI passes on ubuntu-latest
+3. Check PR check shows BDD test results

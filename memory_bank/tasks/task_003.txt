@@ -1,0 +1,53 @@
+# Task ID: 3
+# Title: Implement #121: Dev server infrastructure for Playwright
+# Status: pending
+# Dependencies: None
+# Priority: medium
+# Description: ## Task: Implement #121 — Dev server infrastructure for Playwright tests
+
+### Branch
+`feature/121-dev-server-playwright` (already checked out from origin/master)
+
+### What to implement
+
+**1. Create `my-react-app/tests/support/global-teardown.ts`**
+- Read PID from a lock file (`my-react-app/.devserver.lock` or temp file)
+- Kill the dev server process gracefully (SIGTERM)
+- Delete the lock file
+- Handle missing/invalid PID gracefully (server may have already died)
+
+**2. Update `my-react-app/tests/support/global-setup.ts`**
+- Write PID to the lock file when starting the server
+- Add a lock file check: if lock file exists and process is alive, abort with clear error
+- Add health check after "Compiled successfully": use `fetch('http://localhost:3000')` to verify server responds
+- Better error messages if startup fails
+
+**3. Update `my-react-app/playwright.config.ts`**
+- Add `globalTeardown: './tests/support/global-teardown.ts'`
+
+**4. Update `my-react-app/tests/support/hooks.ts`**
+- Add a check: if global-setup already started the server (lock file exists), skip launching in Before hook
+- The hooks.ts currently launches Chromium — this is fine, just ensure no conflicts
+
+### Acceptance Criteria (from issue #121)
+- [ ] Agent can start the dev server via npm or global-setup.ts pattern
+- [ ] Agent can detect if the dev server is already running (lock file check)
+- [ ] Agent can detect when the dev server is ready (Compiled successfully + health check)
+- [ ] Agent can stop the dev server after testing completes (globalTeardown)
+- [ ] Dev server starts on port 3000 with BROWSER=none
+- [ ] No conflicts when multiple agents try to start the server (lock file mechanism)
+
+### Verification
+1. Run `npm run test:bdd` in `my-react-app/` — verify it works
+2. Verify no orphaned node processes after tests
+3. Verify lock file is cleaned up
+
+### Commit
+- Commit type: `feat` or `test`
+- Descriptive message
+- Push the branch when ready
+# Test Strategy:
+1. Run `npm run test:bdd` in my-react-app/ — should start dev server, run tests, stop server
+2. Verify no orphaned node/npm processes remain
+3. Verify lock file is cleaned up
+4. Verify lock file prevents concurrent starts
