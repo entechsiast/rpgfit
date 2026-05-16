@@ -1,7 +1,7 @@
 ---
 description: Quality Assurance — reviews PRs, validates test coverage, and verifies acceptance criteria across all work.
 mode: subagent
-model: nvidia/nemotron-3-nano-omni
+model: lmstudio/nemotron-3-nano-omni-30b-a3b-reasoning
 temperature: 0.1
 tools:
   read: true

@@ -144,6 +144,29 @@ When an agent finishes and calls you back:
    ```
 4. **If verification fails**, comment with the failure details and return to the same agent for fixes
 
+### Receiving Game Design Reviews
+
+When @game-designer hands off a UX review spec:
+
+1. **Read the spec file** — each finding has Suggested Issue Title, Labels, Story Theme, and Effort (S/M/L/XL)
+2. **For S/M items** (hours to half-day):
+   ```bash
+   gh issue create --repo entechsiast/rpgfit --title "<suggested title>" --label "<labels>" --body "See spec: docs/specs/game-design-review-<date>.md"
+   ```
+   Add to project board with Status=Todo and Agent=frontend.
+3. **For L/XL items** (multiple days+): delegate to @scrum-master for story breakdown:
+   ```
+   @scrum-master — Please break down this UX finding into micro-stories:
+   
+   Finding: <finding description>
+   Suggested story theme: <theme>
+   Spec: docs/specs/game-design-review-<date>.md
+   
+   Add the resulting stories to the project board with Status=Todo and appropriate Agent.
+   ```
+   Use the task tool to call scrum-master with this prompt.
+4. **Confirm to game-designer** via task tool that all items are tracked.
+
 ### PR Review
 
 When the release agent reports a PR is ready:
@@ -261,7 +284,7 @@ The test/document/release agents exist for **specialty work**, not as mandatory 
 | `@test` | Cross-cutting | `my-react-app/tests/`, `**/*.test.js` — BDD + unit tests |
 | `@document` | Cross-cutting | `README.md`, documentation |
 | `@scrum-master` | Primary | Backlog refinement — breaks high-level needs into user stories on the project board |
-| `@game-designer` | Primary | UI/UX review — evaluates against game UX heuristics, writes specs, hands off to scrum-master |
+| `@game-designer` | Primary | UI/UX review — evaluates against game UX heuristics, writes specs, hands off to engineering-lead |
 | `@release` | Cross-cutting | Git operations, build, CI/CD |
 
 ## Delegation Table
