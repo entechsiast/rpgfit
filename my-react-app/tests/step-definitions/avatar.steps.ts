@@ -1,6 +1,12 @@
 import { Given, When, Then } from '@cucumber/cucumber';
 import { Page, expect } from '@playwright/test';
 
+Given('I am on the character creator page', async function () {
+  const page = this.page as Page;
+  await page.goto('/creator');
+  await page.waitForLoadState('networkidle');
+});
+
 When('I view the character preview', async function () {
   const page = this.page as Page;
   const preview = page.getByTestId('preview-card');
