@@ -1,7 +1,6 @@
 # Task ID: 5
-# Title: Implement dev server wrapper for Cucumber test:bdd scripts
-# Status: claimed
+# Title: Tower 1 narrative content items organized and ready for game-designer
+# Status: pending
 # Dependencies: None
 # Priority: medium
-# Test Strategy:
-Run npm run test:bdd -- --dry-run and verify: dev server starts, health check passes, tests run, server stops cleanly. Check lock file is cleaned up.
+# Description: Scrum master has organized game design content items for Tower 1. All items have Agent=game-designer (frontend), Sprint=3, Status=Todo. Created epic #164 linking all items with dependency documentation. Recommend starting with #119 (biome themes) as foundational work.

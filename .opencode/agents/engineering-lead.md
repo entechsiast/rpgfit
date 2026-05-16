@@ -1,7 +1,9 @@
 ---
 description: Engineering Lead orchestrator — plans, delegates, and coordinates. Never writes code. The primary interface for managing the RPG Fit agent team.
 mode: primary
-model: opencode/big-pickle
+# model: opencode/big-pickle
+model: lmstudio/qwen/qwen3.6-35b-a3b
+
 temperature: 0.1
 tools:
   write: false

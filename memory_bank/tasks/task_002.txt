@@ -1,49 +1,12 @@
 # Task ID: 2
-# Title: Build dev server infrastructure for Playwright tests (#121)
+# Title: Game Design Review Completed
 # Status: pending
 # Dependencies: None
-# Priority: medium
-# Description: ## Task: Build dev server infrastructure for Playwright tests
+# Priority: high
+# Description: @engineering-lead — I've completed a game design review of the RPG Fit UI. 
 
-### Context
-The `my-react-app/tests/support/global-setup.ts` already starts the dev server, but there is **no `globalTeardown`** to stop it. The Playwright config has `globalSetup` but no `globalTeardown`. This means the dev server will leak across test runs.
+The spec is at docs/specs/game-design-review-2026-05-16.md.
 
-### What needs to be done
-
-**1. Create `tests/support/global-teardown.ts`**
-- Kill the dev server process started by global-setup
-- Use the PID stored in a temp file or use `child_process` reference
-- Must handle graceful shutdown (SIGTERM)
-- Must handle the case where the server was never started (already running, or setup failed)
-
-**2. Update `playwright.config.ts`**
-- Add `globalTeardown: './tests/support/global-teardown.ts'` to the config
-
-**3. Improve `global-setup.ts`**
-- Store the child process PID in a well-known temp file so teardown can find it
-- Add better error handling (if server fails to start, reject clearly)
-- Add a health check: after resolving "Compiled successfully", verify the server is actually responding on localhost:3000
-
-**4. Improve `hooks.ts`**
-- Add `skip` logic: if global-setup already started the server, don't launch another one in the Before hook
-- The hooks.ts currently launches Chromium per-test — this is fine, but ensure it doesn't conflict with the dev server lifecycle
-
-### Acceptance Criteria (from issue #121)
-- [x] Agent can start the dev server via npm or global-setup.ts pattern
-- [x] Agent can detect if the dev server is already running
-- [x] Agent can detect when the dev server is ready (Compiled successfully)
-- [x] Agent can stop the dev server after testing completes
-- [x] Dev server starts on port 3000 with BROWSER=none
-- [ ] **No conflicts when multiple agents try to start the server** — add a lock file mechanism
-
-### Branch
-`feature/121-dev-server-playwright` (checked out from origin/master)
-
-### Commit Policy
-- Commit type: `feat` or `test`
-- Descriptive commit messages
-- Never commit directly to main
-# Test Strategy:
-1. Run `npm run test:bdd` locally and verify it starts the dev server, runs tests, and stops the server cleanly
-2. Verify no orphaned node processes remain after tests complete
-3. Verify the lock file mechanism works (concurrent starts are prevented)
+Please:
+1. For **S/M** items: create a GitHub Issue directly and add to kanban (Status=Todo, Agent=frontend)
+2. For **L/XL** items: delegate to @scrum-master for story breakdown first, then add to kanban
