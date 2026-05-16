@@ -39,7 +39,7 @@ Given('I have selected the {string} race', async function ({ page }: { page: Pag
 
 Given('the {string} skill is selected', async function ({ page }: { page: Page }, skillName: string) {
   const skill = page.getByTestId(`skill-${skillName.toLowerCase()}`);
-  if (!(await skill.hasClass('selected'))) {
+  if (!(await skill.evaluate(el => el.classList.contains('selected')))) {
     await skill.click();
   }
 });

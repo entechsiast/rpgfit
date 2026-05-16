@@ -19,9 +19,9 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "test:bdd": "cucumber-js --config tests/cucumber.json",
-    "test:bdd:headed": "headed=true cucumber-js --config tests/cucumber.json",
-    "test:bdd:ci": "PLAYWRIGHT_HEADLESS=true cucumber-js --config tests/cucumber.json"
+    "test:bdd": "node tests/support/dev-server-runner.mjs",
+    "test:bdd:ci": "PLAYWRIGHT_HEADLESS=true node tests/support/dev-server-runner.mjs",
+    "test:bdd:headed": "headed=true node tests/support/dev-server-runner.mjs"
   },
   "eslintConfig": {
     "extends": [
@@ -43,6 +43,7 @@
   },
   "devDependencies": {
     "@cucumber/cucumber": "^12.8.3",
+    "@playwright/test": "^1.60.0",
     "@types/node": "^25.8.0",
     "cucumber-pretty": "^6.0.1",
     "playwright": "^1.60.0",
