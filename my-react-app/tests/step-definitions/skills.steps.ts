@@ -30,20 +30,6 @@ Then('the {string} skill should be unselected', async function (skillName: strin
   await expect(skill).not.toHaveClass(/selected/);
 });
 
-Given('I have selected the {string} class', async function (className: string) {
-  const page = this.page as Page;
-  const tab = page.getByTestId('tab-class');
-  await tab.click();
-  await page.getByTestId(`class-card-${className.toLowerCase()}`).click();
-});
-
-Given('I have selected the {string} race', async function (raceName: string) {
-  const page = this.page as Page;
-  const tab = page.getByTestId('tab-race');
-  await tab.click();
-  await page.getByTestId(`race-card-${raceName.toLowerCase()}`).click();
-});
-
 Given('the {string} skill is selected', async function (skillName: string) {
   const page = this.page as Page;
   const skill = page.getByTestId(`skill-${skillName.toLowerCase()}`);

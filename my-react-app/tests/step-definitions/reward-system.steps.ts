@@ -1,23 +1,6 @@
 import { Given, When, Then } from '@cucumber/cucumber';
 import { Page, expect } from '@playwright/test';
 
-// Background setup
-Given('I have a saved character with class and race selected', async function () {
-  const page = this.page as Page;
-  await page.goto('/creator');
-  await page.getByTestId('class-card-warrior').click();
-  await page.getByTestId('race-card-human').click();
-  await page.getByTestId('tab-stats').click();
-  await page.getByTestId('btn-save').click();
-  await page.waitForTimeout(500);
-});
-
-Given('I am in an active dungeon combat', async function () {
-  const page = this.page as Page;
-  await page.goto('/adventure');
-  await page.waitForTimeout(500);
-});
-
 // Scenario: Earn XP from defeating monsters
 Given('the player defeats a monster', async function () {
   const page = this.page as Page;
