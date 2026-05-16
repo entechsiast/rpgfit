@@ -83,8 +83,9 @@ export default function StatAllocator() {
 
   // Cleanup timeouts on unmount
   useEffect(() => {
+    const currentTimeouts = timeoutsRef.current;
     return () => {
-      Object.values(timeoutsRef.current).forEach(t => clearTimeout(t));
+      Object.values(currentTimeouts).forEach(t => clearTimeout(t));
     };
   }, []);
 
