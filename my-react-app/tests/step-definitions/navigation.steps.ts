@@ -18,11 +18,6 @@ When('I click the "([^"]*)" button', async function ({ page }: { page: Page }, b
   await page.getByRole('button', { name: buttonText }).click();
 });
 
-Given('I am on the character creator page', async function ({ page }: { page: Page }) {
-  await page.goto('/creator');
-  await expect(page.getByText('Character Creator')).toBeVisible();
-});
-
 Then('I should be on the {string} page', async function ({ page }: { page: Page }, route: string) {
   await expect(page).toHaveURL(route);
 });
