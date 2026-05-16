@@ -135,7 +135,7 @@ export default function CharacterPreview() {
                 const bonus = equippedBonuses[stat.id] || 0;
                 const total = baseVal + bonus;
                 return (
-                  <div key={stat.id} className="preview-stat">
+                  <div key={stat.id} className="preview-stat" data-testid={`stat-${stat.id}`}>
                     <div className="preview-stat-value">{total}</div>
                     <div className="preview-stat-label">{stat.abbreviation}</div>
                     {bonus !== 0 && (

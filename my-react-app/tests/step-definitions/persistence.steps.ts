@@ -16,7 +16,7 @@ Then('I should see a {string} confirmation', async function ({ page }: { page: P
 });
 
 Then('the character should be stored in localStorage', async function ({ page }: { page: Page }) {
-  const stored = await page.evaluate(() => localStorage.getItem('rpg_character'));
+  const stored = await page.evaluate(() => localStorage.getItem('rpg_characters'));
   expect(stored).not.toBeNull();
 });
 
@@ -64,6 +64,6 @@ Given('I have saved a character in localStorage', async function ({ page }: { pa
 });
 
 Then('the localStorage should be cleared', async function ({ page }: { page: Page }) {
-  const stored = await page.evaluate(() => localStorage.getItem('rpg_character'));
+  const stored = await page.evaluate(() => localStorage.getItem('rpg_characters'));
   expect(stored).toBeNull();
 });
