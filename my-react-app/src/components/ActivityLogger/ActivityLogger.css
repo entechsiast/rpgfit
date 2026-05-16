@@ -1,0 +1,191 @@
+/* Activity Logger Component */
+
+.activity-logger {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid #374151;
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.activity-logger-title {
+  margin: 0 0 1rem 0;
+  color: #eab308;
+  font-size: 1.1rem;
+  border-bottom: 1px solid #374151;
+  padding-bottom: 0.5rem;
+}
+
+/* Success / Error Messages */
+.activity-success {
+  background: rgba(34, 197, 94, 0.15);
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  color: #22c55e;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.activity-error {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #f87171;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+/* Activity Type Selector */
+.activity-type-selector {
+  margin-bottom: 1rem;
+}
+
+.activity-type-label {
+  display: block;
+  font-size: 0.85rem;
+  color: #9ca3af;
+  margin-bottom: 0.4rem;
+}
+
+.activity-type-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.activity-type-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 0.85rem;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid #374151;
+  border-radius: 8px;
+  color: #9ca3af;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.85rem;
+}
+
+.activity-type-btn:hover {
+  border-color: #eab308;
+  color: #e0e0e0;
+}
+
+.activity-type-btn.active {
+  background: rgba(234, 179, 8, 0.15);
+  border-color: #eab308;
+  color: #eab308;
+}
+
+.activity-emoji {
+  font-size: 1.1rem;
+}
+
+.activity-label-text {
+  font-weight: 500;
+}
+
+/* Duration Field */
+.activity-duration-field {
+  margin-bottom: 0.75rem;
+}
+
+.activity-duration-field label {
+  display: block;
+  font-size: 0.85rem;
+  color: #9ca3af;
+  margin-bottom: 0.3rem;
+}
+
+.activity-duration-field input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid #374151;
+  border-radius: 6px;
+  color: #e0e0e0;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.activity-duration-field input:focus {
+  outline: none;
+  border-color: #eab308;
+}
+
+.activity-duration-field input::placeholder {
+  color: #6b7280;
+}
+
+/* Notes Field */
+.activity-notes-field {
+  margin-bottom: 1rem;
+}
+
+.activity-notes-field label {
+  display: block;
+  font-size: 0.85rem;
+  color: #9ca3af;
+  margin-bottom: 0.3rem;
+}
+
+.activity-notes-field textarea {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid #374151;
+  border-radius: 6px;
+  color: #e0e0e0;
+  font-size: 0.9rem;
+  resize: vertical;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.activity-notes-field textarea:focus {
+  outline: none;
+  border-color: #eab308;
+}
+
+.activity-notes-field textarea::placeholder {
+  color: #6b7280;
+}
+
+/* Log Button */
+.btn-log-session {
+  width: 100%;
+  padding: 0.65rem 1rem;
+  background: linear-gradient(135deg, #eab308, #f59e0b);
+  color: #1a1a2e;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 700;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.btn-log-session:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(234, 179, 8, 0.35);
+}
+
+.btn-log-session:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 600px) {
+  .activity-type-buttons {
+    gap: 0.35rem;
+  }
+
+  .activity-type-btn {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.8rem;
+  }
+}
