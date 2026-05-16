@@ -8,6 +8,7 @@ import { calculateMaxHp, calculateHpGainOnLevelUp, calculateMaxMp, calculateMpGa
 import { getXpToNextLevel, getTotalXpToLevel, getXpProgress, MAX_LEVEL } from '../data/xp';
 import { getItemById, getRandomLoot } from '../data/loot';
 import { CONSUMABLES } from '../data/consumables';
+import { getFloorRequirements } from '../data/floors';
 
 const SLOT_ORDER = ['head', 'chest', 'pants', 'boots', 'rightHand', 'leftHand', 'accessory1', 'accessory2', 'accessory3'];
 
@@ -46,6 +47,9 @@ const initialState = {
   statPointsToSpend: 0,
   consumables: {},
   temporaryBuffs: { str: 0, dex: 0, con: 0, int: 0, wis: 0, cha: 0 },
+  sessions: [],
+  currentFloor: 1,
+  currentFloorProgress: 0,
 };
 
 function calculatePointsRemaining(stats) {
@@ -394,6 +398,70 @@ function reducer(state, action) {
     case 'CLEAR_COMBAT_LOG':
       return { ...state, combatLog: [] };
 
+    case 'ADD_SESSION': {
+      const newSession = {
+        type: action.payload.type,
+        duration: action.payload.duration,
+        notes: action.payload.notes || '',
+        date: action.payload.date || new Date().toISOString(),
+      };
+      const newSessions = [...(state.sessions || []), newSession];
+      const newProgress = (state.currentFloorProgress || 0) + 1;
+      const floorReq = getFloorRequirements(state.currentFloor || 1);
+      const sessionsNeeded = floorReq.sessionsRequired;
+
+      if (newProgress >= sessionsNeeded) {
+        const nextFloor = (state.currentFloor || 1) + 1;
+        const nextFloorReq = getFloorRequirements(nextFloor);
+        return {
+          ...state,
+          sessions: newSessions,
+          currentFloor: nextFloor,
+          currentFloorProgress: 0,
+          gold: state.gold + 500,
+          combatLog: [
+            ...(state.combatLog || []),
+            {
+              type: 'floor_advanced',
+              fromFloor: state.currentFloor,
+              toFloor: nextFloor,
+              floorName: nextFloorReq.name,
+              goldReward: 500,
+              timestamp: Date.now(),
+            },
+          ],
+        };
+      }
+
+      return {
+        ...state,
+        sessions: newSessions,
+        currentFloorProgress: newProgress,
+      };
+    }
+
+    case 'ADVANCE_FLOOR': {
+      const nextFloor = (state.currentFloor || 1) + 1;
+      const nextFloorReq = getFloorRequirements(nextFloor);
+      return {
+        ...state,
+        currentFloor: nextFloor,
+        currentFloorProgress: 0,
+        gold: state.gold + 500,
+        combatLog: [
+          ...(state.combatLog || []),
+          {
+            type: 'floor_advanced',
+            fromFloor: state.currentFloor,
+            toFloor: nextFloor,
+            floorName: nextFloorReq.name,
+            goldReward: 500,
+            timestamp: Date.now(),
+          },
+        ],
+      };
+    }
+
     case 'ADD_EQUIPMENT_ITEM': {
       const itemId = action.payload;
       if (state.ownedEquipment?.includes(itemId)) return state;
@@ -524,6 +592,9 @@ function reducer(state, action) {
         statPointsToSpend: action.payload.statPointsToSpend || 0,
         consumables: action.payload.consumables || {},
         temporaryBuffs: { str: 0, dex: 0, con: 0, int: 0, wis: 0, cha: 0 },
+        sessions: action.payload.sessions || [],
+        currentFloor: action.payload.currentFloor || 1,
+        currentFloorProgress: action.payload.currentFloorProgress || 0,
       };
     }
 

@@ -607,6 +607,51 @@
   font-size: 0.85rem;
 }
 
+/* Floor Display */
+.topbar-floor {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.75rem;
+  background: rgba(234, 179, 8, 0.08);
+  border: 1px solid rgba(234, 179, 8, 0.25);
+  border-radius: 8px;
+  white-space: nowrap;
+}
+
+.floor-label {
+  font-size: 0.8rem;
+  color: #eab308;
+  font-weight: 600;
+}
+
+.floor-progress-bar {
+  width: 60px;
+  height: 8px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.floor-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #eab308, #f59e0b);
+  border-radius: 4px;
+  transition: width 0.4s ease;
+}
+
+.floor-progress-text {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  min-width: 40px;
+}
+
+@media (max-width: 900px) {
+  .topbar-floor {
+    display: none;
+  }
+}
+
 @media (max-width: 900px) {
   .inventory-layout {
     grid-template-columns: 1fr;
