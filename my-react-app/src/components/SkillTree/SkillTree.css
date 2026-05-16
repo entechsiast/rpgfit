@@ -2,12 +2,88 @@
   padding: 16px;
 }
 
-.skill-tree h3 {
-  margin: 0 0 12px 0;
+/* Header with level badge and XP bar */
+.skill-tree-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.skill-tree-header h3 {
+  margin: 0;
   font-size: 14px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: #6b7280;
+}
+
+.skill-tree-level-xp {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Level badge */
+.level-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 12px;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #1a1a2e;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 20px;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(245, 158, 11, 0.3);
+}
+
+/* XP bar */
+.xp-bar-container {
+  position: relative;
+  width: 160px;
+  height: 20px;
+  background: #e5e7eb;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.xp-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #f59e0b, #fbbf24, #fde68a);
+  border-radius: 10px;
+  transition: width 0.4s ease;
+  position: relative;
+}
+
+.xp-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.25) 0%,
+    transparent 60%
+  );
+  border-radius: 10px;
+}
+
+.xp-bar-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 10px;
+  font-weight: 600;
+  color: #374151;
+  white-space: nowrap;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
 }
 
 .skill-category {
@@ -103,4 +179,46 @@
   color: #9ca3af;
   text-transform: uppercase;
   letter-spacing: 0.3px;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .skill-tree-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .skill-tree-level-xp {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .xp-bar-container {
+    width: 140px;
+  }
+}
+
+@media (max-width: 480px) {
+  .skill-tree {
+    padding: 12px;
+  }
+
+  .skill-tree-header h3 {
+    font-size: 13px;
+  }
+
+  .level-badge {
+    font-size: 12px;
+    padding: 3px 10px;
+  }
+
+  .xp-bar-container {
+    width: 120px;
+    height: 18px;
+  }
+
+  .xp-bar-text {
+    font-size: 9px;
+  }
 }
