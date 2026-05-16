@@ -6,7 +6,7 @@ import DungeonList from '../../components/DungeonList/DungeonList';
 import DungeonDetail from '../../components/DungeonDetail/DungeonDetail';
 import CombatSimulator from '../../components/CombatSimulator/CombatSimulator';
 import CombatResults from '../../components/CombatResults/CombatResults';
-import EquipmentGrid from '../../components/EquipmentGrid/EquipmentGrid';
+import EquipmentInventoryPanel from '../../components/EquipmentInventoryPanel/EquipmentInventoryPanel';
 import LevelUpModal from '../../components/LevelUpModal/LevelUpModal';
 import HpMpDisplay from '../../components/HpMpDisplay/HpMpDisplay';
 import GoldDisplay from '../../components/GoldDisplay/GoldDisplay';
@@ -266,7 +266,7 @@ export default function AdventurePage() {
             <div className="inventory-layout">
               <div className="inventory-section">
                 <h3 className="inventory-section-title">Equipment</h3>
-                <EquipmentGrid compact />
+                <EquipmentInventoryPanel />
               </div>
               <div className="inventory-section">
                 <h3 className="inventory-section-title">Consumables</h3>
