@@ -1,0 +1,25 @@
+## Summary
+
+Removed 12 duplicate step definitions that were causing Cucumber to abort with "Multiple step definitions match" errors.
+
+## Changes
+
+| File | Duplicates Removed |
+|------|-------------------|
+| `skills.steps.ts` | 'I have selected the {string} race/class' (2) |
+| `hp-mp.steps.ts` | 'I view the character preview' (1) |
+| `reward-system.steps.ts` | 'I am in an active dungeon combat' + 'I have a saved character with class and race selected' (2) |
+| `dungeon-combat.steps.ts` | 'I have a saved character' + 'combat should begin' + 'I should see the consumables section' (3) |
+| `equipment.steps.ts` | 'I should see {string}' (1) |
+| `leveling-system.steps.ts` | 'I have a saved character with class and race selected' + '{string} should display the value {int}' (2) |
+| `wizard-class.steps.ts` | '{string} should display the value {int}' (1) |
+
+## Verification
+
+- **Local dry-run**: ZERO "Multiple step definitions match" errors
+- **Build**: Compiled successfully
+- **CI**: Pending
+
+## Blocked
+
+Feature work (#91-#119) waits for CI test-and-build to pass.

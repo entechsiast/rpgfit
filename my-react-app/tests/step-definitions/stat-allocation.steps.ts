@@ -48,11 +48,6 @@ Given('I have incremented {string} to {int}', async function (statName: string, 
   }
 });
 
-Given('I have incremented {string} to 9', async function (statName: string) {
-  const page = this.page as Page;
-  await page.locator(`[data-testid="stat-${statName.toLowerCase()}"] [data-testid="stat-increment"]`).click();
-});
-
 Then('{string} should display the value {int}', async function (statName: string, value: number) {
   const page = this.page as Page;
   const statValue = await page.locator(`[data-testid="stat-${statName.toLowerCase()}"] .stat-value`).textContent();
