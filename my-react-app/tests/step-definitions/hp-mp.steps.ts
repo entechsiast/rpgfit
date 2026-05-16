@@ -26,11 +26,6 @@ Given('my character has full HP and full MP', async function ({ page }: { page: 
 });
 
 // Scenario: HP displayed in character preview
-Given('I am on the character creator page', async function ({ page }: { page: Page }) {
-  await page.goto('/creator');
-  await page.waitForTimeout(500);
-});
-
 When('I view the character preview', async function ({ page }: { page: Page }) {
   const preview = page.locator('[data-testid="preview-card"]');
   await expect(preview).toBeVisible();
