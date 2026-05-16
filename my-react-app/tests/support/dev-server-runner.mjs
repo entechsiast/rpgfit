@@ -223,6 +223,7 @@ async function main() {
   // Run Cucumber with explicit paths (no config file to avoid path resolution issues)
   const cucumberArgs = [
     '--require', 'step-definitions/**/*.ts',
+    '--require', 'support/**/*.ts',
     '--require-module', 'ts-node/register',
     '--format', 'progress',
     'features/**/*.feature',  // positional: feature file globs
