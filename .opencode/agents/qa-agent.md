@@ -388,3 +388,68 @@ gh pr view <pr-number> --repo entechsiast/rpgfit --json mergeable,mergeStateStat
   - Do NOT proceed with merge until the engineering-lead has resolved the conflicts.
 
 **NEVER** merge a PR with unresolved conflicts. Always delegate conflict resolution to engineering-lead.
+
+## Daily QA Check Protocol
+
+**Run a full QA check once per day to detect improvements and regressions in the UI.**
+
+### Step 1 — Run All Gherkin Tests
+
+```powershell
+cd C:\dev\rpgfit\my-react-app
+npm run test:bdd
+```
+
+Capture the output to a daily report file:
+
+```powershell
+npm run test:bdd 2>&1 | Tee-Object -FilePath "tests-reports/daily-$(Get-Date -Format 'yyyy-MM-dd').txt"
+```
+
+### Step 2 — Compare with Previous Results
+
+Check if there's a previous daily report and compare:
+
+```powershell
+$previousReport = Get-ChildItem "tests-reports/daily-*.txt" | Sort-Object Name -Descending | Select-Object -First 2 | Select-Object -Last 1
+if ($previousReport) {
+    # Compare scenario counts
+    $currentPassed = (Select-String -Path "tests-reports/daily-$(Get-Date -Format 'yyyy-MM-dd').txt" -Pattern "\d+ scenarios \(\d+ passed\)").Matches.Value
+    $previousPassed = (Select-String -Path $previousReport.FullName -Pattern "\d+ scenarios \(\d+ passed\)").Matches.Value
+    
+    if ($currentPassed -ne $previousPassed) {
+        Write-Output "REGRESSION DETECTED: Scenario results changed"
+    }
+}
+```
+
+### Step 3 — Report Findings
+
+If any regressions are detected, create a GitHub issue:
+
+```bash
+gh issue create --repo entechsiast/rpgfit --title "regression: <description>" --label "bug,regression" --body "## Regression Detected
+
+**Date:** $(Get-Date -Format 'yyyy-MM-dd')
+**Previous Result:** <previous result>
+**Current Result:** <current result>
+
+## Steps to Reproduce
+1. ...
+
+## Expected Behavior
+...
+
+## Actual Behavior
+..."
+```
+
+If no regressions, log a success message:
+
+```bash
+gh issue comment <daily-tracking-issue> --repo entechsiast/rpgfit --body "## Daily QA Check
+
+**Date:** $(Get-Date -Format 'yyyy-MM-dd')
+**Status:** All tests passing
+**Scenarios:** X passed, Y failed, Z skipped
+```
