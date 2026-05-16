@@ -13,7 +13,7 @@
 
 import { spawn } from 'node:child_process';
 import { existsSync, readFileSync, writeFileSync, unlinkSync } from 'node:fs';
-import { join, dirname } from 'node:path';
+import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createConnection } from 'node:net';
 
@@ -221,7 +221,7 @@ async function main() {
   };
 
   const cucumberArgs = [
-    '--config', join(__dirname, 'cucumber.json'),
+    '--config', resolve(__dirname, 'cucumber.json'),
     ...(process.argv.slice(2)),   // forward any CLI args like --dry-run
   ];
 
