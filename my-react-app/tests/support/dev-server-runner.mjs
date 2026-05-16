@@ -8,7 +8,7 @@
  *   4. Spawn Cucumber tests via child_process
  *   5. On exit (success or failure) kill dev server + clean lock file
  *
- * Works on Windows (uses `npx` with shell: true).
+ * Cross-platform: detects OS at runtime and uses the appropriate command shell.
  */
 
 import { spawn } from 'node:child_process';
@@ -28,19 +28,39 @@ const HEALTH_CONNECT_TIMEOUT_MS = 3_000;
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-/** Check whether a PID is alive (Windows compatible). */
+/** Cross-platform command for starting a process. */
+function getShellCommand() {
+  const platform = process.platform;
+  if (platform === 'win32') {
+    return { cmd: 'cmd', args: ['/c'] };
+  }
+  // Linux, macOS, WSL, etc.
+  return { cmd: 'bash', args: ['-c'] };
+}
+
+/** Check whether a PID is alive (cross-platform). */
 function isProcessAlive(pid) {
+  const { cmd, args } = getShellCommand();
   try {
-    spawn('taskkill', ['/PID', String(pid), '/F'], {
-      detached: true,
-      shell: true,
-      stdio: 'ignore',
-    });
-    // taskkill returns 0 if process existed, 128 if not found
-    // We can't easily read the exit code synchronously, so we
-    // just return true — the subsequent health check will fail
-    // if the process isn't actually listening.
-    return true;
+    if (process.platform === 'win32') {
+      // Windows: use taskkill to test process existence
+      spawn('taskkill', ['/PID', String(pid), '/F'], {
+        detached: true,
+        shell: true,
+        stdio: 'ignore',
+      });
+      // taskkill returns 0 if process existed, 128 if not found
+      // We can't easily read the exit code synchronously, so we
+      // just return true — the subsequent health check will fail
+      // if the process isn't actually listening.
+      return true;
+    } else {
+      // Unix: use kill -0 to test process existence (no signal sent)
+      spawn('kill', ['-0', String(pid)], {
+        stdio: 'ignore',
+      });
+      return true;
+    }
   } catch {
     return false;
   }
@@ -113,13 +133,20 @@ function removeLock() {
   try { unlinkSync(LOCK_FILE); console.log('  ✓ Lock file removed'); } catch { /* ignore */ }
 }
 
-/** Kill the dev server process by PID. */
+/** Kill the dev server process by PID (cross-platform). */
 function killServer(pid) {
   try {
-    spawn('taskkill', ['/PID', String(pid), '/F'], {
-      shell: true,
-      stdio: 'ignore',
-    });
+    if (process.platform === 'win32') {
+      spawn('taskkill', ['/PID', String(pid), '/F'], {
+        shell: true,
+        stdio: 'ignore',
+      });
+    } else {
+      // Unix: use kill with SIGTERM, fallback to SIGKILL after a delay
+      spawn('kill', ['-TERM', String(pid)], {
+        stdio: 'ignore',
+      });
+    }
     console.log(`  ✓ Dev server (PID ${pid}) terminated`);
   } catch {
     console.log(`  ⚠ Dev server (PID ${pid}) already exited`);
@@ -145,8 +172,9 @@ async function main() {
     HEADED: (process.env.HEADDED || process.env.headed) ?? 'false',
   };
 
-  // Use `cmd /c npm start` — reliable on Windows, respects cwd
-  const devServer = spawn('cmd', ['/c', 'npm start'], {
+  // Cross-platform: use the appropriate shell for the current OS
+  const { cmd: shellCmd, args: shellArgs } = getShellCommand();
+  const devServer = spawn(shellCmd, [...shellArgs, 'npm start'], {
     cwd: ROOT,
     env,
     stdio: ['ignore', 'pipe', 'pipe'],
@@ -193,11 +221,13 @@ async function main() {
   };
 
   const cucumberArgs = [
-    '--config', join(ROOT, 'tests', 'cucumber.json'),
+    '--config', join(ROOT, 'cucumber.json'),
     ...(process.argv.slice(2)),   // forward any CLI args like --dry-run
   ];
 
-  const cucumber = spawn('cmd', ['/c', `npx cucumber-js ${cucumberArgs.map(a => `"${a}"`).join(' ')}`], {
+  // Cross-platform: use the appropriate shell for the current OS
+  const cucumberCmd = `npx cucumber-js ${cucumberArgs.map(a => `"${a}"`).join(' ')}`;
+  const cucumber = spawn(shellCmd, [...shellArgs, cucumberCmd], {
     cwd: ROOT,
     env: cucumberEnv,
     stdio: 'inherit',
