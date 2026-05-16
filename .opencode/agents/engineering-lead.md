@@ -151,6 +151,54 @@ When the release agent reports a PR is ready:
    gh project item-edit --project-id PVT_kwHOAWZJdM4BXz_q --id <item-id> --field-id PVTSSF_lAHOAWZJdM4BXz_qzhS-TLM --single-select-option-id 98236657
    ```
 
+### Master Branch Change Handling
+
+**If master has new changes while a PR is open, ALWAYS rebase the feature branch before merging.**
+
+This applies when:
+- There is a merge conflict on the PR
+- The CI is FAILING on the PR (due to master branch changes)
+
+Protocol:
+1. **Check if master has changed** since the PR was created:
+   ```bash
+   git fetch origin master
+   git log --oneline origin/master..HEAD
+   ```
+   If the output shows commits, master has new changes.
+
+2. **Rebase the feature branch** onto the latest master:
+   ```bash
+   git checkout feature/<branch-name>
+   git rebase origin/master
+   ```
+
+3. **Resolve conflicts if any**:
+   - If `git rebase` reports conflicts, resolve them manually
+   - After resolving:
+     ```bash
+     git add <resolved-files>
+     git rebase --continue
+     ```
+   - If conflicts are complex or unclear, **delegate to the agent who owns the feature branch** with the conflict details
+
+4. **Force push the rebased branch**:
+   ```bash
+   git push --force-with-lease origin feature/<branch-name>
+   ```
+
+5. **Wait for CI to re-run**:
+   ```bash
+   Start-Sleep -Seconds 30
+   gh pr view <pr-number> --repo entechsiast/rpgfit --json statusCheckRollup
+   ```
+   Wait until CI is `COMPLETED` before proceeding.
+
+6. **If CI passes** → proceed to merge as normal
+7. **If CI still fails** → delegate to the agent who owns the feature branch for fixes
+
+**NEVER merge a PR with unresolved conflicts or failing CI due to master branch changes.** Always rebase first.
+
 ## Issue Pipeline
 
 An issue flows through agents as a pipeline. You reassign the Agent field at each step:
