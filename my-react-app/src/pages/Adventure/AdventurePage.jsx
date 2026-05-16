@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useCharacter, useCharacterDispatch } from '../../contexts/CharacterContext';
 import { getXpProgress } from '../../data/xp';
+import { getFloorRequirements } from '../../data/floors';
 import { CONSUMABLES } from '../../data/consumables';
+import ActivityLogger from '../../components/ActivityLogger/ActivityLogger';
 import DungeonList from '../../components/DungeonList/DungeonList';
 import DungeonDetail from '../../components/DungeonDetail/DungeonDetail';
 import CombatSimulator from '../../components/CombatSimulator/CombatSimulator';
@@ -107,6 +109,7 @@ export default function AdventurePage() {
           <HpMpDisplay compact />
           <XpBar compact progress={xpProgress} />
           <GoldDisplay compact />
+          <FloorDisplay />
         </div>
 
         <div className="topbar-right">
@@ -134,6 +137,7 @@ export default function AdventurePage() {
       <div className="adventure-content">
         {activeTab === 'adventure' && (
           <div className="adventure-tab-content">
+            <ActivityLogger />
             {!character.combatState?.active && !character.currentDungeon ? (
               <DungeonList />
             ) : character.combatState?.active ? (
@@ -388,6 +392,32 @@ function ShopPanel() {
           ))
         )}
       </div>
+    </div>
+  );
+}
+
+function FloorDisplay() {
+  const character = useCharacter();
+  const currentFloor = character.currentFloor || 1;
+  const currentProgress = character.currentFloorProgress || 0;
+  const floorReq = getFloorRequirements(currentFloor);
+  const sessionsNeeded = floorReq.sessionsRequired;
+  const progressPercent = sessionsNeeded > 0 ? (currentProgress / sessionsNeeded) * 100 : 0;
+
+  return (
+    <div className="topbar-floor" data-testid="current-floor">
+      <span className="floor-label">
+        Floor {currentFloor} — {floorReq.name}
+      </span>
+      <div className="floor-progress-bar" data-testid="floor-progress-bar">
+        <div
+          className="floor-progress-fill"
+          style={{ width: `${Math.min(progressPercent, 100)}%` }}
+        />
+      </div>
+      <span className="floor-progress-text">
+        {currentProgress} / {sessionsNeeded}
+      </span>
     </div>
   );
 }
