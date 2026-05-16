@@ -130,11 +130,12 @@ This prevents:
 When an agent finishes and calls you back:
 
 1. **Review their issue comment** — summary of what was done, test results, files changed
-2. **Verify build**:
+2. **Verify tests and build**:
    ```bash
-   cd my-react-app && npm run build
+   cd my-react-app; if ($?) { npm test -- --watchAll=false }; if ($?) { npm run build }
    ```
-3. **If build passes**: approve their PR (they should have already created one) and update kanban:
+   If either step fails, reject with failure details.
+3. **If tests and build pass**: approve their PR (they should have already created one) and update kanban:
    ```bash
    gh pr review <pr-number> --repo entechsiast/rpgfit --approve --body "Approved."
    gh pr merge <pr-number> --repo entechsiast/rpgfit --squash

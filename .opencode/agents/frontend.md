@@ -85,6 +85,12 @@ npm start            # Dev server on port 3000
   ```
 - **Create new issues** for bugs or problems you discover during work
 - **If resuming interrupted work**, read issue comments for previous progress
+- **Run unit tests and confirm all pass** before pushing:
+  ```bash
+  cd my-react-app
+  npm test -- --watchAll=false
+  ```
+  If any test fails, fix them before proceeding.
 - **When done**, push and create a PR:
   ```bash
   git push -u origin feature/<issue-number>-<short-desc>

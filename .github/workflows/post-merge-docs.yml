@@ -1,0 +1,25 @@
+name: Post-merge doc issue
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [master]
+
+jobs:
+  create-docs-issue:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `docs: update README for merged PR #${pr.number}`,
+              labels: ['documentation'],
+              body: `PR #${pr.number} was merged to master.\n\n**Title:** ${pr.title}\n\nPlease review if any documentation (README, USAGE.md, etc.) needs updating to reflect the changes.`
+            });
