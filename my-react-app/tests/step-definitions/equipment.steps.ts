@@ -27,11 +27,6 @@ When('I filter by rarity {string}', async function (rarity: string) {
   await page.getByTestId('filter-rarity').selectOption(rarityMap[rarity] || rarity.toLowerCase());
 });
 
-Then('I should see {string}', async function (text: string) {
-  const page = this.page as Page;
-  await expect(page.getByText(text)).toBeVisible();
-});
-
 Then('I should see the {string} item', async function (itemName: string) {
   const page = this.page as Page;
   await expect(page.getByText(itemName)).toBeVisible();

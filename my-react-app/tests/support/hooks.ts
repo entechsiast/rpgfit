@@ -39,9 +39,11 @@ Before(async function (this: CustomWorld) {
   }
 
   this.browser = await chromium.launch({ headless: true });
-  this.page = await this.browser.newPage();
+  const context = await this.browser.newContext({ baseURL: 'http://localhost:3000' });
+  this.page = await context.newPage();
 });
 
 After(async function (this: CustomWorld) {
-  await this.browser.close();
+  if (this.page) await this.page.close();
+  if (this.browser) await this.browser.close();
 });

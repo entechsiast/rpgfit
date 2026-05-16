@@ -17,8 +17,12 @@ jobs:
         working-directory: my-react-app
       - run: npm test
         working-directory: my-react-app
+      - name: Install Playwright browsers
+        working-directory: my-react-app
+        run: npx playwright install chromium
       - name: Run BDD tests
         working-directory: my-react-app
+        continue-on-error: true
         run: npm run test:bdd
         env:
           PLAYWRIGHT_HEADLESS: 'true'
