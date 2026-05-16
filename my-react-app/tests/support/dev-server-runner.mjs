@@ -223,9 +223,9 @@ async function main() {
   // Run Cucumber with explicit paths (no config file to avoid path resolution issues)
   const cucumberArgs = [
     '--require', 'step-definitions/**/*.ts',
-    '--paths', 'features/**/*.feature',
     '--require-module', 'ts-node/register',
     '--format', 'progress',
+    'features/**/*.feature',  // positional: feature file globs
     ...(process.argv.slice(2)),   // forward any CLI args like --dry-run
   ];
 
