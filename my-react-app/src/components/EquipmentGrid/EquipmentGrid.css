@@ -102,3 +102,124 @@
   font-size: 13px;
   padding: 24px;
 }
+
+/* Mobile responsiveness — Fitts's Law: 44x44px minimum touch targets */
+@media (max-width: 768px) {
+  .equipment-grid {
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .equipment-right {
+    width: 100%;
+  }
+
+  .equipped-title {
+    margin-bottom: 8px;
+  }
+
+  /* Horizontal swipeable carousel for equipment slots */
+  .equipped-grid {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    gap: 10px;
+    padding-bottom: 8px;
+    scrollbar-width: thin;
+    scrollbar-color: #d1d5db transparent;
+  }
+
+  .equipped-grid::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .equipped-grid::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .equipped-grid::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 3px;
+  }
+
+  /* Each equipment slot becomes a swipeable card */
+  .equipped-grid > * {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+    min-width: 120px;
+  }
+}
+
+@media (max-width: 480px) {
+  .equipment-grid {
+    padding: 8px;
+    gap: 10px;
+  }
+
+  .equipment-filters {
+    gap: 6px;
+  }
+
+  .filter-group {
+    flex-wrap: wrap;
+  }
+
+  .filter-label {
+    font-size: 11px;
+  }
+
+  /* Touch-friendly filter buttons (min 44px) */
+  .filter-btn {
+    padding: 10px 14px;
+    font-size: 12px;
+    min-height: 44px;
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Touch-friendly rarity select */
+  .rarity-select {
+    padding: 10px 12px;
+    font-size: 14px;
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Swipeable equipment carousel */
+  .equipped-grid {
+    gap: 8px;
+    padding: 4px 12px;
+  }
+
+  .equipped-grid > * {
+    min-width: 100px;
+  }
+
+  /* Touch-friendly available items */
+  .available-items {
+    max-height: 300px;
+  }
+
+  .no-items {
+    padding: 20px;
+    font-size: 12px;
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  /* Touch device specific: larger hit areas */
+  .filter-btn {
+    padding: 12px 16px;
+    min-height: 48px;
+  }
+
+  .rarity-select {
+    padding: 12px 16px;
+    min-height: 48px;
+  }
+}
