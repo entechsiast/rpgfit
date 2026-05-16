@@ -41,7 +41,7 @@
   border-color: #9ca3af;
 }
 
-.appearance-option-btn.selected {
+.appearance-option-btn.appearance-option--selected {
   border-color: #3b82f6;
   transform: scale(1.1);
 }
