@@ -12,14 +12,14 @@ export default function Home() {
           Then venture into dungeons, battle monsters, and grow stronger.
         </p>
         <div className="home-buttons">
-          <Link to="/creator" className="home-button btn-create" data-testid="btn-create-character">
-            \uD83E\uDDF5 Create Character
+          <Link to="/creator" className="home-button btn-create" data-testid="btn-create-character" aria-label="Create a new character">
+            🗡️ Create Character
           </Link>
-          <Link to="/characters" className="home-button btn-characters">
-            \uD83D\uDC64 My Characters
+          <Link to="/characters" className="home-button btn-characters" data-testid="btn-my-characters" aria-label="View my saved characters">
+            👤 My Characters
           </Link>
-          <Link to="/adventure" className="home-button btn-adventure">
-            \u2694\uFE0F Adventure
+          <Link to="/adventure" className="home-button btn-adventure" data-testid="btn-adventure" aria-label="Start an adventure session">
+            ⚔️ Adventure
           </Link>
         </div>
       </div>
