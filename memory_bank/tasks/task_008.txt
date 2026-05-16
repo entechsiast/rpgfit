@@ -1,0 +1,6 @@
+# Task ID: 8
+# Title: Implement drop feedback animation (Phase 2 completion)
+# Status: claimed
+# Dependencies: None
+# Priority: medium
+# Description: Implement SVG-based drop feedback animations for 3 reward types (guaranteed, bonus, milestone) as per AC in issue #109.

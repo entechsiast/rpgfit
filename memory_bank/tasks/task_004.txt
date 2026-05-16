@@ -1,49 +1,7 @@
 # Task ID: 4
-# Title: Fix dev server infrastructure for issue #121
-# Status: claimed
+# Title: Organize game design content items (#113-#119) and break down as needed
+# Status: in_progress
 # Dependencies: None
 # Priority: medium
-# Details:
-## Task
-
-Issue #121 requires a reliable way to start and stop the React dev server for Playwright/Cucumber tests.
-
-## Current State
-
-- `tests/support/global-setup.ts` exists and starts the dev server (used by Playwright)
-- `tests/support/global-teardown.ts` exists and stops the dev server
-- `playwright.config.ts` has HTML reporter output clash with test results folder
-- `test:bdd` runs Cucumber directly but does NOT invoke global-setup.ts
-- No Playwright test files exist (0 tests found)
-
-## What Needs to Be Done
-
-### 1. Fix playwright.config.ts HTML reporter clash
-Change HTML reporter output path to avoid collision with test-results folder.
-
-### 2. Create dev server wrapper script
-Create `tests/support/dev-server-runner.mjs` (or a package.json script) that:
-- Starts the dev server (same logic as global-setup.ts)
-- Waits for health check
-- Runs Cucumber tests
-- Stops the dev server on completion
-- Handles stale lock files
-- Works on Windows (PowerShell/CMD compatible)
-
-### 3. Update package.json scripts
-Add/modify scripts:
-- `test:bdd` — should use the wrapper (start server → run cucumber → stop server)
-- `test:bdd:ci` — same but with headless flag
-- Optionally keep `test:bdd:headed` for headed mode
-
-## Acceptance Criteria
-
-- [ ] `npm run test:bdd` starts dev server, runs tests, stops server
-- [ ] `npm run test:bdd:ci` works in CI environment
-- [ ] Dev server health check passes before tests run
-- [ ] Lock file mechanism prevents conflicts
-- [ ] Works on Windows (the current platform)
-- [ ] Global teardown cleans up stale lock files
-
 # Test Strategy:
-Run npm run test:bdd -- --dry-run and verify: dev server starts, health check passes, tests run, server stops cleanly. Check for lock file cleanup.
+All 7 help wanted items (#113-#119) should have proper fields set (Agent, Effort, Sprint). Any items that need breaking down should have sub-stories created on the project board.

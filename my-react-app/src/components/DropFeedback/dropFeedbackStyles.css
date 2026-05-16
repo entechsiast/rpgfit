@@ -1,0 +1,499 @@
+/* ============================================
+   Drop Feedback Animation Styles
+   RPG Fit — Drop reward visual feedback
+   Manhwa aesthetic (Solo Leveling, Tower of God)
+   ============================================ */
+
+/* --- Shared overlay --- */
+.drop-feedback-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* --- Guaranteed burst styles --- */
+.guaranteed-burst {
+  position: relative;
+  width: 200px;
+  height: 200px;
+}
+
+.guaranteed-burst .burst-ring {
+  transform-origin: center;
+  animation: burst-ring-expand 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+.guaranteed-burst .burst-ring:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.guaranteed-burst .burst-ring:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+.guaranteed-burst .burst-dot {
+  animation: burst-dot-fly 0.8s ease-out forwards;
+  opacity: 0;
+}
+
+.guaranteed-burst .burst-dot:nth-child(4) { animation-delay: 0.05s; }
+.guaranteed-burst .burst-dot:nth-child(5) { animation-delay: 0.1s; }
+.guaranteed-burst .burst-dot:nth-child(6) { animation-delay: 0.15s; }
+.guaranteed-burst .burst-dot:nth-child(7) { animation-delay: 0.2s; }
+.guaranteed-burst .burst-dot:nth-child(8) { animation-delay: 0.25s; }
+.guaranteed-burst .burst-dot:nth-child(9) { animation-delay: 0.3s; }
+.guaranteed-burst .burst-dot:nth-child(10) { animation-delay: 0.35s; }
+.guaranteed-burst .burst-dot:nth-child(11) { animation-delay: 0.4s; }
+
+.guaranteed-burst .burst-center {
+  animation: burst-center-pop 0.4s ease-out forwards;
+  transform-origin: center;
+  opacity: 0;
+  transform: scale(0);
+}
+
+.guaranteed-burst .burst-text {
+  animation: burst-text-appear 0.3s ease-out 0.3s forwards;
+  opacity: 0;
+}
+
+@keyframes burst-ring-expand {
+  0% {
+    transform: scale(0);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(3);
+    opacity: 0;
+  }
+}
+
+@keyframes burst-dot-fly {
+  0% {
+    transform: translate(0, 0) scale(0);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+    transform: translate(var(--tx, 0), var(--ty, 0)) scale(1.2);
+  }
+  100% {
+    transform: translate(calc(var(--tx, 0) * 2), calc(var(--ty, 0) * 2)) scale(0);
+    opacity: 0;
+  }
+}
+
+@keyframes burst-center-pop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+}
+
+@keyframes burst-text-appear {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --- Bonus glow styles --- */
+.bonus-glow {
+  position: relative;
+  width: 280px;
+  height: 280px;
+}
+
+.bonus-glow .glow-core {
+  animation: glow-core-pulse 1.2s ease-in-out infinite;
+  transform-origin: center;
+}
+
+.bonus-glow .glow-ring {
+  transform-origin: center;
+  animation: glow-ring-spin 2s linear infinite;
+}
+
+.bonus-glow .glow-ring:nth-child(2) {
+  animation-direction: reverse;
+  animation-duration: 2.5s;
+}
+
+.bonus-glow .glow-ring:nth-child(3) {
+  animation-duration: 1.8s;
+}
+
+.bonus-glow .glow-sparkle {
+  animation: sparkle-fade 1s ease-in-out infinite;
+  transform-origin: center;
+}
+
+.bonus-glow .glow-sparkle:nth-child(5) { animation-delay: 0s; }
+.bonus-glow .glow-sparkle:nth-child(6) { animation-delay: 0.2s; }
+.bonus-glow .glow-sparkle:nth-child(7) { animation-delay: 0.4s; }
+.bonus-glow .glow-sparkle:nth-child(8) { animation-delay: 0.6s; }
+.bonus-glow .glow-sparkle:nth-child(9) { animation-delay: 0.8s; }
+.bonus-glow .glow-sparkle:nth-child(10) { animation-delay: 1.0s; }
+
+.bonus-glow .glow-flash {
+  animation: glow-flash 0.8s ease-out forwards;
+  opacity: 0;
+}
+
+.bonus-glow .glow-text {
+  animation: glow-text-appear 0.5s ease-out 0.4s forwards;
+  opacity: 0;
+}
+
+@keyframes glow-core-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+}
+
+@keyframes glow-ring-spin {
+  0% {
+    transform: rotate(0deg) scale(0.5);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: rotate(360deg) scale(2.5);
+    opacity: 0;
+  }
+}
+
+@keyframes sparkle-fade {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes glow-flash {
+  0% {
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes glow-text-appear {
+  0% {
+    opacity: 0;
+    transform: translateY(15px) scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* --- Milestone cutscene styles --- */
+.milestone-cutscene {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  pointer-events: none;
+}
+
+.milestone-cutscene .cutscene-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  animation: cutscene-bg-entrance 0.8s ease-out forwards;
+  opacity: 0;
+}
+
+.milestone-cutscene .cutscene-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  animation: cutscene-content-entrance 0.6s ease-out 0.3s both;
+}
+
+.milestone-cutscene .cutscene-icon {
+  animation: cutscene-icon-bounce 0.6s ease-out 0.5s both;
+}
+
+.milestone-cutscene .cutscene-title {
+  animation: cutscene-title-appear 0.5s ease-out 0.8s both;
+  margin: 16px 0 8px;
+  font-size: 2rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+}
+
+.milestone-cutscene .cutscene-subtitle {
+  animation: cutscene-subtitle-appear 0.5s ease-out 1s both;
+  font-size: 1.1rem;
+  margin-bottom: 12px;
+}
+
+.milestone-cutscene .cutscene-rewards {
+  animation: cutscene-rewards-appear 0.5s ease-out 1.2s both;
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.milestone-cutscene .cutscene-reward-item {
+  background: rgba(0, 0, 0, 0.6);
+  border: 2px solid #eab308;
+  border-radius: 12px;
+  padding: 12px 20px;
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+  backdrop-filter: blur(4px);
+}
+
+.milestone-cutscene .cutscene-light {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 600px;
+  height: 600px;
+  transform: translate(-50%, -50%);
+  animation: cutscene-light-flash 1s ease-out 0.2s both;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.milestone-cutscene .cutscene-particles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.milestone-cutscene .cutscene-particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: #eab308;
+  border-radius: 50%;
+  animation: particle-rise 1.5s ease-out forwards;
+  opacity: 0;
+}
+
+.milestone-cutscene .cutscene-particle:nth-child(1) { left: 20%; animation-delay: 0.4s; }
+.milestone-cutscene .cutscene-particle:nth-child(2) { left: 35%; animation-delay: 0.6s; }
+.milestone-cutscene .cutscene-particle:nth-child(3) { left: 50%; animation-delay: 0.3s; }
+.milestone-cutscene .cutscene-particle:nth-child(4) { left: 65%; animation-delay: 0.7s; }
+.milestone-cutscene .cutscene-particle:nth-child(5) { left: 80%; animation-delay: 0.5s; }
+.milestone-cutscene .cutscene-particle:nth-child(6) { left: 25%; animation-delay: 0.8s; }
+.milestone-cutscene .cutscene-particle:nth-child(7) { left: 70%; animation-delay: 0.9s; }
+.milestone-cutscene .cutscene-particle:nth-child(8) { left: 45%; animation-delay: 0.65s; }
+.milestone-cutscene .cutscene-particle:nth-child(9) { left: 55%; animation-delay: 0.55s; }
+.milestone-cutscene .cutscene-particle:nth-child(10) { left: 40%; animation-delay: 0.75s; }
+
+@keyframes cutscene-bg-entrance {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0.85;
+  }
+}
+
+@keyframes cutscene-content-entrance {
+  0% {
+    opacity: 0;
+    transform: translateY(40px) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes cutscene-icon-bounce {
+  0% {
+    opacity: 0;
+    transform: scale(0) translateY(-30px);
+  }
+  60% {
+    transform: scale(1.2) translateY(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes cutscene-title-appear {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+    letter-spacing: 8px;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    letter-spacing: 2px;
+  }
+}
+
+@keyframes cutscene-subtitle-appear {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes cutscene-rewards-appear {
+  0% {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes cutscene-light-flash {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.3);
+  }
+  40% {
+    opacity: 0.9;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.5);
+  }
+}
+
+@keyframes particle-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0);
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(-20px) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-120px) scale(0.3);
+  }
+}
+
+/* --- Exit animations --- */
+.drop-feedback-exit {
+  animation: drop-feedback-exit 0.4s ease-in forwards;
+}
+
+@keyframes drop-feedback-exit {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+}
+
+/* --- Accessibility: reduced motion --- */
+@media (prefers-reduced-motion: reduce) {
+  .guaranteed-burst *,
+  .bonus-glow *,
+  .milestone-cutscene * {
+    animation: none !important;
+  }
+}
+
+/* --- Mobile adjustments --- */
+@media (max-width: 480px) {
+  .guaranteed-burst {
+    width: 150px;
+    height: 150px;
+  }
+
+  .bonus-glow {
+    width: 200px;
+    height: 200px;
+  }
+
+  .milestone-cutscene .cutscene-title {
+    font-size: 1.5rem;
+  }
+
+  .milestone-cutscene .cutscene-subtitle {
+    font-size: 0.95rem;
+  }
+
+  .milestone-cutscene .cutscene-reward-item {
+    padding: 8px 14px;
+    font-size: 0.85rem;
+  }
+}
+
+/* --- Low-end device optimizations --- */
+@media (max-width: 360px) {
+  .guaranteed-burst {
+    width: 120px;
+    height: 120px;
+  }
+
+  .bonus-glow {
+    width: 160px;
+    height: 160px;
+  }
+}
