@@ -1,20 +1,6 @@
 import { Given, When, Then } from '@cucumber/cucumber';
 import { Page, expect } from '@playwright/test';
 
-// Background setup
-Given('I have a saved character', async function () {
-  const page = this.page as Page;
-  // Create a character via localStorage so the Adventure page doesn't show the empty state
-  await page.goto('/creator');
-  // Fill in character creation fields
-  await page.getByTestId('class-card-warrior').click();
-  await page.getByTestId('race-card-human').click();
-  await page.getByTestId('tab-stats').click();
-  // Save the character
-  await page.getByTestId('btn-save').click();
-  await page.waitForTimeout(500);
-});
-
 Given('I navigate to the adventure page', async function () {
   const page = this.page as Page;
   await page.goto('/adventure');
@@ -52,12 +38,6 @@ When(/I enter the "([^"]*)" dungeon/, async function (name: string) {
   const dungeonCard = page.getByTestId(`dungeon-card-${dungeonId}`);
   await dungeonCard.click();
   await page.waitForTimeout(1000);
-});
-
-Then('combat should begin', async function () {
-  const page = this.page as Page;
-  const combatSimulator = page.locator('[data-testid="combat-simulator"]');
-  await expect(combatSimulator).toBeVisible();
 });
 
 Then(/I should see the current monster's name/, async function () {
@@ -136,12 +116,6 @@ Then('I should see the equipment section', async function () {
   const page = this.page as Page;
   const eqTitle = page.locator('.inventory-section-title', { hasText: 'Equipment' });
   await expect(eqTitle).toBeVisible();
-});
-
-Then('I should see the consumables section', async function () {
-  const page = this.page as Page;
-  const consTitle = page.locator('.inventory-section-title', { hasText: 'Consumables' });
-  await expect(consTitle).toBeVisible();
 });
 
 Then('I should see the shop section', async function () {

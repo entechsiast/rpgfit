@@ -1,0 +1,7 @@
+# Task ID: 5
+# Title: Implement dev server wrapper for Cucumber test:bdd scripts
+# Status: claimed
+# Dependencies: None
+# Priority: medium
+# Test Strategy:
+Run npm run test:bdd -- --dry-run and verify: dev server starts, health check passes, tests run, server stops cleanly. Check lock file is cleaned up.
