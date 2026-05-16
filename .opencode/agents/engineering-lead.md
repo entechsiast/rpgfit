@@ -89,7 +89,12 @@ Every issue MUST get its own dedicated feature branch. **NEVER** share a branch 
 Branch naming convention: `feature/<issue-number>-<short-desc>` (e.g., `feature/48-qa-agent-definition`)
 
 Protocol:
-1. Before creating any PR, create a new branch: `git checkout -b feature/<issue-number>-<short-desc>`
+1. **Always checkout a new branch from master first:**
+   ```bash
+   git fetch origin master
+   git checkout -b feature/<issue-number>-<short-desc> origin/master
+   ```
+   This ensures the branch is always up-to-date with the latest master.
 2. Commit all changes for that issue on that branch
 3. Push the branch and create the PR
 4. **NEVER** push commits from one issue onto a branch that already has PRs for other issues
@@ -100,6 +105,7 @@ This prevents:
 - Conflicts between PRs
 - Difficulty tracking which changes belong to which issue
 - Difficulty reverting individual PRs
+- Branch drift from master
 
 ### How You Delegate
 
