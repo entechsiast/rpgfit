@@ -68,8 +68,31 @@ export default function CharacterPreview() {
     return (
       <div className="character-preview">
         <div className="preview-card" data-testid="preview-card">
-          <div className="preview-empty">
-            Select a class and race to see your character preview
+          <div className="preview-header">
+            <div className="preview-name-group">
+              <h2 className="preview-name" data-testid="preview-name">Unnamed Hero</h2>
+            </div>
+          </div>
+          <div className="preview-avatar">
+            <CharacterAvatar />
+          </div>
+          <div className="preview-stats-bar">
+            <HpMpDisplay />
+            <XpBar />
+            <GoldDisplay />
+          </div>
+          <div className="preview-body">
+            <div className="preview-section">
+              <h3 className="preview-section-title">Stats</h3>
+              <div className="preview-stats-grid">
+                {STATS.map(stat => (
+                  <div key={stat.id} className="preview-stat">
+                    <div className="preview-stat-value">{character.stats[stat.id]}</div>
+                    <div className="preview-stat-label">{stat.abbreviation}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>
