@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function AvatarBody({ build, skinColor, classId }) {
+export default function AvatarBody({ build, skinColor, classId: _classId }) {
   const getWidth = () => {
     switch (build) {
       case 'slim': return '72 160 L128 160 L130 260 L70 260 Z';

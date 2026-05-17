@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function AvatarHair({ style, color, race }) {
+export default function AvatarHair({ style, color, race: _race }) {
     const getHairPath = () => {
     switch (style) {
       case 'short':
