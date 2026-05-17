@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import React, { createContext, useContext, useReducer } from 'react';
 import { getClassById } from '../data/classes';
 import { getRaceById } from '../data/races';
@@ -106,6 +107,7 @@ function recalcHPAndMP(state) {
   };
 }
 
+/* eslint-disable-next-line complexity */
 function reducer(state, action) {
   switch (action.type) {
     case 'SET_NAME':
