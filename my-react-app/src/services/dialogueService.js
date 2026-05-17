@@ -51,6 +51,7 @@ export function loadDialogueState() {
     }
   } catch (e) {
     // Corrupted state — reset
+    // eslint-disable-next-line no-console
     console.warn('Failed to load dialogue state, resetting:', e);
   }
   return { ...DEFAULT_DIALOGUE_STATE };
@@ -64,6 +65,7 @@ function saveDialogueState(state) {
   try {
     localStorage.setItem(DIALOGUE_STATE_KEY, JSON.stringify(state));
   } catch (e) {
+    // eslint-disable-next-line no-console
     console.warn('Failed to save dialogue state:', e);
   }
 }
@@ -112,7 +114,7 @@ export function evaluateTrigger(trigger, playerContext, npcId) {
  * @param {Object} playerContext
  * @returns {boolean}
  */
-function isFirstVisit(npcId, playerContext) {
+function isFirstVisit(npcId, _playerContext) {
   const state = loadDialogueState();
   const npcState = state[npcId];
   return !npcState || !npcState.met || npcState.met.length === 0;

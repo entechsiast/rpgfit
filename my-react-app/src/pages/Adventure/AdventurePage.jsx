@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useCharacter, useCharacterDispatch } from '../../contexts/CharacterContext';
 import { getXpProgress } from '../../data/xp';
@@ -27,6 +28,7 @@ const TABS = [
 
 const SHOP_TABS = ['all', 'potions', 'elixirs', 'scrolls'];
 
+// eslint-disable-next-line complexity, max-lines
 export default function AdventurePage() {
   const character = useCharacter();
   const dispatch = useCharacterDispatch();
