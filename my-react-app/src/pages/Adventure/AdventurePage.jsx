@@ -1,9 +1,9 @@
+/* eslint-disable max-lines */
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useCharacter, useCharacterDispatch } from '../../contexts/CharacterContext';
 import { getXpProgress } from '../../data/xp';
 import { getFloorRequirements } from '../../data/floors';
 import { CONSUMABLES } from '../../data/consumables';
-import { getItemById } from '../../data/equipment';
 import ActivityLogger from '../../components/ActivityLogger/ActivityLogger';
 import DungeonList from '../../components/DungeonList/DungeonList';
 import DungeonDetail from '../../components/DungeonDetail/DungeonDetail';
@@ -15,6 +15,9 @@ import HpMpDisplay from '../../components/HpMpDisplay/HpMpDisplay';
 import GoldDisplay from '../../components/GoldDisplay/GoldDisplay';
 import XpBar from '../../components/XpBar/XpBar';
 import CharacterAvatar from '../../components/CharacterAvatar/CharacterAvatar';
+import DropFeedback from '../../components/DropFeedback/DropFeedback';
+import NpcDialogue from '../../components/NpcDialogue/NpcDialogue';
+import { useDialogue } from '../../hooks/useDialogue';
 import './AdventurePage.css';
 
 const TABS = [
@@ -25,30 +28,111 @@ const TABS = [
 
 const SHOP_TABS = ['all', 'potions', 'elixirs', 'scrolls'];
 
+// eslint-disable-next-line complexity, max-lines
 export default function AdventurePage() {
   const character = useCharacter();
   const dispatch = useCharacterDispatch();
   const [activeTab, setActiveTab] = useState('adventure');
   const [showLevelUp, setShowLevelUp] = useState(false);
-  const [latestReward, setLatestReward] = useState(null);
-  const rewardTimer = useRef(null);
+  const [activeRewards, setActiveRewards] = useState([]);
+  const rewardTimersRef = useRef({});
 
-  // Watch for new rewards and show notification
+  // ─── Dialogue State ──────────────────────────────────────────────────────
+
+  const currentFloor = character.currentFloor || 1;
+  const completedFloors = character.completedFloors || [];
+  const discoveredLoreFragments = character.discoveredLoreFragments || 0;
+  const tower1Completed = character.tower1Completed || false;
+
+  const {
+    availableDialogues,
+    showNextDialogue,
+    npcPresence,
+    hasDialogues,
+    npcsOnFloor,
+  } = useDialogue(
+    currentFloor,
+    completedFloors,
+    discoveredLoreFragments,
+    tower1Completed
+  );
+
+  const [activeDialogueNpcId, setActiveDialogueNpcId] = useState(null);
+
+  // Check for new dialogues on floor change
   useEffect(() => {
+    // If no dialogue is active and there are available dialogues, auto-show first
+    if (!activeDialogueNpcId) {
+      for (const npc of npcsOnFloor) {
+        if (hasDialogues[npc.id]) {
+          return; // Don't auto-show, wait for player interaction
+        }
+      }
+    }
+  }, [currentFloor, activeDialogueNpcId, npcsOnFloor, hasDialogues]);
+
+  const handleShowNext = useCallback((npcId) => {
+    const result = showNextDialogue(npcId);
+    if (result?.success) {
+      setActiveDialogueNpcId(npcId);
+    }
+  }, [showNextDialogue]);
+
+  const handleDismissDialogue = useCallback((_npcId) => {
+    setActiveDialogueNpcId(null);
+  }, []);
+
+  const handleContinueDialogue = useCallback((npcId) => {
+    const result = showNextDialogue(npcId);
+    if (result?.success) {
+      // Stay on same NPC to show next dialogue
+    } else {
+      // No more dialogues, close the bubble
+      setActiveDialogueNpcId(null);
+    }
+  }, [showNextDialogue]);
+
+  // Simulate active dialogue ID for the component
+  const getActiveDialogueIdForNpc = (npcId) => {
+    if (activeDialogueNpcId === npcId) {
+      // Find the most recent met dialogue for this NPC
+      const dialogues = availableDialogues[npcId];
+      if (dialogues && dialogues.length > 0) {
+        return dialogues[0].dialogue.id;
+      }
+    }
+    return null;
+  };
+
+  const getHasMoreDialogues = (npcId) => {
+    const dialogues = availableDialogues[npcId];
+    if (!dialogues || dialogues.length <= 1) return false;
+    // Count unmet dialogues
+    const unmet = dialogues.filter(d => !d.met).length;
+    return unmet > 0;
+  };
+
+  // Watch for new rewards and trigger DropFeedback animations
+  useEffect(() => {
+    const timers = rewardTimersRef.current;
     const log = character.rewardLog || [];
     if (log.length > 0) {
+      // Find the latest reward not yet in activeRewards
+      const activeTimestamps = activeRewards.map(r => r.timestamp);
       const last = log[log.length - 1];
-      // Only show if it's a new reward (not already displayed)
-      if (last.timestamp > (latestReward?.timestamp || 0)) {
-        setLatestReward(last);
-        if (rewardTimer.current) clearTimeout(rewardTimer.current);
-        rewardTimer.current = setTimeout(() => setLatestReward(null), 3500);
+      if (last.timestamp > 0 && !activeTimestamps.includes(last.timestamp)) {
+        setActiveRewards(prev => [...prev, last]);
       }
     }
     return () => {
-      if (rewardTimer.current) clearTimeout(rewardTimer.current);
+      Object.values(timers).forEach(clearTimeout);
     };
-  }, [character.rewardLog, latestReward]);
+  }, [character.rewardLog, activeRewards]);
+
+  // Clean up rewards after animation completes
+  const handleRewardComplete = useCallback((rewardTimestamp) => {
+    setActiveRewards(prev => prev.filter(r => r.timestamp !== rewardTimestamp));
+  }, []);
 
   // Check for level up after XP changes
   useEffect(() => {
@@ -158,6 +242,33 @@ export default function AdventurePage() {
         {activeTab === 'adventure' && (
           <div className="adventure-tab-content">
             <ActivityLogger />
+
+            {/* NPC Dialogues — rendered inline with the floor content */}
+            {npcPresence && npcsOnFloor.map(npc => {
+              if (!npcPresence[npc.id]) return null;
+              const dialogues = availableDialogues[npc.id];
+              const isActive = activeDialogueNpcId === npc.id;
+              const hasMore = getHasMoreDialogues(npc.id);
+              const activeId = getActiveDialogueIdForNpc(npc.id);
+
+              return (
+                <NpcDialogue
+                  key={npc.id}
+                  npcId={npc.id}
+                  dialogues={dialogues}
+                  activeDialogueId={activeId}
+                  showAvatar
+                  typewriter={false}
+                  autoDismiss={0}
+                  isActive={isActive}
+                  hasMoreDialogues={hasMore}
+                  onShowNext={() => handleShowNext(npc.id)}
+                  onDismiss={() => handleDismissDialogue(npc.id)}
+                  onContinue={() => handleContinueDialogue(npc.id)}
+                />
+              );
+            })}
+
             {!character.combatState?.active && !character.currentDungeon ? (
               <DungeonList />
             ) : character.combatState?.active ? (
@@ -315,8 +426,19 @@ export default function AdventurePage() {
         />
       )}
 
-      {/* Reward Notification Banner */}
-      {latestReward && <RewardBanner reward={latestReward} />}
+      {/* Drop Feedback Animations — one per active reward */}
+      {activeRewards.map(reward => (
+        <DropFeedback
+          key={reward.timestamp}
+          reward={reward}
+          animationEnabled={character.animationEnabled !== false}
+          duration={reward.type === 'milestone' ? 2000 : 1500}
+          onComplete={() => handleRewardComplete(reward.timestamp)}
+        />
+      ))}
+
+      {/* Settings Toggle */}
+      <SettingsToggle />
     </div>
   );
 }
@@ -419,61 +541,6 @@ function ShopPanel() {
   );
 }
 
-function RewardBanner({ reward }) {
-  const getItemName = (itemId) => {
-    if (!itemId) return null;
-    const item = getItemById(itemId);
-    return item ? item.name : itemId;
-  };
-
-  const getConsumableName = (itemId) => {
-    if (!itemId) return null;
-    const found = CONSUMABLES.find(item => item.id === itemId);
-    return found ? found.name : itemId;
-  };
-
-  let bannerStyle = {};
-  let content = '';
-
-  switch (reward.type) {
-    case 'guaranteed':
-      bannerStyle = { backgroundColor: '#16a34a', color: '#fff' };
-      content = `+${reward.gold.toLocaleString()} Gold!`;
-      break;
-    case 'bonus':
-      if (reward.bonusType === 'gold') {
-        bannerStyle = { backgroundColor: '#a855f7', color: '#fff' };
-        content = `Bonus! +${reward.amount.toLocaleString()} Gold`;
-      } else if (reward.bonusType === 'equipment') {
-        bannerStyle = { backgroundColor: '#eab308', color: '#1a1a1a' };
-        content = `Bonus: ${getItemName(reward.item)}!`;
-      } else if (reward.bonusType === 'consumable') {
-        bannerStyle = { backgroundColor: '#eab308', color: '#1a1a1a' };
-        content = `Bonus: ${getConsumableName(reward.item)}!`;
-      }
-      break;
-    case 'milestone':
-      bannerStyle = { backgroundColor: '#ea580c', color: '#fff' };
-      content = `Floor Complete! +${reward.gold.toLocaleString()} Gold${reward.itemName ? ` + ${reward.itemName}!` : '!'}`;
-      break;
-    default:
-      content = 'Reward!';
-      bannerStyle = { backgroundColor: '#16a34a', color: '#fff' };
-  }
-
-  return (
-    <div
-      className="reward-banner"
-      data-testid="reward-display"
-      style={bannerStyle}
-    >
-      <span data-testid={reward.type === 'guaranteed' ? 'guaranteed-reward' : reward.type === 'milestone' ? 'milestone-reward' : 'bonus-reward'}>
-        {content}
-      </span>
-    </div>
-  );
-}
-
 function FloorDisplay() {
   const character = useCharacter();
   const currentFloor = character.currentFloor || 1;
@@ -496,6 +563,65 @@ function FloorDisplay() {
       <span className="floor-progress-text">
         {currentProgress} / {sessionsNeeded}
       </span>
+    </div>
+  );
+}
+
+/**
+ * SettingsToggle — Floating toggle to enable/disable drop feedback animations.
+ * Provides accessibility control for players who prefer no animations.
+ */
+function SettingsToggle() {
+  const character = useCharacter();
+  const dispatch = useCharacterDispatch();
+  const [open, setOpen] = useState(false);
+  const animationEnabled = character.animationEnabled !== false;
+
+  const toggleAnimations = () => {
+    dispatch({
+      type: 'TOGGLE_ANIMATION',
+      payload: !animationEnabled,
+    });
+  };
+
+  return (
+    <div className="settings-toggle">
+      <button
+        className="settings-toggle-btn"
+        onClick={() => setOpen(!open)}
+        data-testid="settings-toggle-btn"
+        aria-label="Toggle animation settings"
+        title="Animation Settings"
+      >
+        ⚙️
+      </button>
+
+      {open && (
+        <div className="settings-panel" data-testid="settings-panel">
+          <h4 className="settings-title">Settings</h4>
+
+          <div className="settings-option">
+            <label className="settings-label">
+              <input
+                type="checkbox"
+                checked={animationEnabled}
+                onChange={toggleAnimations}
+                data-testid="animation-toggle"
+              />
+              <span className="settings-option-text">
+                Drop Feedback Animations
+              </span>
+            </label>
+            <span className="settings-status">
+              {animationEnabled ? 'ON' : 'OFF'}
+            </span>
+          </div>
+
+          <div className="settings-hint">
+            Disable for reduced motion preference
+          </div>
+        </div>
+      )}
     </div>
   );
 }

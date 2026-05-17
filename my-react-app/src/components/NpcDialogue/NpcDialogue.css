@@ -1,0 +1,303 @@
+/* NpcDialogue — Manhwa-style dialogue display */
+
+.npc-dialogue {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  position: relative;
+  max-width: 600px;
+  margin: 0 auto;
+  transition: opacity 0.3s ease;
+}
+
+.npc-dialogue--inactive {
+  opacity: 0.7;
+}
+
+.npc-dialogue--focused {
+  opacity: 1;
+}
+
+/* NPC highlight ring when dialogue is active */
+.npc-dialogue--focused .npc-dialogue__avatar-wrapper::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  border-radius: 50%;
+  border: 2px solid var(--npc-glow, #fbbf24);
+  opacity: 0.6;
+  animation: focusPulse 2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes focusPulse {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+/* Avatar wrapper */
+.npc-dialogue__avatar-wrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* New dialogue badge */
+.npc-dialogue__new-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--npc-glow, #fbbf24);
+  color: #1a1a2e;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: badgePulse 1.5s ease-in-out infinite;
+  box-shadow: 0 0 8px var(--npc-glow, #fbbf24);
+}
+
+@keyframes badgePulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+}
+
+/* Dialogue bubble */
+.npc-dialogue__bubble {
+  flex: 1;
+  background: linear-gradient(135deg, rgba(26, 26, 46, 0.95), rgba(15, 52, 96, 0.9));
+  border: 1px solid rgba(255, 224, 102, 0.2);
+  border-radius: 12px;
+  padding: 16px 20px;
+  position: relative;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Bubble entrance animation */
+.npc-dialogue__bubble--enter {
+  animation: bubbleEnter 0.35s ease-out forwards;
+}
+
+@keyframes bubbleEnter {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Bubble exit animation */
+.npc-dialogue__bubble--exit {
+  animation: bubbleExit 0.3s ease-in forwards;
+}
+
+@keyframes bubbleExit {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.97);
+  }
+}
+
+.npc-dialogue__bubble:hover {
+  border-color: rgba(255, 224, 102, 0.4);
+  box-shadow: 0 0 16px rgba(255, 224, 102, 0.1);
+}
+
+.npc-dialogue__bubble:active {
+  transform: scale(0.99);
+}
+
+/* NPC name */
+.npc-dialogue__name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-family: 'Georgia', serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--npc-glow, #fbbf24);
+  text-shadow: 0 0 8px rgba(255, 224, 102, 0.3);
+}
+
+/* NEW tag */
+.npc-dialogue__new-tag {
+  font-family: system-ui, sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--npc-glow, #fbbf24);
+  color: #1a1a2e;
+  text-transform: uppercase;
+}
+
+.npc-dialogue--active[data-new="false"] .npc-dialogue__new-tag {
+  display: none;
+}
+
+.npc-dialogue--active[data-new="true"] .npc-dialogue__name-text {
+  display: none;
+}
+
+.npc-dialogue--active[data-new="false"] .npc-dialogue__name-text {
+  display: block;
+}
+
+/* Dialogue body */
+.npc-dialogue__body {
+  flex: 1;
+}
+
+.npc-dialogue__text {
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #ffffff;
+  margin: 0;
+  min-height: 44px;
+}
+
+/* Typewriter cursor */
+.npc-dialogue__cursor {
+  animation: cursorBlink 0.6s step-end infinite;
+  color: var(--npc-glow, #fbbf24);
+  font-weight: 300;
+}
+
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* Progress bar */
+.npc-dialogue__progress {
+  height: 2px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 1px;
+  margin-top: 12px;
+  overflow: hidden;
+}
+
+.npc-dialogue__progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--npc-glow, #fbbf24), rgba(255, 224, 102, 0.4));
+  transition: width 1s linear;
+  border-radius: 1px;
+}
+
+/* Dismiss button */
+.npc-dialogue__dismiss {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, color 0.15s ease;
+  padding: 0;
+}
+
+.npc-dialogue__dismiss:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Action buttons container */
+.npc-dialogue__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Continue button */
+.npc-dialogue__continue {
+  padding: 6px 16px;
+  border: 1px solid rgba(255, 224, 102, 0.3);
+  border-radius: 6px;
+  background: linear-gradient(135deg, rgba(255, 224, 102, 0.12), rgba(255, 224, 102, 0.05));
+  color: #ffe066;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.npc-dialogue__continue:hover {
+  background: linear-gradient(135deg, rgba(255, 224, 102, 0.2), rgba(255, 224, 102, 0.1));
+  border-color: rgba(255, 224, 102, 0.5);
+  box-shadow: 0 0 12px rgba(255, 224, 102, 0.15);
+  transform: translateY(-1px);
+}
+
+.npc-dialogue__continue:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .npc-dialogue {
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .npc-dialogue__avatar-wrapper {
+    width: 80px;
+    height: 107px;
+  }
+
+  .npc-dialogue__bubble {
+    width: 100%;
+    padding: 12px 16px;
+  }
+
+  .npc-dialogue__text {
+    font-size: 13px;
+  }
+}

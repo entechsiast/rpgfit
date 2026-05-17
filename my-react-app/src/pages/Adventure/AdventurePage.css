@@ -734,3 +734,139 @@
     grid-template-columns: repeat(3, 1fr);
   }
 }
+
+/* Settings Toggle */
+.settings-toggle {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 10001;
+}
+
+.settings-toggle-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 2px solid rgba(234, 179, 8, 0.4);
+  background: rgba(0, 0, 0, 0.7);
+  color: #eab308;
+  font-size: 1.3rem;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.settings-toggle-btn:hover {
+  border-color: #eab308;
+  background: rgba(234, 179, 8, 0.15);
+  transform: scale(1.1);
+}
+
+.settings-panel {
+  position: absolute;
+  bottom: 56px;
+  right: 0;
+  width: 280px;
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(234, 179, 8, 0.3);
+  border-radius: 12px;
+  padding: 16px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  animation: settingsSlideUp 0.2s ease-out;
+}
+
+@keyframes settingsSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.settings-title {
+  margin: 0 0 12px 0;
+  font-size: 0.9rem;
+  color: #eab308;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.settings-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.settings-option:last-child {
+  border-bottom: none;
+}
+
+.settings-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  margin: 0;
+}
+
+.settings-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #eab308;
+  cursor: pointer;
+}
+
+.settings-option-text {
+  font-size: 0.85rem;
+  color: #e0e0e0;
+}
+
+.settings-status {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #22c55e;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: rgba(34, 197, 94, 0.15);
+}
+
+.settings-status[style*="OFF"],
+.settings-status:contains('OFF') {
+  color: #9ca3af;
+  background: rgba(156, 163, 175, 0.15);
+}
+
+.settings-hint {
+  margin: 8px 0 0 0;
+  font-size: 0.7rem;
+  color: #6b7280;
+  font-style: italic;
+}
+
+@media (max-width: 480px) {
+  .settings-toggle {
+    bottom: 1rem;
+    right: 1rem;
+  }
+
+  .settings-toggle-btn {
+    width: 42px;
+    height: 42px;
+    font-size: 1.1rem;
+  }
+
+  .settings-panel {
+    width: 250px;
+    right: -0.5rem;
+  }
+}
