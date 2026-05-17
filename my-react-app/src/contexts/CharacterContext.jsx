@@ -632,7 +632,8 @@ function reducer(state, action) {
       const dungeon = getDungeonById(action.payload);
       if (!dungeon) return state;
       const monsters = getMonstersByDungeon(action.payload);
-      return { ...state, combatState: { active: true, monsters: monsters.map(m => ({ ...m, currentHp: m.hp })), boss: getBossByDungeon(action.payload), currentMonsterIndex: 0, monstersDefeated: 0, bossDefeated: false, totalXp: 0, totalGold: 0, lootDrops: [] } };
+      const boss = getBossByDungeon(action.payload);
+      return { ...state, combatState: { active: true, monsters: monsters.map(m => ({ ...m, currentHp: m.hp })), boss: boss ? { ...boss, currentHp: boss.hp } : null, currentMonsterIndex: 0, monstersDefeated: 0, bossDefeated: false, totalXp: 0, totalGold: 0, lootDrops: [] } };
     }
 
     case 'FLEE_COMBAT': {
@@ -701,10 +702,11 @@ function reducer(state, action) {
       let newPlayerHp = state.currentHP - monsterDamage;
 
       if (newCurrentHp <= 0) {
+        // Check if this was the boss
+        const isBoss = cs.currentMonsterIndex >= cs.monsters.length;
         let newCs = { ...cs, monstersDefeated: cs.monstersDefeated + (cs.currentMonsterIndex < cs.monsters.length ? 1 : 0), totalXp: cs.totalXp + Math.floor(currentMonster.xpReward / 2), totalGold: cs.totalGold + Math.floor(Math.random() * (currentMonster.goldReward[1] - currentMonster.goldReward[0]) + currentMonster.goldReward[0]), lootDrops: [...cs.lootDrops, getRandomLoot(currentMonster.lootTable || [])].filter(Boolean), currentMonsterIndex: cs.currentMonsterIndex + 1 };
-        if (cs.currentMonsterIndex + 1 >= cs.monsters.length && cs.boss) {
+        if (isBoss) {
           newCs.bossDefeated = true;
-          newCs.bossHp = 0;
         }
         const goldReward = Math.floor(Math.random() * (currentMonster.goldReward[1] - currentMonster.goldReward[0])) + currentMonster.goldReward[0];
         return {
