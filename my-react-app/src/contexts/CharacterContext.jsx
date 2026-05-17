@@ -12,6 +12,7 @@ import { getAllItems, getStartingEquipment, SLOT_ORDER } from '../data/equipment
 import { recalcHPAndMP } from './reducers/hpMpRecalc';
 import { combatReducer, isCombatAction } from './reducers/combat';
 import { equipmentReducer, isEquipmentAction } from './reducers/equipment';
+import { inventoryReducer, isInventoryAction } from './reducers/inventory';
 
 const createEmptyEquipment = () => {
   const eq = {};
@@ -97,6 +98,9 @@ function reducer(state, action) {
 
   // Dispatch equipment actions to the equipment sub-reducer
   if (isEquipmentAction(action.type)) return equipmentReducer(state, action);
+
+  // Dispatch inventory actions to the inventory sub-reducer
+  if (isInventoryAction(action.type)) return inventoryReducer(state, action);
 
   switch (action.type) {
     case 'SET_NAME':
@@ -252,78 +256,6 @@ function reducer(state, action) {
         statPointsToSpend: Math.max(0, state.statPointsToSpend - value),
         ...hpMp,
       };
-    }
-
-    case 'ADD_GOLD':
-      return { ...state, gold: state.gold + action.payload };
-
-    case 'ADD_CONSUMABLE': {
-      const { itemId, quantity = 1 } = action.payload;
-      const current = state.consumables?.[itemId] || 0;
-      return { ...state, consumables: { ...state.consumables, [itemId]: current + quantity } };
-    }
-
-    case 'REMOVE_CONSUMABLE': {
-      const { itemId, quantity = 1 } = action.payload;
-      const current = state.consumables?.[itemId] || 0;
-      const newCount = current - quantity;
-      if (newCount <= 0) {
-        const newConsumables = { ...state.consumables };
-        delete newConsumables[itemId];
-        return { ...state, consumables: newConsumables };
-      }
-      return { ...state, consumables: { ...state.consumables, [itemId]: newCount } };
-    }
-
-    case 'USE_CONSUMABLE': {
-      const itemId = action.payload;
-      const consumable = CONSUMABLES.find(c => c.id === itemId);
-      if (!consumable || !state.consumables?.[itemId]) return state;
-
-      const effect = consumable.effect;
-      let newState = { ...state };
-
-      if (effect.type === 'heal') {
-        newState = {
-          ...newState,
-          currentHP: Math.min(newState.maxHP, newState.currentHP + effect.value),
-        };
-      } else if (effect.type === 'mana') {
-        newState = {
-          ...newState,
-          currentMP: Math.min(newState.maxMP, newState.currentMP + effect.value),
-        };
-      } else if (effect.type === 'full_restore') {
-        newState = {
-          ...newState,
-          currentHP: newState.maxHP,
-          currentMP: newState.maxMP,
-        };
-      } else if (effect.type === 'buff' && effect.stat) {
-        const buffs = { ...getTemporaryBuffs(newState) };
-        buffs[effect.stat] = (buffs[effect.stat] || 0) + effect.value;
-        newState.temporaryBuffs = buffs;
-      } else if (effect.type === 'buff_multi') {
-        const buffs = { ...getTemporaryBuffs(newState) };
-        Object.entries(effect).forEach(([stat, val]) => {
-          if (stat !== 'type') {
-            buffs[stat] = (buffs[stat] || 0) + val;
-          }
-        });
-        newState.temporaryBuffs = buffs;
-      }
-
-      // Remove one from inventory
-      const current = newState.consumables[itemId] - 1;
-      if (current <= 0) {
-        const newConsumables = { ...newState.consumables };
-        delete newConsumables[itemId];
-        newState.consumables = newConsumables;
-      } else {
-        newState.consumables = { ...newState.consumables, [itemId]: current };
-      }
-
-      return { ...newState, combatLog: [...newState.combatLog, { type: 'consumable_used', itemId: consumable.name, timestamp: Date.now() }] };
     }
 
     case 'BUY_ITEM': {
