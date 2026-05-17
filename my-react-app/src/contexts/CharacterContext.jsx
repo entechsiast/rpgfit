@@ -11,6 +11,7 @@ import { CONSUMABLES } from '../data/consumables';
 import { getFloorRequirements, getFloorCelebrationText } from '../data/floors';
 import { getAllItems, getStartingEquipment, SLOT_ORDER } from '../data/equipment';
 import { recalcHPAndMP } from './reducers/hpMpRecalc';
+import { combatReducer, isCombatAction } from './reducers/combat';
 
 const createEmptyEquipment = () => {
   const eq = {};
@@ -91,6 +92,9 @@ function getAllBonuses(state) {
 
 /* eslint-disable-next-line complexity */
 function reducer(state, action) {
+  // Dispatch combat actions to the combat sub-reducer
+  if (isCombatAction(action.type)) return combatReducer(state, action);
+
   switch (action.type) {
     case 'SET_NAME':
       return { ...state, name: action.payload };
@@ -171,14 +175,7 @@ function reducer(state, action) {
       newEquipment[slot] = item;
       // Remove from ownedEquipment when equipping
       const newOwned = state.ownedEquipment?.filter(id => id !== item.id) || [];
-      const equippedBonuses = getEquippedBonuses(newEquipment);
-      const effectiveCon = state.stats.con + equippedBonuses.con;
-      const effectiveInt = state.stats.int + equippedBonuses.int;
-      const effectiveWis = state.stats.wis + equippedBonuses.wis;
-      const hpMp = {
-        maxHP: calculateMaxHp(state.class?.id, effectiveCon, state.level),
-        maxMP: calculateMaxMp(effectiveInt, effectiveWis, state.level),
-      };
+      const hpMp = recalcHPAndMP({ ...state, equipment: newEquipment });
       return {
         ...state,
         equipment: newEquipment,
@@ -199,14 +196,7 @@ function reducer(state, action) {
       if (item && !newOwned.includes(item.id)) {
         newOwned.push(item.id);
       }
-      const equippedBonuses = getEquippedBonuses(newEquipment);
-      const effectiveCon = state.stats.con + equippedBonuses.con;
-      const effectiveInt = state.stats.int + equippedBonuses.int;
-      const effectiveWis = state.stats.wis + equippedBonuses.wis;
-      const hpMp = {
-        maxHP: calculateMaxHp(state.class?.id, effectiveCon, state.level),
-        maxMP: calculateMaxMp(effectiveInt, effectiveWis, state.level),
-      };
+      const hpMp = recalcHPAndMP({ ...state, equipment: newEquipment });
       return {
         ...state,
         equipment: newEquipment,
