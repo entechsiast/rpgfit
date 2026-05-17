@@ -4,13 +4,12 @@ import { getClassById } from '../data/classes';
 import { getRaceById } from '../data/races';
 import { STATS, BASE_STAT, MAX_STAT, TOTAL_POINTS } from '../data/stats';
 import { getDungeonsForLevel } from '../data/dungeons';
-import { calculateHpGainOnLevelUp, calculateMpGainOnLevelUp } from '../data/combat';
-import { getXpToNextLevel, getTotalXpToLevel, getXpProgress, MAX_LEVEL } from '../data/xp';
+import { getXpProgress } from '../data/xp';
 import { CONSUMABLES } from '../data/consumables';
-import { getFloorRequirements, getFloorCelebrationText } from '../data/floors';
-import { getAllItems, getStartingEquipment, SLOT_ORDER } from '../data/equipment';
+import { getStartingEquipment, SLOT_ORDER } from '../data/equipment';
 import { recalcHPAndMP } from './reducers/hpMpRecalc';
 import { combatReducer, isCombatAction } from './reducers/combat';
+import { progressionReducer, isProgressionAction } from './reducers/progression';
 import { equipmentReducer, isEquipmentAction } from './reducers/equipment';
 
 const createEmptyEquipment = () => {
@@ -94,6 +93,9 @@ function getAllBonuses(state) {
 function reducer(state, action) {
   // Dispatch combat actions to the combat sub-reducer
   if (isCombatAction(action.type)) return combatReducer(state, action);
+
+  // Dispatch progression actions to the progression sub-reducer
+  if (isProgressionAction(action.type)) return progressionReducer(state, action);
 
   // Dispatch equipment actions to the equipment sub-reducer
   if (isEquipmentAction(action.type)) return equipmentReducer(state, action);
@@ -210,35 +212,6 @@ function reducer(state, action) {
       };
     }
 
-    case 'GAIN_XP': {
-      const newXp = state.xp + action.payload;
-      let newState = { ...state, xp: newXp };
-      const needed = getXpToNextLevel(newState.level);
-      if (newXp >= getTotalXpToLevel(newState.level) + needed && newState.level < MAX_LEVEL) {
-        newState = { ...newState, statPointsToSpend: newState.statPointsToSpend + 1 };
-      }
-      return newState;
-    }
-
-    case 'LEVEL_UP': {
-      let newState = { ...state, level: state.level + 1, xp: state.xp - getXpToNextLevel(state.level), statPointsToSpend: state.statPointsToSpend + 1 };
-      if (!newState.class) return newState;
-      const equippedBonuses = getEquippedBonuses(newState.equipment);
-      const effectiveCon = newState.stats.con + equippedBonuses.con;
-      const effectiveInt = newState.stats.int + equippedBonuses.int;
-      const effectiveWis = newState.stats.wis + equippedBonuses.wis;
-      const hpGain = calculateHpGainOnLevelUp(newState.class.id, effectiveCon);
-      const mpGain = calculateMpGainOnLevelUp(effectiveInt, effectiveWis);
-      newState = {
-        ...newState,
-        maxHP: newState.maxHP + hpGain,
-        currentHP: newState.currentHP + hpGain,
-        maxMP: newState.maxMP + mpGain,
-        currentMP: newState.currentMP + mpGain,
-      };
-      return newState;
-    }
-
     case 'DISTRIBUTE_STAT': {
       const { statId, value } = action.payload;
       const currentStat = state.stats[statId];
@@ -343,213 +316,6 @@ function reducer(state, action) {
 
     case 'CLEAR_BUFFS':
       return { ...state, temporaryBuffs: { str: 0, dex: 0, con: 0, int: 0, wis: 0, cha: 0 } };
-
-    case 'ADD_SESSION': {
-      const newSession = {
-        type: action.payload.type,
-        duration: action.payload.duration,
-        notes: action.payload.notes || '',
-        date: action.payload.date || new Date().toISOString(),
-      };
-      const newSessions = [...(state.sessions || []), newSession];
-      const newProgress = (state.currentFloorProgress || 0) + 1;
-
-      // --- Reward System ---
-      const today = new Date().toDateString();
-      let newTodayCount = state.todayRewardCount || 0;
-      let newLastDate = state.lastRewardDate;
-
-      // Reset daily counter if new day
-      if (newLastDate !== today) {
-        newTodayCount = 0;
-        newLastDate = today;
-      }
-
-      // Calculate base gold reward (scales with duration)
-      const baseGold = Math.max(5, Math.floor(action.payload.duration * 10));
-
-      // Check anti-farming: max 2 guaranteed rewards per day
-      let rewardGold = 0;
-      if (newTodayCount < 2) {
-        rewardGold = baseGold;
-        newTodayCount++;
-      }
-
-      // Pity timer logic
-      const streak = state.rewardStreak || 0;
-      const bonusChance = Math.min(1, 0.15 + streak * 0.15);
-      const gotBonus = Math.random() < bonusChance;
-
-      let bonusItem = null;
-      let newStreak = streak + 1;
-
-      if (gotBonus) {
-        newStreak = 0;
-        // Roll bonus reward type
-        const bonusRoll = Math.random();
-        if (bonusRoll < 0.4) {
-          // Extra gold: 2x-3x the base gold
-          bonusItem = { bonusType: 'gold', amount: Math.floor(baseGold * (2 + Math.random())) };
-        } else if (bonusRoll < 0.7) {
-          // Random common equipment
-          const equipItems = getAllItems().filter(i => i.rarity === 'common');
-          const picked = equipItems[Math.floor(Math.random() * equipItems.length)];
-          if (picked) bonusItem = { bonusType: 'equipment', item: picked.id };
-        } else {
-          // Random consumable
-          const consumable = CONSUMABLES[Math.floor(Math.random() * CONSUMABLES.length)];
-          if (consumable) bonusItem = { bonusType: 'consumable', item: consumable.id };
-        }
-      }
-      // --- End Reward System ---
-
-      const timestamp = Date.now();
-      const newRewardLog = [...(state.rewardLog || [])];
-
-      // Check for floor advancement
-      const floorReq = getFloorRequirements(state.currentFloor || 1);
-      const sessionsNeeded = floorReq.sessionsRequired;
-
-      if (newProgress >= sessionsNeeded) {
-        const nextFloor = (state.currentFloor || 1) + 1;
-        const nextFloorReq = getFloorRequirements(nextFloor);
-
-        // Floor milestone: 500 gold + random Uncommon/Rare equipment
-        const rareItems = getAllItems().filter(i => i.rarity === 'uncommon' || i.rarity === 'rare');
-        const rareItem = rareItems[Math.floor(Math.random() * rareItems.length)];
-        const milestoneGold = 500;
-
-        let finalGold = state.gold + milestoneGold + rewardGold;
-        let finalOwned = [...(state.ownedEquipment || [])];
-
-        if (rareItem && rareItem.id && !finalOwned.includes(rareItem.id)) {
-          finalOwned.push(rareItem.id);
-        }
-
-        // Push milestone reward
-        newRewardLog.push({
-          type: 'milestone',
-          gold: milestoneGold,
-          item: rareItem ? rareItem.id : null,
-          itemName: rareItem ? rareItem.name : null,
-          floor: nextFloor,
-          floorName: nextFloorReq.name,
-          celebrationText: getFloorCelebrationText(nextFloor),
-          timestamp,
-        });
-
-        // Push guaranteed reward
-        if (rewardGold > 0) {
-          newRewardLog.push({
-            type: 'guaranteed',
-            gold: rewardGold,
-            date: today,
-            timestamp,
-          });
-        }
-
-        if (gotBonus) {
-          newRewardLog.push({ type: 'bonus', ...bonusItem, timestamp });
-        }
-
-        return {
-          ...state,
-          sessions: newSessions,
-          currentFloor: nextFloor,
-          currentFloorProgress: 0,
-          gold: finalGold,
-          ownedEquipment: finalOwned,
-          rewardStreak: newStreak,
-          todayRewardCount: newTodayCount,
-          lastRewardDate: newLastDate,
-          rewardLog: newRewardLog,
-          combatLog: [
-            ...(state.combatLog || []),
-            {
-              type: 'floor_advanced',
-              fromFloor: state.currentFloor,
-              toFloor: nextFloor,
-              floorName: nextFloorReq.name,
-              goldReward: milestoneGold,
-              timestamp,
-            },
-          ],
-        };
-      }
-
-      // Push guaranteed reward
-      const newRewardGold = rewardGold;
-      if (newRewardGold > 0) {
-        newRewardLog.push({
-          type: 'guaranteed',
-          gold: newRewardGold,
-          date: today,
-          timestamp,
-        });
-      }
-
-      if (gotBonus) {
-        newRewardLog.push({ type: 'bonus', ...bonusItem, timestamp });
-      }
-
-      return {
-        ...state,
-        sessions: newSessions,
-        currentFloorProgress: newProgress,
-        gold: state.gold + newRewardGold,
-        rewardStreak: newStreak,
-        todayRewardCount: newTodayCount,
-        lastRewardDate: newLastDate,
-        rewardLog: newRewardLog,
-      };
-    }
-
-    case 'ADVANCE_FLOOR': {
-      const nextFloor = (state.currentFloor || 1) + 1;
-      const nextFloorReq = getFloorRequirements(nextFloor);
-
-      // Floor milestone: random Uncommon/Rare equipment item
-      const rareItems = getAllItems().filter(i => i.rarity === 'uncommon' || i.rarity === 'rare');
-      const rareItem = rareItems[Math.floor(Math.random() * rareItems.length)];
-
-      let newOwned = [...(state.ownedEquipment || [])];
-      if (rareItem && rareItem.id && !newOwned.includes(rareItem.id)) {
-        newOwned.push(rareItem.id);
-      }
-
-      const timestamp = Date.now();
-      const newRewardLog = [...(state.rewardLog || [])];
-      newRewardLog.push({
-        type: 'milestone',
-        gold: 500,
-        item: rareItem ? rareItem.id : null,
-        itemName: rareItem ? rareItem.name : null,
-        floor: nextFloor,
-        floorName: nextFloorReq.name,
-        celebrationText: getFloorCelebrationText(nextFloor),
-        timestamp,
-      });
-
-      return {
-        ...state,
-        currentFloor: nextFloor,
-        currentFloorProgress: 0,
-        gold: state.gold + 500,
-        ownedEquipment: newOwned,
-        rewardLog: newRewardLog,
-        combatLog: [
-          ...(state.combatLog || []),
-          {
-            type: 'floor_advanced',
-            fromFloor: state.currentFloor,
-            toFloor: nextFloor,
-            floorName: nextFloorReq.name,
-            goldReward: 500,
-            timestamp,
-          },
-        ],
-      };
-    }
 
     case 'SET_CURRENT_DUNGEON':
       return { ...state, currentDungeon: action.payload };
