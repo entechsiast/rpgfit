@@ -18,9 +18,14 @@ import CharacterAvatar from '../../components/CharacterAvatar/CharacterAvatar';
 import DropFeedback from '../../components/DropFeedback/DropFeedback';
 import CelebrationNotification from '../../components/CelebrationNotification/CelebrationNotification';
 import ContextualNpcMessage from '../../components/ContextualNpcMessage/ContextualNpcMessage';
+import PassiveNotification from '../../components/PassiveNotification/PassiveNotification';
 import NpcDialogue from '../../components/NpcDialogue/NpcDialogue';
 import { useDialogue } from '../../hooks/useDialogue';
 import useContextualMessages from '../../hooks/useContextualMessages';
+import useNotificationSettings from '../../hooks/useNotificationSettings';
+import useInactivityDetection from '../../hooks/useInactivityDetection';
+import usePassiveNotification from '../../hooks/usePassiveNotification';
+import useReEngagementNpc from '../../hooks/useReEngagementNpc';
 import './AdventurePage.css';
 
 const TABS = [
@@ -86,6 +91,68 @@ export default function AdventurePage() {
       wasAlive.current = true;
     }
   }, [character.currentHP, character.combatState?.active, triggerMessage]);
+
+  // ─── Notification Settings ───────────────────────────────────────────────
+  const {
+    enabled: notificationsEnabled,
+    shouldShowNotification,
+    recordNotification,
+  } = useNotificationSettings();
+
+  // ─── Inactivity Detection ────────────────────────────────────────────────
+  const {
+    daysSinceLastActive,
+    isInactivityWindow,
+  } = useInactivityDetection();
+
+  // ─── Passive Notification ────────────────────────────────────────────────
+  const {
+    passiveMessage,
+    dismissPassiveNotification,
+    triggerPassiveNotification,
+  } = usePassiveNotification();
+
+  // ─── Re-engagement NPC ───────────────────────────────────────────────────
+  const {
+    reEngagementData,
+    shouldTriggerReEngagement,
+    triggerReEngagement,
+    dismissReEngagement,
+  } = useReEngagementNpc();
+
+  // ─── Passive Notification Trigger Logic ──────────────────────────────────
+  const passiveTriggeredRef = useRef(false);
+  useEffect(() => {
+    if (
+      !passiveTriggeredRef.current &&
+      notificationsEnabled &&
+      shouldShowNotification() &&
+      isInactivityWindow(2, Infinity)
+    ) {
+      passiveTriggeredRef.current = true;
+      triggerPassiveNotification(character.currentFloor || 1);
+      recordNotification();
+    }
+  }, [
+    notificationsEnabled,
+    shouldShowNotification,
+    isInactivityWindow,
+    triggerPassiveNotification,
+    recordNotification,
+    character.currentFloor,
+  ]);
+
+  // ─── Re-engagement NPC Trigger Logic ─────────────────────────────────────
+  const reEngagementTriggeredRef = useRef(false);
+  useEffect(() => {
+    if (
+      !reEngagementTriggeredRef.current &&
+      shouldTriggerReEngagement(daysSinceLastActive)
+    ) {
+      reEngagementTriggeredRef.current = true;
+      triggerReEngagement();
+    }
+  }, [shouldTriggerReEngagement, triggerReEngagement, daysSinceLastActive]);
 
   // Watch for milestone rewards and trigger the celebration overlay
   useEffect(() => {
@@ -525,6 +592,41 @@ export default function AdventurePage() {
           message={contextualMessage}
           onDismiss={clearMessage}
         />
+      )}
+
+      {/* Passive Notification — curiosity-driven tower observation */}
+      {passiveMessage && (
+        <PassiveNotification
+          message={passiveMessage}
+          onDismiss={dismissPassiveNotification}
+        />
+      )}
+
+      {/* Re-engagement NPC — appears after 3+ days absence */}
+      {reEngagementData && (
+        <div
+          className="re-engagement-npc"
+          data-testid="re-engagement-npc"
+          role="alert"
+          aria-live="polite"
+        >
+          <div className="re-engagement-inner">
+            <span className="re-engagement-npc-name">{reEngagementData.npcName}</span>
+            <p className="re-engagement-message">{reEngagementData.message}</p>
+            <div className="re-engagement-reward">
+              <span className="re-engagement-reward-label">Reward:</span>
+              <span className="re-engagement-reward-name">{reEngagementData.reward.name}</span>
+            </div>
+            <button
+              className="re-engagement-dismiss"
+              onClick={dismissReEngagement}
+              data-testid="btn-dismiss-reengagement"
+              aria-label="Dismiss re-engagement message"
+            >
+              Accept
+            </button>
+          </div>
+        </div>
       )}
 
       {/* Settings Toggle */}
