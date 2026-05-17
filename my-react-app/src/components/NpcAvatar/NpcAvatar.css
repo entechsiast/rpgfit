@@ -41,6 +41,21 @@
   }
 }
 
+/* Active state — dialogue currently shown for this NPC */
+.npc-avatar--active {
+  filter: brightness(1.15) drop-shadow(0 0 12px var(--npc-glow, #fbbf24));
+  animation: npcActiveGlow 2s ease-in-out infinite;
+}
+
+@keyframes npcActiveGlow {
+  0%, 100% {
+    filter: brightness(1.1) drop-shadow(0 0 8px var(--npc-glow, #fbbf24));
+  }
+  50% {
+    filter: brightness(1.25) drop-shadow(0 0 16px var(--npc-glow, #fbbf24));
+  }
+}
+
 /* SVG sizing within container */
 .npc-avatar-svg {
   width: 100%;

@@ -1,0 +1,31 @@
+# Task ID: 11
+# Title: Fix STARTING_EQUIPMENT bug (Issue #192)
+# Status: claimed
+# Dependencies: None
+# Priority: medium
+# Description: ## Task: Fix STARTING_EQUIPMENT system (Issue #192)
+
+### Problem
+The STARTING_EQUIPMENT system is completely disconnected from the character creation flow:
+
+**Problem A: Key mismatch** — STARTING_EQUIPMENT keys use display names (Fighter, Wizard, Ranger, Paladin) while classes.js uses internal IDs (warrior, wizard, ranger, paladin). `getStartingEquipment(classId)` looks up by classId, so it always returns null for "warrior" (key is "Fighter"). Classes mage, rogue, and cleric have no STARTING_EQUIPMENT entries.
+
+**Problem B: Never called** — `getStartingEquipment` is defined in equipment.js but never imported or called in the app. The SET_CLASS reducer case does not assign any starting equipment.
+
+### Fix Required
+1. Rename STARTING_EQUIPMENT keys in equipment.js to match class IDs: Fighter→warrior, Wizard→wizard, Ranger→ranger, Paladin→paladin
+2. Add STARTING_EQUIPMENT entries for mage, rogue, and cleric classes
+3. Import and call `getStartingEquipment(state.class.id)` inside the SET_CLASS reducer case in CharacterContext.jsx
+4. Assign the result to the equipment inventory
+5. Write tests verifying each of the 7 classes gets correct starting equipment
+
+### Files to Modify
+- `my-react-app/src/data/equipment.js` — fix STARTING_EQUIPMENT keys + add missing entries
+- `my-react-app/src/contexts/CharacterContext.jsx` — import and call getStartingEquipment in SET_CLASS case
+- `my-react-app/src/contexts/CharacterContext.test.jsx` or new test file — verify starting equipment per class
+
+### GitHub Issue: https://github.com/entechsiast/rpgfit/issues/192
+
+Comment on issue #192 with results before calling me back.
+# Test Strategy:
+Each of 7 classes gets correct starting equipment, all tests pass, build compiles

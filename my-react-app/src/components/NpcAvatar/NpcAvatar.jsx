@@ -11,7 +11,7 @@
  */
 
 import React, { useMemo } from 'react';
-import { NPC_ID, NPC_APPEARANCES } from '../data/npcDialogues';
+import { NPC_ID, NPC_APPEARANCES } from '../../data/npcDialogues';
 import './NpcAvatar.css';
 
 // ─── SVG Visual Builders ───────────────────────────────────────────────────
@@ -205,6 +205,7 @@ function buildDefaultSvg() {
  * @property {string} npcId - NPC ID (NPC_ID.MERCHANT, NPC_ID.GUIDE, or NPC_ID.WANDERER)
  * @property {() => void} [onClick] - Click handler
  * @property {boolean} [pulse] - Whether to pulse the glow animation
+ * @property {boolean} [isActive] - Whether this NPC's dialogue is currently active
  * @property {string} [className] - Additional CSS class
  */
 
@@ -216,6 +217,7 @@ const NpcAvatar = React.memo(function NpcAvatar({
   npcId,
   onClick,
   pulse = false,
+  isActive = false,
   className = '',
 }) {
   const svgContent = useMemo(() => buildNpcSvg(npcId), [npcId]);
@@ -223,7 +225,7 @@ const NpcAvatar = React.memo(function NpcAvatar({
 
   return (
     <div
-      className={`npc-avatar${pulse ? ' npc-avatar--pulse' : ''} ${className}`.trim()}
+      className={`npc-avatar${pulse ? ' npc-avatar--pulse' : ''}${isActive ? ' npc-avatar--active' : ''} ${className}`.trim()}
       onClick={onClick}
       role="button"
       tabIndex={0}
