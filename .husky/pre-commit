@@ -1,0 +1,1 @@
+npx --prefix my-react-app lint-staged
