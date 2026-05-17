@@ -31,11 +31,3 @@ jobs:
         run: npm run test:bdd:ci
         env:
           PLAYWRIGHT_HEADLESS: 'true'
-
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: bdd-test-results
-          path: my-react-app/cucumber.json
-          retention-days: 30
