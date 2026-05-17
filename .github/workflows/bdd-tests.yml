@@ -20,7 +20,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: my-react-app
-        run: npm ci
+        run: npm install
 
       - name: Install Playwright browsers
         working-directory: my-react-app
