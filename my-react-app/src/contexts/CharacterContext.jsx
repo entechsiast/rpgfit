@@ -4,7 +4,7 @@ import { getClassById } from '../data/classes';
 import { getRaceById } from '../data/races';
 import { STATS, BASE_STAT, MAX_STAT, TOTAL_POINTS } from '../data/stats';
 import { getDungeonById, getDungeonsForLevel } from '../data/dungeons';
-import { getMonstersByDungeon, getBossByDungeon } from '../data/monsters';
+import { getMonstersByDungeon } from '../data/monsters';
 import { calculateHpGainOnLevelUp, calculateMpGainOnLevelUp } from '../data/combat';
 import { getXpToNextLevel, getTotalXpToLevel, getXpProgress, MAX_LEVEL } from '../data/xp';
 import { CONSUMABLES } from '../data/consumables';
