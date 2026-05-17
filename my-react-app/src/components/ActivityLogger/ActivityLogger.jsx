@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useCharacterDispatch } from '../../contexts/CharacterContext';
+import { useCharacterDispatch, useCharacter } from '../../contexts/CharacterContext';
 import './ActivityLogger.css';
 
 const ACTIVITY_TYPES = [
@@ -12,11 +12,13 @@ const ACTIVITY_TYPES = [
 
 export default function ActivityLogger() {
   const dispatch = useCharacterDispatch();
+  const character = useCharacter();
   const [type, setType] = useState('');
   const [duration, setDuration] = useState('');
   const [notes, setNotes] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
   const successTimer = useRef(null);
 
   useEffect(() => {
@@ -29,6 +31,11 @@ export default function ActivityLogger() {
     e.preventDefault();
     setError('');
 
+    if (!character.class || !character.race) {
+      setError('Please select a class and race before logging activity');
+      return;
+    }
+
     if (!type) {
       setError('Please select an activity type');
       return;
@@ -39,6 +46,8 @@ export default function ActivityLogger() {
       setError('Duration must be at least 5 minutes');
       return;
     }
+
+    setLoading(true);
 
     const session = {
       type,
@@ -53,7 +62,7 @@ export default function ActivityLogger() {
     setType('');
     setDuration('');
     setNotes('');
-    setError('');
+    setLoading(false);
 
     // Show success briefly
     setSuccess(true);
@@ -123,9 +132,10 @@ export default function ActivityLogger() {
         <button
           type="submit"
           className="btn-log-session"
+          disabled={loading}
           data-testid="btn-log-session"
         >
-          Log Session
+          {loading ? 'Logging...' : 'Log Session'}
         </button>
       </form>
     </div>
