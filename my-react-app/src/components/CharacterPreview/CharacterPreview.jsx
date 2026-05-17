@@ -125,13 +125,13 @@ export default function CharacterPreview() {
                 placeholder="Enter hero name"
                 data-testid="name-edit-input"
               />
-              <button className="name-save-btn" onClick={handleSave} data-testid="name-save-btn">✓</button>
+              <button className="name-save-btn" onClick={handleSave} aria-label="Save name" data-testid="name-save-btn">✓</button>
             </div>
           ) : (
-            <div className="preview-name-group" onClick={() => setIsEditing(true)}>
+            <div className="preview-name-group" onClick={() => setIsEditing(true)} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setIsEditing(true); } }} aria-label="Edit hero name" data-testid="preview-name-group">
               <h2 className="preview-name" data-testid="preview-name">{displayName}</h2>
               <span className="preview-level-badge" data-testid="preview-level">Lv.{character.level}</span>
-              <span className="preview-name-edit-hint">✎</span>
+              <span className="preview-name-edit-hint" aria-label="Edit name">✎</span>
             </div>
           )}
           <p className="preview-title">
