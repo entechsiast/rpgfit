@@ -7,14 +7,41 @@
   position: relative;
   max-width: 600px;
   margin: 0 auto;
+  transition: opacity 0.3s ease;
 }
 
 .npc-dialogue--inactive {
   opacity: 0.7;
 }
 
-.npc-dialogue--active {
+.npc-dialogue--focused {
   opacity: 1;
+}
+
+/* NPC highlight ring when dialogue is active */
+.npc-dialogue--focused .npc-dialogue__avatar-wrapper::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  border-radius: 50%;
+  border: 2px solid var(--npc-glow, #fbbf24);
+  opacity: 0.6;
+  animation: focusPulse 2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes focusPulse {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
 }
 
 /* Avatar wrapper */
@@ -64,6 +91,38 @@
   min-height: 80px;
   display: flex;
   flex-direction: column;
+}
+
+/* Bubble entrance animation */
+.npc-dialogue__bubble--enter {
+  animation: bubbleEnter 0.35s ease-out forwards;
+}
+
+@keyframes bubbleEnter {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Bubble exit animation */
+.npc-dialogue__bubble--exit {
+  animation: bubbleExit 0.3s ease-in forwards;
+}
+
+@keyframes bubbleExit {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.97);
+  }
 }
 
 .npc-dialogue__bubble:hover {
@@ -178,6 +237,45 @@
 .npc-dialogue__dismiss:hover {
   background: rgba(255, 255, 255, 0.15);
   color: rgba(255, 255, 255, 0.8);
+}
+
+/* Action buttons container */
+.npc-dialogue__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Continue button */
+.npc-dialogue__continue {
+  padding: 6px 16px;
+  border: 1px solid rgba(255, 224, 102, 0.3);
+  border-radius: 6px;
+  background: linear-gradient(135deg, rgba(255, 224, 102, 0.12), rgba(255, 224, 102, 0.05));
+  color: #ffe066;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.npc-dialogue__continue:hover {
+  background: linear-gradient(135deg, rgba(255, 224, 102, 0.2), rgba(255, 224, 102, 0.1));
+  border-color: rgba(255, 224, 102, 0.5);
+  box-shadow: 0 0 12px rgba(255, 224, 102, 0.15);
+  transform: translateY(-1px);
+}
+
+.npc-dialogue__continue:active {
+  transform: translateY(0);
+  box-shadow: none;
 }
 
 /* Responsive */

@@ -15,6 +15,8 @@ import GoldDisplay from '../../components/GoldDisplay/GoldDisplay';
 import XpBar from '../../components/XpBar/XpBar';
 import CharacterAvatar from '../../components/CharacterAvatar/CharacterAvatar';
 import DropFeedback from '../../components/DropFeedback/DropFeedback';
+import NpcDialogue from '../../components/NpcDialogue/NpcDialogue';
+import { useDialogue } from '../../hooks/useDialogue';
 import './AdventurePage.css';
 
 const TABS = [
@@ -32,6 +34,94 @@ export default function AdventurePage() {
   const [showLevelUp, setShowLevelUp] = useState(false);
   const [activeRewards, setActiveRewards] = useState([]);
   const rewardTimersRef = useRef({});
+
+  // ─── Dialogue State ──────────────────────────────────────────────────────
+
+  const currentFloor = character.currentFloor || 1;
+  const completedFloors = character.completedFloors || [];
+  const discoveredLoreFragments = character.discoveredLoreFragments || 0;
+  const tower1Completed = character.tower1Completed || false;
+
+  const {
+    availableDialogues,
+    showNextDialogue,
+    npcPresence,
+    metCount,
+    hasDialogues,
+    npcsOnFloor,
+  } = useDialogue(
+    currentFloor,
+    completedFloors,
+    discoveredLoreFragments,
+    tower1Completed
+  );
+
+  const [activeDialogueNpcId, setActiveDialogueNpcId] = useState(null);
+
+  // Check for new dialogues on floor change
+  useEffect(() => {
+    // If no dialogue is active and there are available dialogues, auto-show first
+    if (!activeDialogueNpcId) {
+      for (const npc of npcsOnFloor) {
+        if (hasDialogues[npc.id]) {
+          return; // Don't auto-show, wait for player interaction
+        }
+      }
+    }
+  }, [currentFloor, npcsOnFloor, hasDialogues]);
+
+  const handleShowNext = useCallback((npcId) => {
+    const result = showNextDialogue(npcId);
+    if (result?.success) {
+      setActiveDialogueNpcId(npcId);
+    }
+  }, [showNextDialogue]);
+
+  const handleDismissDialogue = useCallback((npcId) => {
+    setActiveDialogueNpcId(null);
+  }, []);
+
+  const handleContinueDialogue = useCallback((npcId) => {
+    const result = showNextDialogue(npcId);
+    if (result?.success) {
+      // Stay on same NPC to show next dialogue
+    } else {
+      // No more dialogues, close the bubble
+      setActiveDialogueNpcId(null);
+    }
+  }, [showNextDialogue]);
+
+  const getDialogueForNpc = (npcId) => {
+    const dialogues = availableDialogues[npcId];
+    if (!dialogues || dialogues.length === 0) return null;
+    const active = dialogues.find(d => d.dialogue.id === activeDialogueNpcId);
+    return active || dialogues[0];
+  };
+
+  const getActiveDialogueId = (npcId) => {
+    if (activeDialogueNpcId !== npcId) return null;
+    return activeDialogueNpcId ? `${npcId}_d1` : null;
+  };
+
+  // Simulate active dialogue ID for the component
+  const getActiveDialogueIdForNpc = (npcId) => {
+    if (activeDialogueNpcId === npcId) {
+      // Find the most recent met dialogue for this NPC
+      const dialogues = availableDialogues[npcId];
+      if (dialogues && dialogues.length > 0) {
+        return dialogues[0].dialogue.id;
+      }
+    }
+    return null;
+  };
+
+  const getHasMoreDialogues = (npcId) => {
+    const dialogues = availableDialogues[npcId];
+    if (!dialogues || dialogues.length <= 1) return false;
+    // Count unmet dialogues
+    const unmet = dialogues.filter(d => !d.met).length;
+    return unmet > 0;
+  };
 
   // Watch for new rewards and trigger DropFeedback animations
   useEffect(() => {
@@ -163,6 +253,33 @@ export default function AdventurePage() {
         {activeTab === 'adventure' && (
           <div className="adventure-tab-content">
             <ActivityLogger />
+
+            {/* NPC Dialogues — rendered inline with the floor content */}
+            {npcPresence && npcsOnFloor.map(npc => {
+              if (!npcPresence[npc.id]) return null;
+              const dialogues = availableDialogues[npc.id];
+              const isActive = activeDialogueNpcId === npc.id;
+              const hasMore = getHasMoreDialogues(npc.id);
+              const activeId = getActiveDialogueIdForNpc(npc.id);
+
+              return (
+                <NpcDialogue
+                  key={npc.id}
+                  npcId={npc.id}
+                  dialogues={dialogues}
+                  activeDialogueId={activeId}
+                  showAvatar
+                  typewriter={false}
+                  autoDismiss={0}
+                  isActive={isActive}
+                  hasMoreDialogues={hasMore}
+                  onShowNext={() => handleShowNext(npc.id)}
+                  onDismiss={() => handleDismissDialogue(npc.id)}
+                  onContinue={() => handleContinueDialogue(npc.id)}
+                />
+              );
+            })}
+
             {!character.combatState?.active && !character.currentDungeon ? (
               <DungeonList />
             ) : character.combatState?.active ? (
