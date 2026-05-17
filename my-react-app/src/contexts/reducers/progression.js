@@ -76,7 +76,7 @@ export function levelUp(state) {
  */
 export function advanceFloor(state) {
   const result = applyFloorAdvance(state, null);
-  const timestamp = result.timestamp;
+  const _timestamp = result.timestamp;
 
   return {
     ...state,

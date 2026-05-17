@@ -67,7 +67,7 @@ export function rollBonusReward(state, baseGold) {
  * Build a milestone reward log entry for floor advancement.
  * Returns the rare/uncommon item selected and the log entry.
  */
-export function buildMilestoneReward(nextFloor, gold, bonusItem, timestamp) {
+export function buildMilestoneReward(nextFloor, gold, bonusItem, _timestamp) {
   const rareItems = getAllItems().filter(i => i.rarity === 'uncommon' || i.rarity === 'rare');
   const rareItem = rareItems[Math.floor(Math.random() * rareItems.length)];
   const newOwned = [...(bonusItem && bonusItem.bonusType === 'equipment' ? [bonusItem.item] : [])];

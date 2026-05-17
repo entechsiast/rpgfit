@@ -7,7 +7,6 @@
  * - No advancement (guaranteed + bonus rewards only)
  */
 
-import { buildMilestoneReward } from './rewards';
 import { applyFloorAdvance, buildFloorAdvanceLog } from './floors';
 
 // ─── Floor Advancement Outcome ────────────────────────────────────────────────
@@ -15,7 +14,7 @@ import { applyFloorAdvance, buildFloorAdvanceLog } from './floors';
 /**
  * Build the state slice for when a floor advancement occurs.
  */
-export function buildFloorAdvanceResult(state, { newSessions, newProgress, rewardGold, newStreak, newTodayCount, newLastDate, bonusItem, gotBonus }) {
+export function buildFloorAdvanceResult(state, { newSessions, newProgress: _newProgress, rewardGold, newStreak, newTodayCount, newLastDate, bonusItem, gotBonus }) {
   const result = applyFloorAdvance(state, bonusItem);
   const timestamp = result.timestamp;
 
