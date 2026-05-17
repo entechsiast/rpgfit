@@ -21,7 +21,7 @@ import ContextualNpcMessage from '../../components/ContextualNpcMessage/Contextu
 import NpcDialogue from '../../components/NpcDialogue/NpcDialogue';
 import { useDialogue } from '../../hooks/useDialogue';
 import useContextualMessages from '../../hooks/useContextualMessages';
-import './AdventurePage.css';
+import './Adventure.css';
 
 const TABS = [
   { id: 'adventure', label: '\u2694\uFE0F Adventure' },
@@ -32,7 +32,7 @@ const TABS = [
 const SHOP_TABS = ['all', 'potions', 'elixirs', 'scrolls'];
 
 // eslint-disable-next-line complexity, max-lines
-export default function AdventurePage() {
+export default function Adventure() {
   const character = useCharacter();
   const dispatch = useCharacterDispatch();
   const [activeTab, setActiveTab] = useState('adventure');

@@ -11,6 +11,7 @@
  * reducer into domain-specific sub-reducers (issue #181).
  */
 
+import { initialState } from '../initialState';
 import { SLOT_ORDER } from '../../data/equipment';
 import { BASE_STAT, TOTAL_POINTS } from '../../data/stats';
 
@@ -102,40 +103,10 @@ function getHpMpFromPayload(payload) {
 
 /**
  * Reset all state to initial values.
+ * Uses JSON parse/stringify for deep clone (structuredClone not available in all environments).
  */
 export function resetState(_state) {
-  return {
-    name: '',
-    class: null,
-    race: null,
-    stats: getDefaultStats(),
-    pointsRemaining: TOTAL_POINTS,
-    appearance: getInitialAppearance(),
-    skills: [],
-    selectedSkillIds: new Set(),
-    equipment: createEmptyEquipment(),
-    ownedEquipment: [],
-    level: 1,
-    xp: 0,
-    gold: 0,
-    maxHP: 10,
-    currentHP: 10,
-    maxMP: 5,
-    currentMP: 5,
-    combatLog: [],
-    completedDungeons: [],
-    statPointsToSpend: 0,
-    consumables: {},
-    temporaryBuffs: getDefaultBuffs(),
-    sessions: [],
-    currentFloor: 1,
-    currentFloorProgress: 0,
-    rewardStreak: 0,
-    todayRewardCount: 0,
-    lastRewardDate: null,
-    rewardLog: [],
-    animationEnabled: true,
-  };
+  return JSON.parse(JSON.stringify(initialState));
 }
 
 /**

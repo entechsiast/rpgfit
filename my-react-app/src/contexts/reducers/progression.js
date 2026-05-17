@@ -15,21 +15,9 @@ import { getFloorRequirements, getFloorCelebrationText } from '../../data/floors
 import { getAllItems } from '../../data/equipment';
 import { calculateHpGainOnLevelUp, calculateMpGainOnLevelUp } from '../../data/combat';
 import { CONSUMABLES } from '../../data/consumables';
+import { getEquippedBonuses } from './hpMpRecalc';
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
-
-function getEquippedBonuses(equipment) {
-  const bonuses = { str: 0, dex: 0, con: 0, int: 0, wis: 0, cha: 0 };
-  Object.keys(equipment).forEach(slot => {
-    const item = equipment[slot];
-    if (item && item.statBonuses) {
-      Object.entries(item.statBonuses).forEach(([stat, val]) => {
-        bonuses[stat] = (bonuses[stat] || 0) + val;
-      });
-    }
-  });
-  return bonuses;
-}
 
 /**
  * Process the daily reward system: reset counter for new day, calculate

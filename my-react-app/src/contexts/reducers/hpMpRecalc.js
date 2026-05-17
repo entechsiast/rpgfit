@@ -7,8 +7,7 @@
  */
 
 import { calculateMaxHp, calculateMaxMp } from '../../data/combat';
-
-const SLOT_ORDER = ['head', 'chest', 'pants', 'boots', 'rightHand', 'leftHand', 'accessory1', 'accessory2', 'accessory3'];
+import { SLOT_ORDER } from '../../data/equipment';
 
 /**
  * Compute stat bonuses from all currently equipped items.

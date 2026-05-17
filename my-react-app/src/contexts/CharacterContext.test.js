@@ -3,6 +3,7 @@ import { RACES } from '../data/races';
 import { STATS, BASE_STAT, MAX_STAT, TOTAL_POINTS } from '../data/stats';
 import { getXpToNextLevel, getTotalXpToLevel, MAX_LEVEL } from '../data/xp';
 import { calculateMaxHp, calculateHpGainOnLevelUp, calculateMaxMp, calculateMpGainOnLevelUp } from '../data/combat';
+import { SLOT_ORDER } from '../data/equipment';
 
 const createInitialState = () => ({
   name: '',
@@ -33,7 +34,6 @@ function calculatePointsRemaining(stats) {
 
 function getEquippedBonuses(equipment) {
   const bonuses = { str: 0, dex: 0, con: 0, int: 0, wis: 0, cha: 0 };
-  const SLOT_ORDER = ['head', 'chest', 'pants', 'boots', 'rightHand', 'leftHand', 'accessory1', 'accessory2', 'accessory3'];
   SLOT_ORDER.forEach(slot => {
     const item = equipment[slot];
     if (item && item.statBonuses) {
