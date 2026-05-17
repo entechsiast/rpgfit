@@ -10,7 +10,7 @@ import { getXpToNextLevel, getTotalXpToLevel, getXpProgress, MAX_LEVEL } from '.
 import { getItemById, getRandomLoot } from '../data/loot';
 import { CONSUMABLES } from '../data/consumables';
 import { getFloorRequirements } from '../data/floors';
-import { getAllItems } from '../data/equipment';
+import { getAllItems, getStartingEquipment } from '../data/equipment';
 
 const SLOT_ORDER = ['head', 'chest', 'pants', 'boots', 'rightHand', 'leftHand', 'accessory1', 'accessory2', 'accessory3'];
 
@@ -120,12 +120,16 @@ function reducer(state, action) {
       STATS.forEach(stat => { newStats[stat.id] = BASE_STAT; });
       const points = calculatePointsRemaining(newStats);
       const hpMp = { maxHP: calculateMaxHp(cls.id, BASE_STAT, 1), currentHP: calculateMaxHp(cls.id, BASE_STAT, 1), maxMP: calculateMaxMp(BASE_STAT, BASE_STAT, 1), currentMP: calculateMaxMp(BASE_STAT, BASE_STAT, 1) };
+      const startingEq = getStartingEquipment(cls.id) || createEmptyEquipment();
+      const ownedStartingEq = Object.values(startingEq).filter(Boolean);
       return {
         ...state,
         class: cls,
         stats: newStats,
         pointsRemaining: points,
         selectedSkillIds: new Set(cls.startingSkills),
+        equipment: startingEq,
+        ownedEquipment: ownedStartingEq,
         ...hpMp,
       };
     }
