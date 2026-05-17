@@ -95,6 +95,42 @@
       "priority": "medium",
       "created_at": "2026-05-16T20:20:11.029Z",
       "updated_at": "2026-05-16T20:20:11.029Z"
+    },
+    {
+      "id": "10",
+      "title": "Fix PR #178 lint errors and merge",
+      "project": "RPG Fit",
+      "description": "## Task: Fix PR #178 ESLint failures and merge\n\nPR #178 (Traveling Merchant NPC) is blocked by ESLint errors treated as build errors:\n\n### Required lint fixes:\n1. **SkillTree.jsx line 5**: Remove unused import `MAX_LEVEL`\n2. **useDialogue.js line 31**: Remove unused import `getNpcById`\n3. **AdventurePage.jsx**:\n   - Line 49: Remove unused variable `metCount`\n   - Line 71: Add `activeDialogueNpcId` to useEffect dependency array\n   - Line 94: Remove unused variable `getDialogueForNpc`\n   - Line 101: Remove unused variable `getActiveDialogueId`\n4. **dialogueService.js**:\n   - Line 18: Remove unused import `NPC_DATA`\n   - Line 347: Assign object to a variable before exporting as module default\n\n### Steps:\n1. `git checkout -b fix/pr-178-lint origin/master`\n2. `git fetch origin pull/178/head && git cherry-pick origin/pr/178/head` or apply the same changes to fix the lint errors\n3. Apply the lint fixes above\n4. `npm test -- --watchAll=false && npm run build` to self-verify\n5. Push: `git push origin fix/pr-178-lint`\n6. Comment on PR #178 with the fix summary\n7. Wait for CI to re-run (30 seconds)\n8. If CI passes, approve and squash merge: `gh pr review 178 --repo entechsiast/rpgfit --approve --body \"Approved. Lint fixes applied.\"` then `gh pr merge 178 --repo entechsiast/rpgfit --squash`\n9. Close Issue #168: `gh issue close 168 --repo entechsiast/rpgfit`\n10. Update project board: set item status to Done\n\n### Project item ID for #168: PVTI_lAHOAWZJdM4BXz_qzgs7nrU\n\nComment on issue #168 with results before calling me back.",
+      "testStrategy": "CI passes (tests + build), PR #178 merged, Issue #168 closed, project status set to Done",
+      "status": "claimed",
+      "priority": "medium",
+      "created_at": "2026-05-17T10:47:33.314Z",
+      "updated_at": "2026-05-17T10:47:37.632Z",
+      "assigned_to": "frontend",
+      "claimed_at": "2026-05-17T10:47:37.632Z"
+    },
+    {
+      "id": "11",
+      "title": "Fix STARTING_EQUIPMENT bug (Issue #192)",
+      "project": "RPG Fit",
+      "description": "## Task: Fix STARTING_EQUIPMENT system (Issue #192)\n\n### Problem\nThe STARTING_EQUIPMENT system is completely disconnected from the character creation flow:\n\n**Problem A: Key mismatch** — STARTING_EQUIPMENT keys use display names (Fighter, Wizard, Ranger, Paladin) while classes.js uses internal IDs (warrior, wizard, ranger, paladin). `getStartingEquipment(classId)` looks up by classId, so it always returns null for \"warrior\" (key is \"Fighter\"). Classes mage, rogue, and cleric have no STARTING_EQUIPMENT entries.\n\n**Problem B: Never called** — `getStartingEquipment` is defined in equipment.js but never imported or called in the app. The SET_CLASS reducer case does not assign any starting equipment.\n\n### Fix Required\n1. Rename STARTING_EQUIPMENT keys in equipment.js to match class IDs: Fighter→warrior, Wizard→wizard, Ranger→ranger, Paladin→paladin\n2. Add STARTING_EQUIPMENT entries for mage, rogue, and cleric classes\n3. Import and call `getStartingEquipment(state.class.id)` inside the SET_CLASS reducer case in CharacterContext.jsx\n4. Assign the result to the equipment inventory\n5. Write tests verifying each of the 7 classes gets correct starting equipment\n\n### Files to Modify\n- `my-react-app/src/data/equipment.js` — fix STARTING_EQUIPMENT keys + add missing entries\n- `my-react-app/src/contexts/CharacterContext.jsx` — import and call getStartingEquipment in SET_CLASS case\n- `my-react-app/src/contexts/CharacterContext.test.jsx` or new test file — verify starting equipment per class\n\n### GitHub Issue: https://github.com/entechsiast/rpgfit/issues/192\n\nComment on issue #192 with results before calling me back.",
+      "testStrategy": "Each of 7 classes gets correct starting equipment, all tests pass, build compiles",
+      "status": "claimed",
+      "priority": "medium",
+      "created_at": "2026-05-17T10:47:41.902Z",
+      "updated_at": "2026-05-17T10:47:43.785Z",
+      "assigned_to": "frontend",
+      "claimed_at": "2026-05-17T10:47:43.785Z"
+    },
+    {
+      "id": "12",
+      "title": "Fix CI on 3 orphaned PRs (#177, #176, #165)",
+      "description": "PRs #177, #176, and #165 have failed CI and are orphaned (their linked issues #167, #166, #109 were prematurely closed). I've reopened the issues and set them to In Progress on the project board.\n\nPlease:\n1. Check out each PR branch and fix the CI failures.\n2. Get each PR's CI to pass.\n3. Approve and squash merge each PR.\n4. Close the corresponding issue (#167, #166, #109) ONLY AFTER the PR is merged.\n5. Update the project board status to \"Done\" for each issue.\n\nCI failure details are in the PR checks. Start with #177, then #176, then #165. Hand back when all 3 are merged and issues are closed.",
+      "testStrategy": "All 3 PRs (177, 176, 165) have passing CI, are merged to main, and their linked issues (#167, #166, #109) are closed on GitHub.",
+      "status": "pending",
+      "priority": "medium",
+      "created_at": "2026-05-17T13:54:14.597Z",
+      "updated_at": "2026-05-17T13:54:14.597Z"
     }
   ],
   "agents": [
@@ -102,7 +138,7 @@
       "id": "frontend",
       "role": "worker",
       "registered_at": "2026-05-16T19:38:22.512Z",
-      "last_seen": "2026-05-16T19:38:22.512Z"
+      "last_seen": "2026-05-17T10:47:43.785Z"
     },
     {
       "id": "scrum-master",
@@ -111,5 +147,5 @@
       "last_seen": "2026-05-16T19:38:22.874Z"
     }
   ],
-  "updated_at": "2026-05-16T20:20:30.911Z"
+  "updated_at": "2026-05-17T13:54:14.597Z"
 }

@@ -1,0 +1,38 @@
+# Task ID: 10
+# Title: Fix PR #178 lint errors and merge
+# Status: claimed
+# Dependencies: None
+# Priority: medium
+# Description: ## Task: Fix PR #178 ESLint failures and merge
+
+PR #178 (Traveling Merchant NPC) is blocked by ESLint errors treated as build errors:
+
+### Required lint fixes:
+1. **SkillTree.jsx line 5**: Remove unused import `MAX_LEVEL`
+2. **useDialogue.js line 31**: Remove unused import `getNpcById`
+3. **AdventurePage.jsx**:
+   - Line 49: Remove unused variable `metCount`
+   - Line 71: Add `activeDialogueNpcId` to useEffect dependency array
+   - Line 94: Remove unused variable `getDialogueForNpc`
+   - Line 101: Remove unused variable `getActiveDialogueId`
+4. **dialogueService.js**:
+   - Line 18: Remove unused import `NPC_DATA`
+   - Line 347: Assign object to a variable before exporting as module default
+
+### Steps:
+1. `git checkout -b fix/pr-178-lint origin/master`
+2. `git fetch origin pull/178/head && git cherry-pick origin/pr/178/head` or apply the same changes to fix the lint errors
+3. Apply the lint fixes above
+4. `npm test -- --watchAll=false && npm run build` to self-verify
+5. Push: `git push origin fix/pr-178-lint`
+6. Comment on PR #178 with the fix summary
+7. Wait for CI to re-run (30 seconds)
+8. If CI passes, approve and squash merge: `gh pr review 178 --repo entechsiast/rpgfit --approve --body "Approved. Lint fixes applied."` then `gh pr merge 178 --repo entechsiast/rpgfit --squash`
+9. Close Issue #168: `gh issue close 168 --repo entechsiast/rpgfit`
+10. Update project board: set item status to Done
+
+### Project item ID for #168: PVTI_lAHOAWZJdM4BXz_qzgs7nrU
+
+Comment on issue #168 with results before calling me back.
+# Test Strategy:
+CI passes (tests + build), PR #178 merged, Issue #168 closed, project status set to Done
