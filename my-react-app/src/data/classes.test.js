@@ -158,7 +158,7 @@ describe('data/classes.js', () => {
 
   describe('Wizard starting equipment validation', () => {
     it('should have valid starting equipment for Wizard', () => {
-      const wizardEquipment = getStartingEquipment('Wizard');
+      const wizardEquipment = getStartingEquipment('wizard');
       expect(wizardEquipment).toBeDefined();
 
       const allItems = Object.values(EQUIPMENT).flat();
@@ -170,32 +170,32 @@ describe('data/classes.js', () => {
     });
 
     it('should have mage_hood as starting head equipment', () => {
-      const wizardEquipment = getStartingEquipment('Wizard');
+      const wizardEquipment = getStartingEquipment('wizard');
       expect(wizardEquipment.head).toBe('mage_hood');
     });
 
     it('should have cloth_robe as starting chest equipment', () => {
-      const wizardEquipment = getStartingEquipment('Wizard');
+      const wizardEquipment = getStartingEquipment('wizard');
       expect(wizardEquipment.chest).toBe('cloth_robe');
     });
 
     it('should have mage_leggings as starting pants equipment', () => {
-      const wizardEquipment = getStartingEquipment('Wizard');
+      const wizardEquipment = getStartingEquipment('wizard');
       expect(wizardEquipment.pants).toBe('mage_leggings');
     });
 
     it('should have mage_sandals as starting boots equipment', () => {
-      const wizardEquipment = getStartingEquipment('Wizard');
+      const wizardEquipment = getStartingEquipment('wizard');
       expect(wizardEquipment.boots).toBe('mage_sandals');
     });
 
     it('should have apprentice_staff as starting rightHand equipment', () => {
-      const wizardEquipment = getStartingEquipment('Wizard');
+      const wizardEquipment = getStartingEquipment('wizard');
       expect(wizardEquipment.rightHand).toBe('apprentice_staff');
     });
 
     it('should have tome as starting leftHand equipment', () => {
-      const wizardEquipment = getStartingEquipment('Wizard');
+      const wizardEquipment = getStartingEquipment('wizard');
       expect(wizardEquipment.leftHand).toBe('tome');
     });
   });

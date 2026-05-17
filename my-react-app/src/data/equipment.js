@@ -589,7 +589,7 @@ export function getItemsByType(type) {
 }
 
 export const STARTING_EQUIPMENT = {
-  Fighter: {
+  warrior: {
     head: 'iron_helm',
     chest: 'leather_vest',
     pants: 'leather_trousers',
@@ -597,7 +597,7 @@ export const STARTING_EQUIPMENT = {
     rightHand: 'longsword',
     leftHand: 'tower_shield',
   },
-  Wizard: {
+  wizard: {
     head: 'mage_hood',
     chest: 'cloth_robe',
     pants: 'mage_leggings',
@@ -605,7 +605,31 @@ export const STARTING_EQUIPMENT = {
     rightHand: 'apprentice_staff',
     leftHand: 'tome',
   },
-  Ranger: {
+  mage: {
+    head: 'mage_hood',
+    chest: 'cloth_robe',
+    pants: 'mage_leggings',
+    boots: 'mage_sandals',
+    rightHand: 'apprentice_staff',
+    leftHand: 'tome',
+  },
+  rogue: {
+    head: 'leather_cap',
+    chest: 'leather_vest',
+    pants: 'ranger_pants',
+    boots: 'ranger_boots',
+    rightHand: 'dagger',
+    leftHand: 'off_hand_dagger',
+  },
+  cleric: {
+    head: 'iron_helm',
+    chest: 'chain_mail',
+    pants: 'iron_leggings',
+    boots: 'iron_greaves',
+    rightHand: 'holy_mace',
+    leftHand: 'holy_symbol',
+  },
+  ranger: {
     head: 'leather_cap',
     chest: 'ranger_cloak',
     pants: 'ranger_pants',
@@ -613,7 +637,7 @@ export const STARTING_EQUIPMENT = {
     rightHand: 'long_bow',
     leftHand: 'off_hand_dagger',
   },
-  Paladin: {
+  paladin: {
     head: 'iron_helm',
     chest: 'paladin_armor',
     pants: 'iron_leggings',
