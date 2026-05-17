@@ -35,7 +35,7 @@ const DEFAULT_DIALOGUE_STATE = {
  * Load NPC dialogue state from localStorage.
  * @returns {{ [npcId: string]: { met: string[], lastShownDialogue: string|null, lastShownTime: number|null } }}
  */
-function loadDialogueState() {
+export function loadDialogueState() {
   try {
     const raw = localStorage.getItem(DIALOGUE_STATE_KEY);
     if (raw) {
