@@ -7,6 +7,7 @@ function formatStatBonus(bonus) {
   return bonus >= 0 ? `+${bonus}` : `${bonus}`;
 }
 
+/* eslint-disable-next-line complexity */
 function ClassCard({ cls, isSelected, onSelect, expanded, onToggle }) {
   const hasDetails = (cls.startingSkills && cls.startingSkills.length > 0) ||
                      (cls.weaponProficiencies && cls.weaponProficiencies.length > 0) ||
@@ -60,7 +61,7 @@ function ClassCard({ cls, isSelected, onSelect, expanded, onToggle }) {
               <div className="class-card-section">
                 <span className="class-card-section-label">Starting Skills</span>
                 <div className="class-card-skills-list">
-                  {cls.startingSkills.map((skill, idx) => (
+                  {cls.startingSkills.map((skill, _idx) => (
                     <span key={skill} className="class-card-skill-tag">{skill}</span>
                   ))}
                 </div>
@@ -70,7 +71,7 @@ function ClassCard({ cls, isSelected, onSelect, expanded, onToggle }) {
               <div className="class-card-section">
                 <span className="class-card-section-label">Weapon Proficiencies</span>
                 <div className="class-card-prof-list">
-                  {cls.weaponProficiencies.map((prof, idx) => (
+                  {cls.weaponProficiencies.map((prof, _idx) => (
                     <span key={prof} className="class-card-prof-tag">{prof}</span>
                   ))}
                 </div>
@@ -80,7 +81,7 @@ function ClassCard({ cls, isSelected, onSelect, expanded, onToggle }) {
               <div className="class-card-section">
                 <span className="class-card-section-label">Armor Proficiencies</span>
                 <div className="class-card-prof-list">
-                  {cls.armorProficiencies.map((prof, idx) => (
+                  {cls.armorProficiencies.map((prof, _idx) => (
                     <span key={prof} className="class-card-prof-tag">{prof}</span>
                   ))}
                 </div>

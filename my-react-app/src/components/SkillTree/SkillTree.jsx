@@ -2,7 +2,7 @@ import React from 'react';
 import { useCharacter, useCharacterDispatch } from '../../contexts/CharacterContext';
 import { getSkillsByCategory, getSkillsForClassAndRace } from '../../data/skills';
 import { STATS } from '../../data/stats';
-import { getXpProgress, MAX_LEVEL } from '../../data/xp';
+import { getXpProgress } from '../../data/xp';
 import './SkillTree.css';
 
 export default function SkillTree() {
