@@ -125,9 +125,10 @@ export function completeFloor(state, action) {
 // ─── Sub-reducer ───────────────────────────────────────────────────────────────
 
 const progressionCaseMap = {
+  ADD_SESSION: completeFloor,
+  COMPLETE_FLOOR: completeFloor,
   GAIN_XP: gainXp,
   LEVEL_UP: levelUp,
-  COMPLETE_FLOOR: completeFloor,
   ADVANCE_FLOOR: advanceFloor,
 };
 
