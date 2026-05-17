@@ -15,7 +15,7 @@
  *   - npcState: { [npcId]: { met: string[], lastShownDialogue: string|undefined } }
  */
 
-import { NPC_DATA, NPC_ID, TRIGGER, getNpcById, getMetDialogueSet, NPC_APPEARANCES } from '../data/npcDialogues';
+import { NPC_ID, TRIGGER, getNpcById, getMetDialogueSet, NPC_APPEARANCES } from '../data/npcDialogues';
 
 // ─── Storage Keys ──────────────────────────────────────────────────────────
 
@@ -344,7 +344,7 @@ export function resetAllDialogueState() {
 
 export { NPC_APPEARANCES as NPCVisuals };
 
-export default {
+const dialogueService = {
   // Trigger evaluation
   evaluateTrigger,
   isFirstVisit,
@@ -372,3 +372,5 @@ export default {
   // Visuals
   NPCVisuals: NPC_APPEARANCES,
 };
+
+export default dialogueService;
