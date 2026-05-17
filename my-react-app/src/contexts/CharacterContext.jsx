@@ -11,6 +11,7 @@ import { getFloorRequirements, getFloorCelebrationText } from '../data/floors';
 import { getAllItems, getStartingEquipment, SLOT_ORDER } from '../data/equipment';
 import { recalcHPAndMP } from './reducers/hpMpRecalc';
 import { combatReducer, isCombatAction } from './reducers/combat';
+import { equipmentReducer, isEquipmentAction } from './reducers/equipment';
 
 const createEmptyEquipment = () => {
   const eq = {};
@@ -93,6 +94,9 @@ function getAllBonuses(state) {
 function reducer(state, action) {
   // Dispatch combat actions to the combat sub-reducer
   if (isCombatAction(action.type)) return combatReducer(state, action);
+
+  // Dispatch equipment actions to the equipment sub-reducer
+  if (isEquipmentAction(action.type)) return equipmentReducer(state, action);
 
   switch (action.type) {
     case 'SET_NAME':
@@ -547,20 +551,6 @@ function reducer(state, action) {
       };
     }
 
-    case 'ADD_EQUIPMENT_ITEM': {
-      const itemId = action.payload;
-      if (state.ownedEquipment?.includes(itemId)) return state;
-      return { ...state, ownedEquipment: [...(state.ownedEquipment || []), itemId] };
-    }
-
-    case 'REMOVE_EQUIPMENT_ITEM': {
-      const itemId = action.payload;
-      return {
-        ...state,
-        ownedEquipment: (state.ownedEquipment || []).filter(id => id !== itemId),
-      };
-    }
-
     case 'SET_CURRENT_DUNGEON':
       return { ...state, currentDungeon: action.payload };
 
@@ -595,7 +585,7 @@ function reducer(state, action) {
       return { ...state, animationEnabled: action.payload };
 
     default:
-      return state;
+      return equipmentReducer(state, action) || combatReducer(state, action) || state;
   }
 }
 

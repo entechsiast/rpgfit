@@ -15,7 +15,7 @@ const SLOT_ORDER = ['head', 'chest', 'pants', 'boots', 'rightHand', 'leftHand', 
  * @param {object} equipment - Equipment object with slot keys
  * @returns {{ str: number, dex: number, con: number, int: number, wis: number, cha: number }}
  */
-function getEquippedBonuses(equipment) {
+export function getEquippedBonuses(equipment) {
   const bonuses = { str: 0, dex: 0, con: 0, int: 0, wis: 0, cha: 0 };
   SLOT_ORDER.forEach(slot => {
     const item = equipment[slot];
