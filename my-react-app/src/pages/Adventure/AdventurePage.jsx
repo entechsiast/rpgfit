@@ -5,6 +5,7 @@ import { getXpProgress } from '../../data/xp';
 import { getFloorRequirements } from '../../data/floors';
 import { CONSUMABLES } from '../../data/consumables';
 import ActivityLogger from '../../components/ActivityLogger/ActivityLogger';
+import RewardFeedback from '../../components/RewardFeedback/RewardFeedback';
 import DungeonList from '../../components/DungeonList/DungeonList';
 import DungeonDetail from '../../components/DungeonDetail/DungeonDetail';
 import CombatSimulator from '../../components/CombatSimulator/CombatSimulator';
@@ -174,9 +175,18 @@ export default function AdventurePage() {
 
   // ─── Dialogue State ──────────────────────────────────────────────────────
 
+  const todayRewardCount = character.todayRewardCount || 0;
+  const rewardStreak = character.rewardStreak || 0;
+  const [capReached, setCapReached] = useState(false);
+
   const completedFloors = character.completedFloors || [];
   const discoveredLoreFragments = character.discoveredLoreFragments || 0;
   const tower1Completed = character.tower1Completed || false;
+
+  const handleCapReached = useCallback(() => {
+    setCapReached(true);
+    setTimeout(() => setCapReached(false), 3000);
+  }, []);
 
   const {
     availableDialogues,
@@ -380,7 +390,11 @@ export default function AdventurePage() {
       <div className="adventure-content">
         {activeTab === 'adventure' && (
           <div className="adventure-tab-content">
-            <ActivityLogger />
+            <ActivityLogger
+              onCapReached={handleCapReached}
+              streak={rewardStreak}
+              todayCount={todayRewardCount}
+            />
 
             {/* NPC Dialogues — rendered inline with the floor content */}
             {npcPresence && npcsOnFloor.map(npc => {
@@ -575,6 +589,13 @@ export default function AdventurePage() {
           onComplete={() => handleRewardComplete(reward.timestamp)}
         />
       ))}
+
+      {/* Reward Feedback — unified reward feedback for activity logging */}
+      <RewardFeedback
+        rewardLog={character.rewardLog || []}
+        capReached={capReached}
+        animationEnabled={character.animationEnabled !== false}
+      />
 
       {/* Celebration Notification — parchment overlay on floor completion */}
       {activeCelebration && (

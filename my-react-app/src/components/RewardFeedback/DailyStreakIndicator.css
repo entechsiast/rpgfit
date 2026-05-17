@@ -1,0 +1,72 @@
+/* ============================================
+   Daily Streak Indicator — Streak + session progress
+   ============================================ */
+
+.daily-streak-indicator {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 12px;
+  background: rgba(30, 30, 40, 0.6);
+  border-radius: 8px;
+  border: 1px solid rgba(234, 179, 8, 0.2);
+}
+
+/* --- Streak display --- */
+.streak-display {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.85rem;
+}
+
+.streak-flame {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.streak-count {
+  font-weight: 800;
+  color: #f59e0b;
+  font-size: 0.95rem;
+}
+
+.streak-label {
+  color: #9ca3af;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* --- Session progress --- */
+.session-progress {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+.session-icon {
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.session-text {
+  font-weight: 600;
+}
+
+/* --- Mobile --- */
+@media (max-width: 480px) {
+  .daily-streak-indicator {
+    padding: 6px 10px;
+  }
+
+  .streak-count {
+    font-size: 0.85rem;
+  }
+
+  .session-text {
+    font-size: 0.75rem;
+  }
+}

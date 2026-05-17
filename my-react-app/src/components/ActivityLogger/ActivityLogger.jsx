@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useCharacterDispatch, useCharacter } from '../../contexts/CharacterContext';
+import DailyStreakIndicator from '../RewardFeedback/DailyStreakIndicator';
 import './ActivityLogger.css';
 
 const ACTIVITY_TYPES = [
@@ -10,7 +11,15 @@ const ACTIVITY_TYPES = [
   { id: 'free-form', label: 'Free-form', emoji: '\uD83C\uDFAF' },
 ];
 
-export default function ActivityLogger() {
+/**
+ * ActivityLogger — Form for logging physical activity sessions.
+ *
+ * Props:
+ *   onCapReached: function — callback when daily cap is reached
+ *   streak: number — current reward streak
+ *   todayCount: number — today's reward count
+ */
+export default function ActivityLogger({ onCapReached, streak = 0, todayCount = 0 }) {
   const dispatch = useCharacterDispatch();
   const character = useCharacter();
   const [type, setType] = useState('');
@@ -30,6 +39,14 @@ export default function ActivityLogger() {
   const handleSubmit = (e) => {
     e.preventDefault();
     setError('');
+
+    // Check daily cap before processing
+    const capped = todayCount >= 2;
+    if (capped) {
+      setError('Daily reward cap reached - try again tomorrow!');
+      if (onCapReached) onCapReached();
+      return;
+    }
 
     if (!character.class || !character.race) {
       setError('Please select a class and race before logging activity');
@@ -72,6 +89,13 @@ export default function ActivityLogger() {
   return (
     <div className="activity-logger" data-testid="activity-logger">
       <h3 className="activity-logger-title">Log Activity Session</h3>
+
+      {/* Daily streak indicator */}
+      <DailyStreakIndicator
+        streak={streak}
+        todayCount={todayCount}
+        maxSessions={2}
+      />
 
       {success && (
         <div className="activity-success" data-testid="activity-success">

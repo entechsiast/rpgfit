@@ -1,0 +1,132 @@
+/* ============================================
+   Cap Message — Anti-farming cap notification
+   ============================================ */
+
+.cap-message {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10001;
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  animation: capSlideIn 0.4s ease-out;
+}
+
+.cap-message-exit {
+  animation: capSlideOut 0.35s ease-in forwards;
+}
+
+.cap-message-icon {
+  font-size: 3rem;
+  line-height: 1;
+  animation: capIconPulse 1s ease-in-out infinite;
+}
+
+.cap-message-content {
+  background: rgba(30, 30, 40, 0.95);
+  border: 2px solid #eab308;
+  border-radius: 12px;
+  padding: 24px 32px;
+  text-align: center;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 32px rgba(234, 179, 8, 0.2);
+  max-width: 320px;
+  width: 100%;
+}
+
+.cap-message-title {
+  margin: 0 0 8px;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #eab308;
+  letter-spacing: 0.5px;
+}
+
+.cap-message-text {
+  margin: 0 0 16px;
+  font-size: 0.95rem;
+  color: #e5e7eb;
+  line-height: 1.5;
+}
+
+.cap-message-dismiss {
+  background: linear-gradient(135deg, #eab308, #f59e0b);
+  border: none;
+  border-radius: 8px;
+  padding: 8px 24px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.cap-message-dismiss:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(234, 179, 8, 0.4);
+}
+
+.cap-message-dismiss:active {
+  transform: scale(0.98);
+}
+
+/* --- Animations --- */
+@keyframes capSlideIn {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -45%);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+@keyframes capSlideOut {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -55%);
+  }
+}
+
+@keyframes capIconPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* --- Mobile --- */
+@media (max-width: 480px) {
+  .cap-message-content {
+    padding: 20px 24px;
+    max-width: 280px;
+  }
+
+  .cap-message-title {
+    font-size: 1rem;
+  }
+
+  .cap-message-text {
+    font-size: 0.875rem;
+  }
+}
+
+/* --- Reduced motion --- */
+@media (prefers-reduced-motion: reduce) {
+  .cap-message,
+  .cap-message-exit,
+  .cap-message-icon {
+    animation: none !important;
+  }
+}

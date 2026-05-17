@@ -1,0 +1,249 @@
+/* ============================================
+   Bonus Item Notification — Bonus reward display
+   ============================================ */
+
+.bonus-item-notification {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10001;
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  animation: bonusSlideIn 0.4s ease-out;
+}
+
+.bonus-item-exit {
+  animation: bonusSlideOut 0.35s ease-in forwards;
+}
+
+/* --- Background glow effect --- */
+.bonus-glow-bg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 200px;
+  height: 200px;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.bonus-glow-core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 80px;
+  height: 80px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.4) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: bonusCorePulse 1.2s ease-in-out infinite;
+}
+
+.bonus-glow-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100px;
+  height: 100px;
+  transform: translate(-50%, -50%);
+  border: 2px solid rgba(168, 85, 247, 0.3);
+  border-radius: 50%;
+  animation: bonusRingSpin 2s linear infinite;
+}
+
+.bonus-glow-ring-reverse {
+  animation-direction: reverse !important;
+  animation-duration: 2.5s !important;
+}
+
+.bonus-glow-sparkle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  background: rgba(250, 204, 21, 0.8);
+  border-radius: 50%;
+  animation: bonusSparkleFade 1s ease-in-out infinite;
+  transform: translate(-50%, -50%);
+}
+
+.bonus-glow-sparkle:nth-child(5) { animation-delay: 0s; }
+.bonus-glow-sparkle:nth-child(6) { animation-delay: 0.3s; }
+.bonus-glow-sparkle:nth-child(7) { animation-delay: 0.6s; }
+
+/* --- Content --- */
+.bonus-item-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(20, 20, 35, 0.95);
+  border: 2px solid #a855f7;
+  border-radius: 16px;
+  padding: 20px 24px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 32px rgba(168, 85, 247, 0.25);
+  max-width: 360px;
+  width: 100%;
+}
+
+.bonus-item-icon {
+  font-size: 2.5rem;
+  line-height: 1;
+  flex-shrink: 0;
+  animation: bonusIconBounce 0.6s ease-out 0.2s both;
+}
+
+.bonus-item-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.bonus-item-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #a855f7;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.bonus-item-name {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #f9fafb;
+}
+
+.bonus-item-subtext {
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+.bonus-item-dismiss {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #9ca3af;
+  font-size: 0.85rem;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.bonus-item-dismiss:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+/* --- Animations --- */
+@keyframes bonusSlideIn {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -40%);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+@keyframes bonusSlideOut {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -60%);
+  }
+}
+
+@keyframes bonusCorePulse {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.2);
+    opacity: 0.9;
+  }
+}
+
+@keyframes bonusRingSpin {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg) scale(0.5);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg) scale(2);
+    opacity: 0;
+  }
+}
+
+@keyframes bonusSparkleFade {
+  0%, 100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+}
+
+@keyframes bonusIconBounce {
+  0% {
+    opacity: 0;
+    transform: scale(0) translateY(-20px);
+  }
+  60% {
+    transform: scale(1.15) translateY(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* --- Mobile --- */
+@media (max-width: 480px) {
+  .bonus-item-content {
+    padding: 16px 20px;
+    max-width: 300px;
+  }
+
+  .bonus-item-icon {
+    font-size: 2rem;
+  }
+
+  .bonus-item-name {
+    font-size: 1rem;
+  }
+}
+
+/* --- Reduced motion --- */
+@media (prefers-reduced-motion: reduce) {
+  .bonus-item-notification,
+  .bonus-item-exit,
+  .bonus-glow-core,
+  .bonus-glow-ring,
+  .bonus-glow-sparkle,
+  .bonus-item-icon {
+    animation: none !important;
+  }
+}
