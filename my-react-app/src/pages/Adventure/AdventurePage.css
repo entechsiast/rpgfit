@@ -853,6 +853,12 @@
   font-style: italic;
 }
 
+.settings-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.06);
+  margin: 8px 0;
+}
+
 @media (max-width: 480px) {
   .settings-toggle {
     bottom: 1rem;
@@ -868,5 +874,155 @@
   .settings-panel {
     width: 250px;
     right: -0.5rem;
+  }
+}
+
+/* ============================================
+   Re-engagement NPC — Appears after 3+ days absence
+   Per spec Appendix B: system-ui font at 14px, white color
+   ============================================ */
+
+.re-engagement-npc {
+  position: fixed;
+  bottom: 80px;
+  right: 24px;
+  z-index: 10000;
+  max-width: 400px;
+  animation: re-engagement-fade-in 1.5s ease-out forwards;
+  opacity: 0;
+}
+
+.re-engagement-inner {
+  padding: 16px 20px;
+  background: linear-gradient(
+    135deg,
+    rgba(30, 40, 60, 0.95) 0%,
+    rgba(20, 30, 50, 0.95) 100%
+  );
+  border-radius: 10px;
+  border: 1px solid rgba(234, 179, 8, 0.3);
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.3),
+    0 0 30px rgba(234, 179, 8, 0.05);
+  animation: re-engagement-card-entrance 0.8s ease-out 0.3s both;
+}
+
+.re-engagement-npc-name {
+  display: block;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 0.7rem;
+  color: #eab308;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+  opacity: 0.8;
+}
+
+.re-engagement-message {
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #ffffff;
+  margin: 0 0 12px;
+}
+
+.re-engagement-reward {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(234, 179, 8, 0.08);
+  border: 1px solid rgba(234, 179, 8, 0.2);
+  border-radius: 6px;
+  margin-bottom: 12px;
+}
+
+.re-engagement-reward-label {
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 0.75rem;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.re-engagement-reward-name {
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 0.85rem;
+  color: #eab308;
+  font-weight: 600;
+}
+
+.re-engagement-dismiss {
+  display: block;
+  margin: 0 auto 0;
+  padding: 6px 20px;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1a1a2e;
+  background: linear-gradient(135deg, #eab308, #f59e0b);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.re-engagement-dismiss:hover {
+  background: linear-gradient(135deg, #f59e0b, #fbbf24);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(234, 179, 8, 0.3);
+}
+
+.re-engagement-dismiss:focus {
+  outline: 2px solid rgba(234, 179, 8, 0.5);
+  outline-offset: 2px;
+}
+
+@keyframes re-engagement-fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes re-engagement-card-entrance {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Accessibility: reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .re-engagement-npc,
+  .re-engagement-inner {
+    animation: none !important;
+  }
+}
+
+/* Mobile adjustments */
+@media (max-width: 480px) {
+  .re-engagement-npc {
+    bottom: 70px;
+    right: 12px;
+    left: 12px;
+    max-width: none;
+  }
+
+  .re-engagement-inner {
+    padding: 14px 16px;
+  }
+
+  .re-engagement-message {
+    font-size: 13px;
   }
 }
