@@ -3,14 +3,14 @@ import React, { createContext, useContext, useReducer, useMemo } from 'react';
 import { getClassById } from '../data/classes';
 import { getRaceById } from '../data/races';
 import { STATS, BASE_STAT, MAX_STAT, TOTAL_POINTS } from '../data/stats';
-import { getDungeonById, getDungeonsForLevel } from '../data/dungeons';
-import { getMonstersByDungeon, getBossByDungeon } from '../data/monsters';
+import { getDungeonsForLevel } from '../data/dungeons';
 import { calculateHpGainOnLevelUp, calculateMpGainOnLevelUp } from '../data/combat';
 import { getXpToNextLevel, getTotalXpToLevel, getXpProgress, MAX_LEVEL } from '../data/xp';
 import { CONSUMABLES } from '../data/consumables';
 import { getFloorRequirements, getFloorCelebrationText } from '../data/floors';
 import { getAllItems, getStartingEquipment, SLOT_ORDER } from '../data/equipment';
 import { recalcHPAndMP } from './reducers/hpMpRecalc';
+import { combatReducer, isCombatAction } from './reducers/combat';
 
 const createEmptyEquipment = () => {
   const eq = {};
@@ -91,6 +91,9 @@ function getAllBonuses(state) {
 
 /* eslint-disable-next-line complexity */
 function reducer(state, action) {
+  // Dispatch combat actions to the combat sub-reducer
+  if (isCombatAction(action.type)) return combatReducer(state, action);
+
   switch (action.type) {
     case 'SET_NAME':
       return { ...state, name: action.payload };
@@ -176,6 +179,8 @@ function reducer(state, action) {
         ...state,
         equipment: newEquipment,
         ownedEquipment: newOwned,
+        currentHP: Math.min(state.currentHP, hpMp.maxHP),
+        currentMP: Math.min(state.currentMP, hpMp.maxMP),
         ...hpMp,
       };
     }
@@ -195,6 +200,8 @@ function reducer(state, action) {
         ...state,
         equipment: newEquipment,
         ownedEquipment: newOwned,
+        currentHP: Math.min(state.currentHP, hpMp.maxHP),
+        currentMP: Math.min(state.currentMP, hpMp.maxMP),
         ...hpMp,
       };
     }
@@ -314,6 +321,24 @@ function reducer(state, action) {
 
       return { ...newState, combatLog: [...newState.combatLog, { type: 'consumable_used', itemId: consumable.name, timestamp: Date.now() }] };
     }
+
+    case 'BUY_ITEM': {
+      const { itemId, quantity = 1 } = action.payload;
+      const item = CONSUMABLES.find(c => c.id === itemId);
+      if (!item) return state;
+      const cost = item.price * quantity;
+      if (state.gold < cost) return state;
+
+      let newState = {
+        ...state,
+        gold: state.gold - cost,
+        consumables: { ...state.consumables, [itemId]: (state.consumables?.[itemId] || 0) + quantity },
+      };
+      return { ...newState, combatLog: [...newState.combatLog, { type: 'purchase', itemId: item.name, cost, timestamp: Date.now() }] };
+    }
+
+    case 'CLEAR_BUFFS':
+      return { ...state, temporaryBuffs: { str: 0, dex: 0, con: 0, int: 0, wis: 0, cha: 0 } };
 
     case 'ADD_SESSION': {
       const newSession = {

@@ -13,7 +13,22 @@
 import { getDungeonById } from '../../data/dungeons';
 import { getMonstersByDungeon, getBossByDungeon } from '../../data/monsters';
 import { getItemById, getRandomLoot } from '../../data/loot';
-import { getEquippedBonuses } from './characterCore';
+import { SLOT_ORDER } from '../../data/equipment';
+
+// ─── Helpers ───────────────────────────────────────────────────────────────────
+
+function getEquippedBonuses(equipment) {
+  const bonuses = { str: 0, dex: 0, con: 0, int: 0, wis: 0, cha: 0 };
+  SLOT_ORDER.forEach(slot => {
+    const item = equipment[slot];
+    if (item && item.statBonuses) {
+      Object.entries(item.statBonuses).forEach(([stat, val]) => {
+        bonuses[stat] = (bonuses[stat] || 0) + val;
+      });
+    }
+  });
+  return bonuses;
+}
 
 // ─── Named case handlers ───────────────────────────────────────────────────────
 
@@ -41,27 +56,15 @@ export function startCombat(state, action) {
 export function fleeCombat(state) {
   if (!state.combatState || !state.combatState.active) return state;
   const cs = state.combatState;
-  // 50% chance to flee
   const succeeded = Math.random() < 0.5;
   if (succeeded) {
     return {
       ...state,
       currentHP: state.currentHP - Math.floor(state.maxHP * 0.1),
-      combatState: {
-        active: false,
-        monsters: [],
-        boss: null,
-        currentMonsterIndex: 0,
-        monstersDefeated: 0,
-        bossDefeated: false,
-        totalXp: 0,
-        totalGold: 0,
-        lootDrops: [],
-      },
+      combatState: { active: false, monsters: [], boss: null, currentMonsterIndex: 0, monstersDefeated: 0, bossDefeated: false, totalXp: 0, totalGold: 0, lootDrops: [] },
       combatLog: [...state.combatLog, { type: 'fled', timestamp: Date.now() }],
     };
   }
-  // Failed flee - take penalty damage
   const currentMonster = cs.monsters[cs.currentMonsterIndex] || cs.boss;
   const penaltyDamage = currentMonster ? Math.floor(currentMonster.attack * 1.5) : 10;
   return {
@@ -71,58 +74,27 @@ export function fleeCombat(state) {
   };
 }
 
-/* eslint-disable-next-line complexity */
-export function resolveCombat(state) {
-  if (!state.combatState || !state.combatState.active) return state;
-  const cs = state.combatState;
-
-  // Dungeon complete check
-  if (cs.currentMonsterIndex >= cs.monsters.length && cs.bossDefeated) {
-    const dungeon = getDungeonById(state.currentDungeon);
-    const completionReward = dungeon.completionReward;
-    const bonusGold = Math.floor(Math.random() * (completionReward.gold[1] - completionReward.gold[0])) + completionReward.gold[0];
-    const guaranteedItem = getItemById(completionReward.guaranteedItem);
-    let newOwned = [...(state.ownedEquipment || [])];
-    if (guaranteedItem && guaranteedItem.id && !newOwned.includes(guaranteedItem.id)) {
-      newOwned.push(guaranteedItem.id);
-    }
-    return {
-      ...state,
-      xp: state.xp + cs.totalXp + completionReward.xp,
-      gold: state.gold + cs.totalGold + bonusGold,
-      ownedEquipment: newOwned,
-      combatState: {
-        active: false,
-        monsters: [],
-        boss: null,
-        currentMonsterIndex: 0,
-        monstersDefeated: 0,
-        bossDefeated: false,
-        totalXp: 0,
-        totalGold: 0,
-        lootDrops: [],
-      },
-      completedDungeons: state.completedDungeons.includes(state.currentDungeon)
-        ? state.completedDungeons
-        : [...state.completedDungeons, state.currentDungeon],
-      combatLog: [
-        ...state.combatLog,
-        {
-          type: 'dungeon_complete',
-          dungeonId: state.currentDungeon,
-          totalXp: cs.totalXp + completionReward.xp,
-          totalGold: cs.totalGold + bonusGold,
-          guaranteedItem,
-          timestamp: Date.now(),
-        },
-      ],
-    };
+function handleDungeonComplete(state, cs) {
+  const dungeon = getDungeonById(state.currentDungeon);
+  const completionReward = dungeon.completionReward;
+  const bonusGold = Math.floor(Math.random() * (completionReward.gold[1] - completionReward.gold[0])) + completionReward.gold[0];
+  const guaranteedItem = getItemById(completionReward.guaranteedItem);
+  let newOwned = [...(state.ownedEquipment || [])];
+  if (guaranteedItem && guaranteedItem.id && !newOwned.includes(guaranteedItem.id)) {
+    newOwned.push(guaranteedItem.id);
   }
+  return {
+    ...state,
+    xp: state.xp + cs.totalXp + completionReward.xp,
+    gold: state.gold + cs.totalGold + bonusGold,
+    ownedEquipment: newOwned,
+    combatState: { active: false, monsters: [], boss: null, currentMonsterIndex: 0, monstersDefeated: 0, bossDefeated: false, totalXp: 0, totalGold: 0, lootDrops: [] },
+    completedDungeons: state.completedDungeons.includes(state.currentDungeon) ? state.completedDungeons : [...state.completedDungeons, state.currentDungeon],
+    combatLog: [...state.combatLog, { type: 'dungeon_complete', dungeonId: state.currentDungeon, totalXp: cs.totalXp + completionReward.xp, totalGold: cs.totalGold + bonusGold, guaranteedItem, timestamp: Date.now() }],
+  };
+}
 
-  let currentMonster = cs.monsters[cs.currentMonsterIndex];
-  if (!currentMonster) currentMonster = cs.boss;
-  if (!currentMonster) return state;
-
+function handleCombatRound(state, cs, currentMonster) {
   const equippedBonuses = getEquippedBonuses(state.equipment);
   const effectiveStr = state.stats.str + equippedBonuses.str;
   const effectiveDex = state.stats.dex + equippedBonuses.dex;
@@ -138,37 +110,7 @@ export function resolveCombat(state) {
   let newPlayerHp = state.currentHP - monsterDamage;
 
   if (newCurrentHp <= 0) {
-    const isBoss = cs.currentMonsterIndex >= cs.monsters.length;
-    let newCs = {
-      ...cs,
-      monstersDefeated: cs.monstersDefeated + (cs.currentMonsterIndex < cs.monsters.length ? 1 : 0),
-      totalXp: cs.totalXp + Math.floor(currentMonster.xpReward / 2),
-      totalGold: cs.totalGold + Math.floor(Math.random() * (currentMonster.goldReward[1] - currentMonster.goldReward[0]) + currentMonster.goldReward[0]),
-      lootDrops: [...cs.lootDrops, getRandomLoot(currentMonster.lootTable || [])].filter(Boolean),
-      currentMonsterIndex: cs.currentMonsterIndex + 1,
-    };
-    if (isBoss) {
-      newCs.bossDefeated = true;
-    }
-    const goldReward = Math.floor(Math.random() * (currentMonster.goldReward[1] - currentMonster.goldReward[0])) + currentMonster.goldReward[0];
-    return {
-      ...state,
-      currentHP: Math.max(0, newPlayerHp),
-      combatState: newCs,
-      combatLog: [
-        ...state.combatLog,
-        {
-          type: 'combat_round',
-          monster: currentMonster.name,
-          playerDamage,
-          monsterDamage,
-          monsterHpRemaining: newCurrentHp,
-          playerHpRemaining: newPlayerHp,
-          goldReward,
-          timestamp: Date.now(),
-        },
-      ],
-    };
+    return handleMonsterDefeated(state, cs, currentMonster, newPlayerHp);
   }
 
   let newCs = {
@@ -185,20 +127,45 @@ export function resolveCombat(state) {
     ...state,
     currentHP: Math.max(0, newPlayerHp),
     combatState: newCs,
-    combatLog: [
-      ...state.combatLog,
-      {
-        type: 'combat_round',
-        monster: currentMonster.name,
-        playerDamage,
-        monsterDamage,
-        monsterHpRemaining: newCurrentHp,
-        playerHpRemaining: newPlayerHp,
-        loot,
-        timestamp: Date.now(),
-      },
-    ],
+    combatLog: [...state.combatLog, { type: 'combat_round', monster: currentMonster.name, playerDamage, monsterDamage, monsterHpRemaining: newCurrentHp, playerHpRemaining: newPlayerHp, loot, timestamp: Date.now() }],
   };
+}
+
+function handleMonsterDefeated(state, cs, currentMonster, newPlayerHp) {
+  const isBoss = cs.currentMonsterIndex >= cs.monsters.length;
+  let newCs = {
+    ...cs,
+    monstersDefeated: cs.monstersDefeated + (cs.currentMonsterIndex < cs.monsters.length ? 1 : 0),
+    totalXp: cs.totalXp + Math.floor(currentMonster.xpReward / 2),
+    totalGold: cs.totalGold + Math.floor(Math.random() * (currentMonster.goldReward[1] - currentMonster.goldReward[0]) + currentMonster.goldReward[0]),
+    lootDrops: [...cs.lootDrops, getRandomLoot(currentMonster.lootTable || [])].filter(Boolean),
+    currentMonsterIndex: cs.currentMonsterIndex + 1,
+  };
+  if (isBoss) {
+    newCs.bossDefeated = true;
+  }
+  const goldReward = Math.floor(Math.random() * (currentMonster.goldReward[1] - currentMonster.goldReward[0])) + currentMonster.goldReward[0];
+  return {
+    ...state,
+    currentHP: Math.max(0, newPlayerHp),
+    combatState: newCs,
+    combatLog: [...state.combatLog, { type: 'combat_round', monster: currentMonster.name, playerDamage: 0, monsterDamage: 0, monsterHpRemaining: 0, playerHpRemaining: newPlayerHp, goldReward, timestamp: Date.now() }],
+  };
+}
+
+export function resolveCombat(state) {
+  if (!state.combatState || !state.combatState.active) return state;
+  const cs = state.combatState;
+
+  if (cs.currentMonsterIndex >= cs.monsters.length && cs.bossDefeated) {
+    return handleDungeonComplete(state, cs);
+  }
+
+  let currentMonster = cs.monsters[cs.currentMonsterIndex];
+  if (!currentMonster) currentMonster = cs.boss;
+  if (!currentMonster) return state;
+
+  return handleCombatRound(state, cs, currentMonster);
 }
 
 export function combatResult(state, action) {
@@ -216,10 +183,7 @@ export function combatResult(state, action) {
     currentHP: hpRemaining,
     currentMP: mpRemaining,
     ownedEquipment: newOwned,
-    combatLog: [
-      ...state.combatLog,
-      { type: 'combat', monstersDefeated, bossDefeated, totalXp, totalGold, lootDrops, timestamp: Date.now() },
-    ],
+    combatLog: [...state.combatLog, { type: 'combat', monstersDefeated, bossDefeated, totalXp, totalGold, lootDrops, timestamp: Date.now() }],
   };
 }
 
@@ -236,10 +200,7 @@ export function rest(state) {
     gold: Math.max(0, state.gold - goldCost),
     currentHP: state.maxHP,
     currentMP: state.maxMP,
-    combatLog: [
-      ...state.combatLog,
-      { type: 'rest', goldCost, hpGain, mpGain, timestamp: Date.now() },
-    ],
+    combatLog: [...state.combatLog, { type: 'rest', goldCost, hpGain, mpGain, timestamp: Date.now() }],
   };
 }
 
