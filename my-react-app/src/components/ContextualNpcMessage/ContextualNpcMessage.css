@@ -1,0 +1,146 @@
+/* ============================================
+   ContextualNpcMessage — Floating contextual NPC messages
+   RPG Fit — Tower 1 Design Spec Appendix B typography
+   Georgia serif, 14px, white text with subtle glow
+   ============================================ */
+
+.contextual-npc-message {
+  position: absolute;
+  top: -60px;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  max-width: 280px;
+  z-index: 100;
+  pointer-events: auto;
+}
+
+/* Badge showing the trigger type */
+.contextual-npc-message__badge {
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: #ffe066;
+  background: rgba(255, 224, 102, 0.1);
+  border: 1px solid rgba(255, 224, 102, 0.2);
+  border-radius: 4px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+
+/* Message bubble */
+.contextual-npc-message__bubble {
+  background: linear-gradient(
+    135deg,
+    rgba(26, 26, 46, 0.92),
+    rgba(15, 52, 96, 0.88)
+  );
+  border: 1px solid rgba(255, 224, 102, 0.15);
+  border-radius: 8px;
+  padding: 10px 14px;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Message text — Georgia serif, 14px, white */
+.contextual-npc-message__text {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #ffffff;
+  margin: 0;
+  text-shadow: 0 0 4px rgba(255, 224, 102, 0.15);
+}
+
+/* Dismiss button */
+.contextual-npc-message__dismiss {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 20px;
+  height: 20px;
+  border: none;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, color 0.15s ease;
+  padding: 0;
+  pointer-events: auto;
+}
+
+.contextual-npc-message__dismiss:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* ─── Animations ─────────────────────────────────────────────────────────── */
+
+/* Enter animation */
+.contextual-npc-message--enter {
+  animation: contextual-enter 0.3s ease-out forwards;
+}
+
+@keyframes contextual-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Visible state — no animation, just stable */
+.contextual-npc-message--visible {
+  opacity: 1;
+}
+
+/* Exit animation */
+.contextual-npc-message--exit {
+  animation: contextual-exit 0.35s ease-in forwards;
+}
+
+@keyframes contextual-exit {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+/* ─── Accessibility ──────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .contextual-npc-message--enter,
+  .contextual-npc-message--exit {
+    animation: none !important;
+    opacity: 1;
+  }
+}
+
+/* ─── Mobile adjustments ─────────────────────────────────────────────────── */
+
+@media (max-width: 600px) {
+  .contextual-npc-message {
+    max-width: 200px;
+    top: -50px;
+    right: -4px;
+  }
+
+  .contextual-npc-message__text {
+    font-size: 13px;
+  }
+}
