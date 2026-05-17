@@ -10,9 +10,7 @@ import { getXpToNextLevel, getTotalXpToLevel, getXpProgress, MAX_LEVEL } from '.
 import { getItemById, getRandomLoot } from '../data/loot';
 import { CONSUMABLES } from '../data/consumables';
 import { getFloorRequirements } from '../data/floors';
-import { getAllItems, getStartingEquipment } from '../data/equipment';
-
-const SLOT_ORDER = ['head', 'chest', 'pants', 'boots', 'rightHand', 'leftHand', 'accessory1', 'accessory2', 'accessory3'];
+import { getAllItems, getStartingEquipment, SLOT_ORDER } from '../data/equipment';
 
 const createEmptyEquipment = () => {
   const eq = {};
@@ -768,8 +766,12 @@ function reducer(state, action) {
   }
 }
 
-const CharacterContext = createContext(null);
-const CharacterDispatchContext = createContext(null);
+const CharacterContext = createContext(() => {
+  throw new Error('useCharacter must be used within a CharacterProvider');
+});
+const CharacterDispatchContext = createContext(() => {
+  throw new Error('useCharacterDispatch must be used within a CharacterProvider');
+});
 
 export function CharacterProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState);
