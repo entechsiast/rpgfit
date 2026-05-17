@@ -46,7 +46,6 @@ export default function AdventurePage() {
     availableDialogues,
     showNextDialogue,
     npcPresence,
-    metCount,
     hasDialogues,
     npcsOnFloor,
   } = useDialogue(
@@ -68,7 +67,7 @@ export default function AdventurePage() {
         }
       }
     }
-  }, [currentFloor, npcsOnFloor, hasDialogues]);
+  }, [currentFloor, activeDialogueNpcId, npcsOnFloor, hasDialogues]);
 
   const handleShowNext = useCallback((npcId) => {
     const result = showNextDialogue(npcId);
@@ -77,7 +76,7 @@ export default function AdventurePage() {
     }
   }, [showNextDialogue]);
 
-  const handleDismissDialogue = useCallback((npcId) => {
+  const handleDismissDialogue = useCallback((_npcId) => {
     setActiveDialogueNpcId(null);
   }, []);
 
@@ -90,18 +89,6 @@ export default function AdventurePage() {
       setActiveDialogueNpcId(null);
     }
   }, [showNextDialogue]);
-
-  const getDialogueForNpc = (npcId) => {
-    const dialogues = availableDialogues[npcId];
-    if (!dialogues || dialogues.length === 0) return null;
-    const active = dialogues.find(d => d.dialogue.id === activeDialogueNpcId);
-    return active || dialogues[0];
-  };
-
-  const getActiveDialogueId = (npcId) => {
-    if (activeDialogueNpcId !== npcId) return null;
-    return activeDialogueNpcId ? `${npcId}_d1` : null;
-  };
 
   // Simulate active dialogue ID for the component
   const getActiveDialogueIdForNpc = (npcId) => {

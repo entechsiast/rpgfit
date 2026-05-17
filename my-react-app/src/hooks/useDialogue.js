@@ -28,7 +28,6 @@ import { useState, useCallback, useMemo, useEffect } from 'react';
 import {
   NPC_ID,
   getNpcsForFloor,
-  getNpcById,
 } from '../data/npcDialogues';
 import {
   getAvailableDialogues,
