@@ -135,3 +135,9 @@ export function equipmentReducer(state, action) {
   if (handler) return handler(state, action);
   return state;
 }
+
+const equipmentActionTypes = new Set(Object.keys(equipmentCaseMap));
+
+export function isEquipmentAction(type) {
+  return equipmentActionTypes.has(type);
+}

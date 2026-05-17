@@ -11,6 +11,7 @@ import { getFloorRequirements, getFloorCelebrationText } from '../data/floors';
 import { getAllItems, getStartingEquipment, SLOT_ORDER } from '../data/equipment';
 import { recalcHPAndMP } from './reducers/hpMpRecalc';
 import { combatReducer, isCombatAction } from './reducers/combat';
+import { equipmentReducer, isEquipmentAction } from './reducers/equipment';
 
 const createEmptyEquipment = () => {
   const eq = {};
@@ -93,6 +94,9 @@ function getAllBonuses(state) {
 function reducer(state, action) {
   // Dispatch combat actions to the combat sub-reducer
   if (isCombatAction(action.type)) return combatReducer(state, action);
+
+  // Dispatch equipment actions to the equipment sub-reducer
+  if (isEquipmentAction(action.type)) return equipmentReducer(state, action);
 
   switch (action.type) {
     case 'SET_NAME':
