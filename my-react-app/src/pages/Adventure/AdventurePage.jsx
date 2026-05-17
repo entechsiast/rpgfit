@@ -19,10 +19,8 @@ import DropFeedback from '../../components/DropFeedback/DropFeedback';
 import CelebrationNotification from '../../components/CelebrationNotification/CelebrationNotification';
 import ContextualNpcMessage from '../../components/ContextualNpcMessage/ContextualNpcMessage';
 import NpcDialogue from '../../components/NpcDialogue/NpcDialogue';
-import PassiveNotification from '../../components/PassiveNotification/PassiveNotification';
 import { useDialogue } from '../../hooks/useDialogue';
 import useContextualMessages from '../../hooks/useContextualMessages';
-import usePassiveNotification from '../../hooks/usePassiveNotification';
 import './AdventurePage.css';
 
 const TABS = [
@@ -88,16 +86,6 @@ export default function AdventurePage() {
       wasAlive.current = true;
     }
   }, [character.currentHP, character.combatState?.active, triggerMessage]);
-
-  // ─── Passive Narrative Notifications ───────────────────────────────────────
-
-  const { activeMessage: passiveMessage, dismiss: dismissPassive } = usePassiveNotification({
-    inactivityThreshold: 48 * 60 * 60 * 1000,
-    currentFloor,
-    enabled: true,
-  });
-
-  // ─── Celebration Notification State ──────────────────────────────────────
 
   // Watch for milestone rewards and trigger the celebration overlay
   useEffect(() => {
@@ -536,14 +524,6 @@ export default function AdventurePage() {
         <ContextualNpcMessage
           message={contextualMessage}
           onDismiss={clearMessage}
-        />
-      )}
-
-      {/* Passive Narrative Notification — subtle observation during inactivity */}
-      {passiveMessage && (
-        <PassiveNotification
-          message={passiveMessage}
-          onDismiss={dismissPassive}
         />
       )}
 
