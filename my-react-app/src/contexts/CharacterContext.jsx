@@ -1,5 +1,5 @@
 /* eslint-disable max-lines */
-import React, { createContext, useContext, useReducer } from 'react';
+import React, { createContext, useContext, useReducer, useMemo } from 'react';
 import { getClassById } from '../data/classes';
 import { getRaceById } from '../data/races';
 import { STATS, BASE_STAT, MAX_STAT, TOTAL_POINTS } from '../data/stats';
@@ -776,8 +776,10 @@ export function CharacterProvider({ children }) {
   const equippedBonuses = getEquippedBonuses(state.equipment);
   const allBonuses = getAllBonuses(state);
 
+  const value = useMemo(() => ({ ...state, equippedBonuses, allBonuses }), [state, equippedBonuses, allBonuses]);
+
   return (
-    <CharacterContext.Provider value={{ ...state, equippedBonuses, allBonuses }}>
+    <CharacterContext.Provider value={value}>
       <CharacterDispatchContext.Provider value={dispatch}>
         {children}
       </CharacterDispatchContext.Provider>
