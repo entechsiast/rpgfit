@@ -16,6 +16,7 @@ import GoldDisplay from '../../components/GoldDisplay/GoldDisplay';
 import XpBar from '../../components/XpBar/XpBar';
 import CharacterAvatar from '../../components/CharacterAvatar/CharacterAvatar';
 import DropFeedback from '../../components/DropFeedback/DropFeedback';
+import CelebrationNotification from '../../components/CelebrationNotification/CelebrationNotification';
 import NpcDialogue from '../../components/NpcDialogue/NpcDialogue';
 import { useDialogue } from '../../hooks/useDialogue';
 import './AdventurePage.css';
@@ -36,6 +37,27 @@ export default function AdventurePage() {
   const [showLevelUp, setShowLevelUp] = useState(false);
   const [activeRewards, setActiveRewards] = useState([]);
   const rewardTimersRef = useRef({});
+
+  // ─── Celebration Notification State ──────────────────────────────────────
+  const [activeCelebration, setActiveCelebration] = useState(null); // { floorNumber, floorName, celebrationText }
+
+  // Watch for milestone rewards and trigger the celebration overlay
+  useEffect(() => {
+    const log = character.rewardLog || [];
+    if (log.length > 0) {
+      const last = log[log.length - 1];
+      if (last.type === 'milestone' && last.floor) {
+        // Only show celebration if not already showing one
+        if (!activeCelebration) {
+          setActiveCelebration({
+            floorNumber: last.floor,
+            floorName: last.floorName || `Floor ${last.floor}`,
+            celebrationText: last.celebrationText || '',
+          });
+        }
+      }
+    }
+  }, [character.rewardLog, activeCelebration]);
 
   // ─── Dialogue State ──────────────────────────────────────────────────────
 
@@ -132,6 +154,11 @@ export default function AdventurePage() {
   // Clean up rewards after animation completes
   const handleRewardComplete = useCallback((rewardTimestamp) => {
     setActiveRewards(prev => prev.filter(r => r.timestamp !== rewardTimestamp));
+  }, []);
+
+  // Dismiss the celebration notification
+  const handleDismissCelebration = useCallback(() => {
+    setActiveCelebration(null);
   }, []);
 
   // Check for level up after XP changes
@@ -436,6 +463,16 @@ export default function AdventurePage() {
           onComplete={() => handleRewardComplete(reward.timestamp)}
         />
       ))}
+
+      {/* Celebration Notification — parchment overlay on floor completion */}
+      {activeCelebration && (
+        <CelebrationNotification
+          floorNumber={activeCelebration.floorNumber}
+          floorName={activeCelebration.floorName}
+          celebrationText={activeCelebration.celebrationText}
+          onDismiss={handleDismissCelebration}
+        />
+      )}
 
       {/* Settings Toggle */}
       <SettingsToggle />

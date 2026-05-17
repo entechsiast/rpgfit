@@ -9,7 +9,7 @@ import { calculateMaxHp, calculateHpGainOnLevelUp, calculateMaxMp, calculateMpGa
 import { getXpToNextLevel, getTotalXpToLevel, getXpProgress, MAX_LEVEL } from '../data/xp';
 import { getItemById, getRandomLoot } from '../data/loot';
 import { CONSUMABLES } from '../data/consumables';
-import { getFloorRequirements } from '../data/floors';
+import { getFloorRequirements, getFloorCelebrationText } from '../data/floors';
 import { getAllItems, getStartingEquipment, SLOT_ORDER } from '../data/equipment';
 
 const createEmptyEquipment = () => {
@@ -498,6 +498,7 @@ function reducer(state, action) {
           itemName: rareItem ? rareItem.name : null,
           floor: nextFloor,
           floorName: nextFloorReq.name,
+          celebrationText: getFloorCelebrationText(nextFloor),
           timestamp,
         });
 
@@ -589,6 +590,7 @@ function reducer(state, action) {
         itemName: rareItem ? rareItem.name : null,
         floor: nextFloor,
         floorName: nextFloorReq.name,
+        celebrationText: getFloorCelebrationText(nextFloor),
         timestamp,
       });
 

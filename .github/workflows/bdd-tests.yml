@@ -1,13 +1,13 @@
-name: CI (PR — Unit Tests + Build)
+name: BDD Tests (Hourly Scheduled)
 on:
-  pull_request:
-    branches: [main, master]
-  push:
-    branches: [main, master]
+  schedule:
+    # Run every hour
+    - cron: '0 * * * *'
+  workflow_dispatch:
 
 jobs:
-  pr-check:
-    name: Unit Tests & Build
+  bdd-tests:
+    name: BDD Tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -22,10 +22,12 @@ jobs:
         working-directory: my-react-app
         run: npm install
 
-      - name: Run Jest unit tests
+      - name: Install Playwright browsers
         working-directory: my-react-app
-        run: npm test -- --watchAll=false --coverage=false
+        run: npx playwright install --with-deps chromium
 
-      - name: Build
+      - name: Run BDD tests
         working-directory: my-react-app
-        run: npm run build
+        run: npm run test:bdd:ci
+        env:
+          PLAYWRIGHT_HEADLESS: 'true'
