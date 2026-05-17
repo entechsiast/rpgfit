@@ -3,14 +3,15 @@ import React, { createContext, useContext, useReducer, useMemo } from 'react';
 import { getClassById } from '../data/classes';
 import { getRaceById } from '../data/races';
 import { STATS, BASE_STAT, MAX_STAT, TOTAL_POINTS } from '../data/stats';
-import { getDungeonById, getDungeonsForLevel } from '../data/dungeons';
-import { getMonstersByDungeon, getBossByDungeon } from '../data/monsters';
-import { calculateMaxHp, calculateHpGainOnLevelUp, calculateMaxMp, calculateMpGainOnLevelUp } from '../data/combat';
+import { getDungeonsForLevel } from '../data/dungeons';
+import { calculateHpGainOnLevelUp, calculateMpGainOnLevelUp } from '../data/combat';
 import { getXpToNextLevel, getTotalXpToLevel, getXpProgress, MAX_LEVEL } from '../data/xp';
-import { getItemById, getRandomLoot } from '../data/loot';
 import { CONSUMABLES } from '../data/consumables';
 import { getFloorRequirements, getFloorCelebrationText } from '../data/floors';
 import { getAllItems, getStartingEquipment, SLOT_ORDER } from '../data/equipment';
+import { recalcHPAndMP } from './reducers/hpMpRecalc';
+import { combatReducer, isCombatAction } from './reducers/combat';
+import { equipmentReducer, isEquipmentAction } from './reducers/equipment';
 
 const createEmptyEquipment = () => {
   const eq = {};
@@ -89,24 +90,14 @@ function getAllBonuses(state) {
   return result;
 }
 
-function recalcHPAndMP(state) {
-  if (!state.class) return { maxHP: 10, currentHP: state.currentHP, maxMP: 5, currentMP: state.currentMP };
-  const equippedBonuses = getEquippedBonuses(state.equipment);
-  const effectiveCon = state.stats.con + equippedBonuses.con;
-  const effectiveInt = state.stats.int + equippedBonuses.int;
-  const effectiveWis = state.stats.wis + equippedBonuses.wis;
-  const newMaxHP = calculateMaxHp(state.class.id, effectiveCon, state.level);
-  const newMaxMP = calculateMaxMp(effectiveInt, effectiveWis, state.level);
-  return {
-    maxHP: newMaxHP,
-    currentHP: Math.min(state.currentHP, newMaxHP),
-    maxMP: newMaxMP,
-    currentMP: Math.min(state.currentMP, newMaxMP),
-  };
-}
-
 /* eslint-disable-next-line complexity */
 function reducer(state, action) {
+  // Dispatch combat actions to the combat sub-reducer
+  if (isCombatAction(action.type)) return combatReducer(state, action);
+
+  // Dispatch equipment actions to the equipment sub-reducer
+  if (isEquipmentAction(action.type)) return equipmentReducer(state, action);
+
   switch (action.type) {
     case 'SET_NAME':
       return { ...state, name: action.payload };
@@ -117,7 +108,9 @@ function reducer(state, action) {
       const newStats = { ...state.stats };
       STATS.forEach(stat => { newStats[stat.id] = BASE_STAT; });
       const points = calculatePointsRemaining(newStats);
-      const hpMp = { maxHP: calculateMaxHp(cls.id, BASE_STAT, 1), currentHP: calculateMaxHp(cls.id, BASE_STAT, 1), maxMP: calculateMaxMp(BASE_STAT, BASE_STAT, 1), currentMP: calculateMaxMp(BASE_STAT, BASE_STAT, 1) };
+      // Use recalcHPAndMP with a temporary state for initial HP/MP values
+      const tempState = { ...state, class: cls, stats: newStats, level: 1, equipment: createEmptyEquipment() };
+      const hpMp = recalcHPAndMP(tempState);
       const startingEq = getStartingEquipment(cls.id) || createEmptyEquipment();
       const ownedStartingEq = Object.values(startingEq).filter(Boolean);
       return {
@@ -185,14 +178,7 @@ function reducer(state, action) {
       newEquipment[slot] = item;
       // Remove from ownedEquipment when equipping
       const newOwned = state.ownedEquipment?.filter(id => id !== item.id) || [];
-      const equippedBonuses = getEquippedBonuses(newEquipment);
-      const effectiveCon = state.stats.con + equippedBonuses.con;
-      const effectiveInt = state.stats.int + equippedBonuses.int;
-      const effectiveWis = state.stats.wis + equippedBonuses.wis;
-      const hpMp = {
-        maxHP: calculateMaxHp(state.class?.id, effectiveCon, state.level),
-        maxMP: calculateMaxMp(effectiveInt, effectiveWis, state.level),
-      };
+      const hpMp = recalcHPAndMP({ ...state, equipment: newEquipment });
       return {
         ...state,
         equipment: newEquipment,
@@ -213,14 +199,7 @@ function reducer(state, action) {
       if (item && !newOwned.includes(item.id)) {
         newOwned.push(item.id);
       }
-      const equippedBonuses = getEquippedBonuses(newEquipment);
-      const effectiveCon = state.stats.con + equippedBonuses.con;
-      const effectiveInt = state.stats.int + equippedBonuses.int;
-      const effectiveWis = state.stats.wis + equippedBonuses.wis;
-      const hpMp = {
-        maxHP: calculateMaxHp(state.class?.id, effectiveCon, state.level),
-        maxMP: calculateMaxMp(effectiveInt, effectiveWis, state.level),
-      };
+      const hpMp = recalcHPAndMP({ ...state, equipment: newEquipment });
       return {
         ...state,
         equipment: newEquipment,
@@ -265,14 +244,7 @@ function reducer(state, action) {
       const currentStat = state.stats[statId];
       const newStats = { ...state.stats, [statId]: currentStat + value };
       const newPointsRemaining = state.pointsRemaining - value;
-      const equippedBonuses = getEquippedBonuses(state.equipment);
-      const effectiveCon = newStats.con + equippedBonuses.con;
-      const effectiveInt = newStats.int + equippedBonuses.int;
-      const effectiveWis = newStats.wis + equippedBonuses.wis;
-      const hpMp = {
-        maxHP: calculateMaxHp(state.class?.id, effectiveCon, state.level),
-        maxMP: calculateMaxMp(effectiveInt, effectiveWis, state.level),
-      };
+      const hpMp = recalcHPAndMP({ ...state, stats: newStats });
       return {
         ...state,
         stats: newStats,
@@ -371,42 +343,6 @@ function reducer(state, action) {
 
     case 'CLEAR_BUFFS':
       return { ...state, temporaryBuffs: { str: 0, dex: 0, con: 0, int: 0, wis: 0, cha: 0 } };
-
-    case 'REST': {
-      const goldCost = Math.max(1, Math.floor(state.level * 5));
-      const hpGain = state.maxHP - state.currentHP;
-      const mpGain = state.maxMP - state.currentMP;
-      return {
-        ...state,
-        gold: Math.max(0, state.gold - goldCost),
-        currentHP: state.maxHP,
-        currentMP: state.maxMP,
-        combatLog: [...state.combatLog, { type: 'rest', goldCost, hpGain, mpGain, timestamp: Date.now() }],
-      };
-    }
-
-    case 'COMBAT_RESULT': {
-      const { monstersDefeated, bossDefeated, totalXp, totalGold, lootDrops, hpRemaining, mpRemaining } = action.payload;
-      // Add equipment loot to ownedEquipment
-      let newOwned = [...(state.ownedEquipment || [])];
-      if (lootDrops && Array.isArray(lootDrops)) {
-        lootDrops.forEach(loot => {
-          if (loot && loot.id && loot.slot && !newOwned.includes(loot.id)) {
-            newOwned.push(loot.id);
-          }
-        });
-      }
-      return {
-        ...state,
-        currentHP: hpRemaining,
-        currentMP: mpRemaining,
-        ownedEquipment: newOwned,
-        combatLog: [...state.combatLog, { type: 'combat', monstersDefeated, bossDefeated, totalXp, totalGold, lootDrops, timestamp: Date.now() }],
-      };
-    }
-
-    case 'CLEAR_COMBAT_LOG':
-      return { ...state, combatLog: [] };
 
     case 'ADD_SESSION': {
       const newSession = {
@@ -615,123 +551,8 @@ function reducer(state, action) {
       };
     }
 
-    case 'ADD_EQUIPMENT_ITEM': {
-      const itemId = action.payload;
-      if (state.ownedEquipment?.includes(itemId)) return state;
-      return { ...state, ownedEquipment: [...(state.ownedEquipment || []), itemId] };
-    }
-
-    case 'REMOVE_EQUIPMENT_ITEM': {
-      const itemId = action.payload;
-      return {
-        ...state,
-        ownedEquipment: (state.ownedEquipment || []).filter(id => id !== itemId),
-      };
-    }
-
     case 'SET_CURRENT_DUNGEON':
       return { ...state, currentDungeon: action.payload };
-
-    case 'START_COMBAT': {
-      const dungeon = getDungeonById(action.payload);
-      if (!dungeon) return state;
-      const monsters = getMonstersByDungeon(action.payload);
-      const boss = getBossByDungeon(action.payload);
-      return { ...state, combatState: { active: true, monsters: monsters.map(m => ({ ...m, currentHp: m.hp })), boss: boss ? { ...boss, currentHp: boss.hp } : null, currentMonsterIndex: 0, monstersDefeated: 0, bossDefeated: false, totalXp: 0, totalGold: 0, lootDrops: [] } };
-    }
-
-    case 'FLEE_COMBAT': {
-      if (!state.combatState || !state.combatState.active) return state;
-      const cs = state.combatState;
-      // 50% chance to flee
-      const succeeded = Math.random() < 0.5;
-      if (succeeded) {
-        return {
-          ...state,
-          currentHP: state.currentHP - Math.floor(state.maxHP * 0.1),
-          combatState: { active: false, monsters: [], boss: null, currentMonsterIndex: 0, monstersDefeated: 0, bossDefeated: false, totalXp: 0, totalGold: 0, lootDrops: [] },
-          combatLog: [...state.combatLog, { type: 'fled', timestamp: Date.now() }],
-        };
-      }
-      // Failed flee - take penalty damage
-      const currentMonster = cs.monsters[cs.currentMonsterIndex] || cs.boss;
-      const penaltyDamage = currentMonster ? Math.floor(currentMonster.attack * 1.5) : 10;
-      return {
-        ...state,
-        currentHP: Math.max(0, state.currentHP - penaltyDamage),
-        combatLog: [...state.combatLog, { type: 'fled_failed', penaltyDamage, timestamp: Date.now() }],
-      };
-    }
-
-    case 'RESOLVE_COMBAT': {
-      if (!state.combatState || !state.combatState.active) return state;
-      const cs = state.combatState;
-      if (cs.currentMonsterIndex >= cs.monsters.length && cs.bossDefeated) {
-        const dungeon = getDungeonById(state.currentDungeon);
-        const completionReward = dungeon.completionReward;
-        const bonusGold = Math.floor(Math.random() * (completionReward.gold[1] - completionReward.gold[0])) + completionReward.gold[0];
-        const guaranteedItem = getItemById(completionReward.guaranteedItem);
-        // Add guaranteed item to ownedEquipment
-        let newOwned = [...(state.ownedEquipment || [])];
-        if (guaranteedItem && guaranteedItem.id && !newOwned.includes(guaranteedItem.id)) {
-          newOwned.push(guaranteedItem.id);
-        }
-        return {
-          ...state,
-          xp: state.xp + cs.totalXp + completionReward.xp,
-          gold: state.gold + cs.totalGold + bonusGold,
-          ownedEquipment: newOwned,
-          combatState: { active: false, monsters: [], boss: null, currentMonsterIndex: 0, monstersDefeated: 0, bossDefeated: false, totalXp: 0, totalGold: 0, lootDrops: [] },
-          completedDungeons: state.completedDungeons.includes(state.currentDungeon) ? state.completedDungeons : [...state.completedDungeons, state.currentDungeon],
-          combatLog: [...state.combatLog, { type: 'dungeon_complete', dungeonId: state.currentDungeon, totalXp: cs.totalXp + completionReward.xp, totalGold: cs.totalGold + bonusGold, guaranteedItem: guaranteedItem, timestamp: Date.now() }],
-        };
-      }
-
-      let currentMonster = cs.monsters[cs.currentMonsterIndex];
-      if (!currentMonster) currentMonster = cs.boss;
-      if (!currentMonster) return state;
-
-      const equippedBonuses = getEquippedBonuses(state.equipment);
-      const effectiveStr = state.stats.str + equippedBonuses.str;
-      const effectiveDex = state.stats.dex + equippedBonuses.dex;
-      const effectiveCon = state.stats.con + equippedBonuses.con;
-      const effectiveCha = state.stats.cha + equippedBonuses.cha;
-
-      const playerAttack = effectiveStr + Math.floor(effectiveDex / 2) + Math.floor(effectiveCha / 4);
-      const playerDefense = effectiveCon + Math.floor(effectiveDex / 3);
-      const playerDamage = Math.max(1, playerAttack - currentMonster.defense + Math.floor(Math.random() * 5) - 2);
-      const monsterDamage = Math.max(1, currentMonster.attack - playerDefense + Math.floor(Math.random() * 5) - 2);
-
-      let newCurrentHp = currentMonster.currentHp - playerDamage;
-      let newPlayerHp = state.currentHP - monsterDamage;
-
-      if (newCurrentHp <= 0) {
-        // Check if this was the boss
-        const isBoss = cs.currentMonsterIndex >= cs.monsters.length;
-        let newCs = { ...cs, monstersDefeated: cs.monstersDefeated + (cs.currentMonsterIndex < cs.monsters.length ? 1 : 0), totalXp: cs.totalXp + Math.floor(currentMonster.xpReward / 2), totalGold: cs.totalGold + Math.floor(Math.random() * (currentMonster.goldReward[1] - currentMonster.goldReward[0]) + currentMonster.goldReward[0]), lootDrops: [...cs.lootDrops, getRandomLoot(currentMonster.lootTable || [])].filter(Boolean), currentMonsterIndex: cs.currentMonsterIndex + 1 };
-        if (isBoss) {
-          newCs.bossDefeated = true;
-        }
-        const goldReward = Math.floor(Math.random() * (currentMonster.goldReward[1] - currentMonster.goldReward[0])) + currentMonster.goldReward[0];
-        return {
-          ...state,
-          currentHP: Math.max(0, newPlayerHp),
-          combatState: newCs,
-          combatLog: [...state.combatLog, { type: 'combat_round', monster: currentMonster.name, playerDamage, monsterDamage, monsterHpRemaining: newCurrentHp, playerHpRemaining: newPlayerHp, goldReward, timestamp: Date.now() }],
-        };
-      }
-
-      let newCs = { ...cs, currentMonsterIndex: cs.currentMonsterIndex + 1, monstersDefeated: cs.monstersDefeated + 1, totalXp: cs.totalXp + currentMonster.xpReward, totalGold: cs.totalGold + Math.floor(Math.random() * (currentMonster.goldReward[1] - currentMonster.goldReward[0]) + currentMonster.goldReward[0]) };
-      const loot = getRandomLoot(currentMonster.lootTable || []);
-      if (loot) newCs.lootDrops = [...cs.lootDrops, loot];
-
-      return {
-        ...state,
-        currentHP: Math.max(0, newPlayerHp),
-        combatState: newCs,
-        combatLog: [...state.combatLog, { type: 'combat_round', monster: currentMonster.name, playerDamage, monsterDamage, monsterHpRemaining: newCurrentHp, playerHpRemaining: newPlayerHp, loot, timestamp: Date.now() }],
-      };
-    }
 
     case 'LOAD_CHARACTER': {
       const loadedEquipment = action.payload.equipment || createEmptyEquipment();
@@ -764,7 +585,7 @@ function reducer(state, action) {
       return { ...state, animationEnabled: action.payload };
 
     default:
-      return state;
+      return equipmentReducer(state, action) || combatReducer(state, action) || state;
   }
 }
 
@@ -802,4 +623,5 @@ export function useCharacterDispatch() {
 export { getXpProgress, getDungeonsForLevel };
 
 // Exported for testing
-export { reducer, initialState, getEquippedBonuses, getAllBonuses, recalcHPAndMP, createEmptyEquipment };
+export { reducer, initialState, getEquippedBonuses, getAllBonuses, createEmptyEquipment };
+export { recalcHPAndMP } from './reducers/hpMpRecalc';
