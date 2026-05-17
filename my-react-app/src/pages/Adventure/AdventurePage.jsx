@@ -17,8 +17,12 @@ import XpBar from '../../components/XpBar/XpBar';
 import CharacterAvatar from '../../components/CharacterAvatar/CharacterAvatar';
 import DropFeedback from '../../components/DropFeedback/DropFeedback';
 import CelebrationNotification from '../../components/CelebrationNotification/CelebrationNotification';
+import ContextualNpcMessage from '../../components/ContextualNpcMessage/ContextualNpcMessage';
 import NpcDialogue from '../../components/NpcDialogue/NpcDialogue';
+import PassiveNotification from '../../components/PassiveNotification/PassiveNotification';
 import { useDialogue } from '../../hooks/useDialogue';
+import useContextualMessages from '../../hooks/useContextualMessages';
+import usePassiveNotification from '../../hooks/usePassiveNotification';
 import './AdventurePage.css';
 
 const TABS = [
@@ -41,6 +45,60 @@ export default function AdventurePage() {
   // ─── Celebration Notification State ──────────────────────────────────────
   const [activeCelebration, setActiveCelebration] = useState(null); // { floorNumber, floorName, celebrationText }
 
+  // ─── Contextual NPC Messages ─────────────────────────────────────────────
+
+  const currentFloor = character.currentFloor || 1;
+  const animationEnabled = character.animationEnabled !== false;
+  const { message: contextualMessage, triggerMessage, clearMessage } = useContextualMessages(animationEnabled);
+
+  // Floor entry trigger — fires when currentFloor changes
+  useEffect(() => {
+    if (currentFloor > 0) {
+      triggerMessage('FLOOR_ENTRY', currentFloor);
+    }
+  }, [currentFloor, triggerMessage]);
+
+  // Combat start trigger — fires when combat becomes active
+  const wasCombatActive = useRef(false);
+  useEffect(() => {
+    if (character.combatState?.active && !wasCombatActive.current) {
+      triggerMessage('COMBAT_START');
+    }
+    if (character.combatState?.active) {
+      wasCombatActive.current = true;
+    } else {
+      wasCombatActive.current = false;
+    }
+  }, [character.combatState?.active, triggerMessage]);
+
+  // Floor completion trigger — fires when a milestone celebration appears
+  useEffect(() => {
+    if (activeCelebration) {
+      triggerMessage('FLOOR_COMPLETE');
+    }
+  }, [activeCelebration, triggerMessage]);
+
+  // Death trigger — fires when player dies (HP <= 0 and not in combat)
+  const wasAlive = useRef(true);
+  useEffect(() => {
+    if (character.currentHP <= 0 && !character.combatState?.active && wasAlive.current) {
+      triggerMessage('DEATH');
+    }
+    if (character.currentHP > 0) {
+      wasAlive.current = true;
+    }
+  }, [character.currentHP, character.combatState?.active, triggerMessage]);
+
+  // ─── Passive Narrative Notifications ───────────────────────────────────────
+
+  const { activeMessage: passiveMessage, dismiss: dismissPassive } = usePassiveNotification({
+    inactivityThreshold: 48 * 60 * 60 * 1000,
+    currentFloor,
+    enabled: true,
+  });
+
+  // ─── Celebration Notification State ──────────────────────────────────────
+
   // Watch for milestone rewards and trigger the celebration overlay
   useEffect(() => {
     const log = character.rewardLog || [];
@@ -61,7 +119,6 @@ export default function AdventurePage() {
 
   // ─── Dialogue State ──────────────────────────────────────────────────────
 
-  const currentFloor = character.currentFloor || 1;
   const completedFloors = character.completedFloors || [];
   const discoveredLoreFragments = character.discoveredLoreFragments || 0;
   const tower1Completed = character.tower1Completed || false;
@@ -471,6 +528,22 @@ export default function AdventurePage() {
           floorName={activeCelebration.floorName}
           celebrationText={activeCelebration.celebrationText}
           onDismiss={handleDismissCelebration}
+        />
+      )}
+
+      {/* Contextual NPC Message — floating text near NPC */}
+      {contextualMessage && (
+        <ContextualNpcMessage
+          message={contextualMessage}
+          onDismiss={clearMessage}
+        />
+      )}
+
+      {/* Passive Narrative Notification — subtle observation during inactivity */}
+      {passiveMessage && (
+        <PassiveNotification
+          message={passiveMessage}
+          onDismiss={dismissPassive}
         />
       )}
 
