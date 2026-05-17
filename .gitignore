@@ -1,7 +1,8 @@
-# OpenCode
-.opencode/node_modules/
-.opencode/package.json
-.opencode/package-lock.json
+# OpenCode (local only, not in repo)
+.opencode/
+opencode.json
+CLAUDE.md
+USAGE.md
 
 # Editor
 .vscode/
