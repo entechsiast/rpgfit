@@ -109,6 +109,9 @@ function handleCombatRound(state, cs, currentMonster) {
   let newCurrentHp = currentMonster.currentHp - playerDamage;
   let newPlayerHp = state.currentHP - monsterDamage;
 
+  // Persist the monster's HP before checking death
+  currentMonster.currentHp = newCurrentHp;
+
   if (newCurrentHp <= 0) {
     return handleMonsterDefeated(state, cs, currentMonster, newPlayerHp);
   }
