@@ -10,7 +10,7 @@ import { getXpToNextLevel, getTotalXpToLevel, getXpProgress, MAX_LEVEL } from '.
 import { getItemById, getRandomLoot } from '../data/loot';
 import { CONSUMABLES } from '../data/consumables';
 import { getFloorRequirements } from '../data/floors';
-import { getAllItems } from '../data/equipment';
+import { getAllItems, getStartingEquipment } from '../data/equipment';
 
 const SLOT_ORDER = ['head', 'chest', 'pants', 'boots', 'rightHand', 'leftHand', 'accessory1', 'accessory2', 'accessory3'];
 
@@ -120,12 +120,16 @@ function reducer(state, action) {
       STATS.forEach(stat => { newStats[stat.id] = BASE_STAT; });
       const points = calculatePointsRemaining(newStats);
       const hpMp = { maxHP: calculateMaxHp(cls.id, BASE_STAT, 1), currentHP: calculateMaxHp(cls.id, BASE_STAT, 1), maxMP: calculateMaxMp(BASE_STAT, BASE_STAT, 1), currentMP: calculateMaxMp(BASE_STAT, BASE_STAT, 1) };
+      const startingEq = getStartingEquipment(cls.id) || createEmptyEquipment();
+      const ownedStartingEq = Object.values(startingEq).filter(Boolean);
       return {
         ...state,
         class: cls,
         stats: newStats,
         pointsRemaining: points,
         selectedSkillIds: new Set(cls.startingSkills),
+        equipment: startingEq,
+        ownedEquipment: ownedStartingEq,
         ...hpMp,
       };
     }
@@ -632,7 +636,8 @@ function reducer(state, action) {
       const dungeon = getDungeonById(action.payload);
       if (!dungeon) return state;
       const monsters = getMonstersByDungeon(action.payload);
-      return { ...state, combatState: { active: true, monsters: monsters.map(m => ({ ...m, currentHp: m.hp })), boss: getBossByDungeon(action.payload), currentMonsterIndex: 0, monstersDefeated: 0, bossDefeated: false, totalXp: 0, totalGold: 0, lootDrops: [] } };
+      const boss = getBossByDungeon(action.payload);
+      return { ...state, combatState: { active: true, monsters: monsters.map(m => ({ ...m, currentHp: m.hp })), boss: boss ? { ...boss, currentHp: boss.hp } : null, currentMonsterIndex: 0, monstersDefeated: 0, bossDefeated: false, totalXp: 0, totalGold: 0, lootDrops: [] } };
     }
 
     case 'FLEE_COMBAT': {
@@ -701,10 +706,11 @@ function reducer(state, action) {
       let newPlayerHp = state.currentHP - monsterDamage;
 
       if (newCurrentHp <= 0) {
+        // Check if this was the boss
+        const isBoss = cs.currentMonsterIndex >= cs.monsters.length;
         let newCs = { ...cs, monstersDefeated: cs.monstersDefeated + (cs.currentMonsterIndex < cs.monsters.length ? 1 : 0), totalXp: cs.totalXp + Math.floor(currentMonster.xpReward / 2), totalGold: cs.totalGold + Math.floor(Math.random() * (currentMonster.goldReward[1] - currentMonster.goldReward[0]) + currentMonster.goldReward[0]), lootDrops: [...cs.lootDrops, getRandomLoot(currentMonster.lootTable || [])].filter(Boolean), currentMonsterIndex: cs.currentMonsterIndex + 1 };
-        if (cs.currentMonsterIndex + 1 >= cs.monsters.length && cs.boss) {
+        if (isBoss) {
           newCs.bossDefeated = true;
-          newCs.bossHp = 0;
         }
         const goldReward = Math.floor(Math.random() * (currentMonster.goldReward[1] - currentMonster.goldReward[0])) + currentMonster.goldReward[0];
         return {
