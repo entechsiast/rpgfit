@@ -1,6 +1,0 @@
-# Task ID: 5
-# Title: Tower 1 narrative content items organized and ready for game-designer
-# Status: pending
-# Dependencies: None
-# Priority: medium
-# Description: Scrum master has organized game design content items for Tower 1. All items have Agent=game-designer (frontend), Sprint=3, Status=Todo. Created epic #164 linking all items with dependency documentation. Recommend starting with #119 (biome themes) as foundational work.

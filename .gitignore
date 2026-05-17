@@ -11,3 +11,16 @@
 
 # Specs
 specs/
+
+# Temp board dumps
+temp-board*.json
+
+# Temp gh artifacts
+issue-*.md
+comment-*.md
+pr-*.md
+pr-body-*.md
+pr-comment-*.md
+
+# Agent workflow files (local only)
+memory_bank/

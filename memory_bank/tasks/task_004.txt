@@ -1,7 +1,0 @@
-# Task ID: 4
-# Title: Organize game design content items (#113-#119) and break down as needed
-# Status: in_progress
-# Dependencies: None
-# Priority: medium
-# Test Strategy:
-All 7 help wanted items (#113-#119) should have proper fields set (Agent, Effort, Sprint). Any items that need breaking down should have sub-stories created on the project board.

@@ -1,6 +1,0 @@
-# Task ID: 7
-# Title: Consolidate Tower 1 design items into single spec
-# Status: claimed
-# Dependencies: None
-# Priority: medium
-# Description: Consolidate all 7 Tower 1 design items (#113-119) into a single comprehensive design spec document.
