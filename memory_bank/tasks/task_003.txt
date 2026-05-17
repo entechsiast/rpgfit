@@ -1,53 +1,69 @@
 # Task ID: 3
-# Title: Implement #121: Dev server infrastructure for Playwright
-# Status: pending
+# Title: Implement all game design review UX findings (#143-#149)
+# Status: in_progress
 # Dependencies: None
-# Priority: medium
-# Description: ## Task: Implement #121 — Dev server infrastructure for Playwright tests
+# Priority: high
+# Description: ## Summary
 
-### Branch
-`feature/121-dev-server-playwright` (already checked out from origin/master)
+The game-designer agent completed a UX review on 2026-05-16 and produced a spec at `docs/specs/game-design-review-2026-05-16.md`. I've created 7 issues from the findings. Please implement them in priority order.
 
-### What to implement
+## Priority Order (from game design review)
 
-**1. Create `my-react-app/tests/support/global-teardown.ts`**
-- Read PID from a lock file (`my-react-app/.devserver.lock` or temp file)
-- Kill the dev server process gracefully (SIGTERM)
-- Delete the lock file
-- Handle missing/invalid PID gracefully (server may have already died)
+### 1. #143 — Critical: Make 'Create Character' button visually dominant (S effort)
+- File: `src/pages/Home/Home.jsx` + `Home.css`
+- Increase visual weight: larger font, primary color, increased padding, box-shadow, hover animation
+- Visual hierarchy: Create Character > My Characters > Adventure
 
-**2. Update `my-react-app/tests/support/global-setup.ts`**
-- Write PID to the lock file when starting the server
-- Add a lock file check: if lock file exists and process is alive, abort with clear error
-- Add health check after "Compiled successfully": use `fetch('http://localhost:3000')` to verify server responds
-- Better error messages if startup fails
+### 2. #144 — Major: Simplify class card information density (M effort)
+- File: `src/components/ClassSelector/ClassSelector.jsx` + `ClassSelector.css`
+- Break into collapsible sections (Core Info, Stats, Abilities)
+- Default view shows only essential info (name, description, stat bonuses)
+- "Show details" reveals starting skills, proficiencies
 
-**3. Update `my-react-app/playwright.config.ts`**
-- Add `globalTeardown: './tests/support/global-teardown.ts'`
+### 3. #145 — Major: Add visual feedback on stat value change (S effort)
+- File: `src/components/StatAllocator/StatAllocator.jsx` + `StatAllocator.css`
+- CSS @keyframes pulse animation on stat value when updated
+- Brief color flash (green for increase, blue for decrease)
+- Animation within 300ms, respects prefers-reduced-motion
 
-**4. Update `my-react-app/tests/support/hooks.ts`**
-- Add a check: if global-setup already started the server (lock file exists), skip launching in Before hook
-- The hooks.ts currently launches Chromium — this is fine, just ensure no conflicts
+### 4. #146 — Minor: Rename selected state class for appearance options (S effort)
+- File: `src/components/AppearanceCustomizer/AppearanceCustomizer.jsx` + `.css`
+- Rename `.selected` to `appearance-option--selected` (BEM pattern)
 
-### Acceptance Criteria (from issue #121)
-- [ ] Agent can start the dev server via npm or global-setup.ts pattern
-- [ ] Agent can detect if the dev server is already running (lock file check)
-- [ ] Agent can detect when the dev server is ready (Compiled successfully + health check)
-- [ ] Agent can stop the dev server after testing completes (globalTeardown)
-- [ ] Dev server starts on port 3000 with BROWSER=none
-- [ ] No conflicts when multiple agents try to start the server (lock file mechanism)
+### 5. #148 — Minor: Add aria-labels to home page interactive elements (S effort)
+- File: `src/pages/Home/Home.jsx` + `CharacterPreview.jsx`
+- Add aria-labels to all interactive buttons
+- WCAG 2.1 AA compliance
 
-### Verification
-1. Run `npm run test:bdd` in `my-react-app/` — verify it works
-2. Verify no orphaned node processes after tests
-3. Verify lock file is cleaned up
+### 6. #147 — Enhancement: Add level and XP indicators to skill tree (M effort)
+- File: `src/components/SkillTree/SkillTree.jsx` + `SkillTree.css`
+- Horizontal XP bar with gradient fill near skill tree header
+- Level badge (e.g., "Level 5" pill badge)
 
-### Commit
-- Commit type: `feat` or `test`
-- Descriptive message
-- Push the branch when ready
+### 7. #149 — Enhancement: Improve mobile equipment grid touch targets (M effort)
+- File: `src/components/EquipmentGrid/EquipmentGrid.jsx` + `EquipmentGrid.css`
+- Touch targets meet minimum 44x44px (Fitts's Law)
+- Swipeable carousel for equipment slots on mobile
+
+## Verification for each
+- `npm run build` must pass
+- `npm run test:bdd --dry-run` must show no errors
+- Each fix should be self-contained on its own branch
+
+## Branch Strategy
+Create a separate branch for each issue:
+- `feature/143-create-char-button`
+- `feature/144-class-card`
+- `feature/145-stat-feedback`
+- `feature/146-appearance-class`
+- `feature/147-xp-indicators`
+- `feature/148-aria-labels`
+- `feature/149-mobile-equipment`
+
+## Context
+- Parent project: entechsiast/rpgfit
+- GitHub Project #2: RPG Fit
+- All issues have full acceptance criteria in their bodies
+- Game design review spec: `docs/specs/game-design-review-2026-05-16.md`
 # Test Strategy:
-1. Run `npm run test:bdd` in my-react-app/ — should start dev server, run tests, stop server
-2. Verify no orphaned node/npm processes remain
-3. Verify lock file is cleaned up
-4. Verify lock file prevents concurrent starts
+Each issue's acceptance criteria must be met. Build must pass (`npm run build`). BDD dry-run must pass (`npm run test:bdd --dry-run`). Each feature branch should have a PR created and linked to the issue.

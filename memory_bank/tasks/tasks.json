@@ -10,8 +10,142 @@
       "priority": "high",
       "created_at": "2026-05-15T20:29:35.384Z",
       "updated_at": "2026-05-15T20:29:35.384Z"
+    },
+    {
+      "id": "2",
+      "title": "Game Design Review Completed",
+      "description": "@engineering-lead — I've completed a game design review of the RPG Fit UI. \n\nThe spec is at docs/specs/game-design-review-2026-05-16.md.\n\nPlease:\n1. For **S/M** items: create a GitHub Issue directly and add to kanban (Status=Todo, Agent=frontend)\n2. For **L/XL** items: delegate to @scrum-master for story breakdown first, then add to kanban",
+      "status": "pending",
+      "priority": "high",
+      "created_at": "2026-05-16T17:17:35.982Z",
+      "updated_at": "2026-05-16T17:17:38.021Z",
+      "metadata": {
+        "handoff_notes": "@engineering-lead — I've completed a game design review of the RPG Fit UI. \n\nThe spec is at docs/specs/game-design-review-2026-05-16.md.\n\nPlease:\n1. For **S/M** items: create a GitHub Issue directly and add to kanban (Status=Todo, Agent=frontend)\n2. For **L/XL** items: delegate to @scrum-master for story breakdown first, then add to kanban"
+      }
+    },
+    {
+      "id": "3",
+      "title": "Implement all game design review UX findings (#143-#149)",
+      "description": "## Summary\n\nThe game-designer agent completed a UX review on 2026-05-16 and produced a spec at `docs/specs/game-design-review-2026-05-16.md`. I've created 7 issues from the findings. Please implement them in priority order.\n\n## Priority Order (from game design review)\n\n### 1. #143 — Critical: Make 'Create Character' button visually dominant (S effort)\n- File: `src/pages/Home/Home.jsx` + `Home.css`\n- Increase visual weight: larger font, primary color, increased padding, box-shadow, hover animation\n- Visual hierarchy: Create Character > My Characters > Adventure\n\n### 2. #144 — Major: Simplify class card information density (M effort)\n- File: `src/components/ClassSelector/ClassSelector.jsx` + `ClassSelector.css`\n- Break into collapsible sections (Core Info, Stats, Abilities)\n- Default view shows only essential info (name, description, stat bonuses)\n- \"Show details\" reveals starting skills, proficiencies\n\n### 3. #145 — Major: Add visual feedback on stat value change (S effort)\n- File: `src/components/StatAllocator/StatAllocator.jsx` + `StatAllocator.css`\n- CSS @keyframes pulse animation on stat value when updated\n- Brief color flash (green for increase, blue for decrease)\n- Animation within 300ms, respects prefers-reduced-motion\n\n### 4. #146 — Minor: Rename selected state class for appearance options (S effort)\n- File: `src/components/AppearanceCustomizer/AppearanceCustomizer.jsx` + `.css`\n- Rename `.selected` to `appearance-option--selected` (BEM pattern)\n\n### 5. #148 — Minor: Add aria-labels to home page interactive elements (S effort)\n- File: `src/pages/Home/Home.jsx` + `CharacterPreview.jsx`\n- Add aria-labels to all interactive buttons\n- WCAG 2.1 AA compliance\n\n### 6. #147 — Enhancement: Add level and XP indicators to skill tree (M effort)\n- File: `src/components/SkillTree/SkillTree.jsx` + `SkillTree.css`\n- Horizontal XP bar with gradient fill near skill tree header\n- Level badge (e.g., \"Level 5\" pill badge)\n\n### 7. #149 — Enhancement: Improve mobile equipment grid touch targets (M effort)\n- File: `src/components/EquipmentGrid/EquipmentGrid.jsx` + `EquipmentGrid.css`\n- Touch targets meet minimum 44x44px (Fitts's Law)\n- Swipeable carousel for equipment slots on mobile\n\n## Verification for each\n- `npm run build` must pass\n- `npm run test:bdd --dry-run` must show no errors\n- Each fix should be self-contained on its own branch\n\n## Branch Strategy\nCreate a separate branch for each issue:\n- `feature/143-create-char-button`\n- `feature/144-class-card`\n- `feature/145-stat-feedback`\n- `feature/146-appearance-class`\n- `feature/147-xp-indicators`\n- `feature/148-aria-labels`\n- `feature/149-mobile-equipment`\n\n## Context\n- Parent project: entechsiast/rpgfit\n- GitHub Project #2: RPG Fit\n- All issues have full acceptance criteria in their bodies\n- Game design review spec: `docs/specs/game-design-review-2026-05-16.md`",
+      "testStrategy": "Each issue's acceptance criteria must be met. Build must pass (`npm run build`). BDD dry-run must pass (`npm run test:bdd --dry-run`). Each feature branch should have a PR created and linked to the issue.",
+      "status": "in_progress",
+      "priority": "high",
+      "created_at": "2026-05-16T19:28:28.836Z",
+      "updated_at": "2026-05-16T19:38:24.670Z",
+      "assigned_to": "frontend",
+      "claimed_at": "2026-05-16T19:38:22.512Z"
+    },
+    {
+      "id": "4",
+      "title": "Organize game design content items (#113-#119) and break down as needed",
+      "testStrategy": "All 7 help wanted items (#113-#119) should have proper fields set (Agent, Effort, Sprint). Any items that need breaking down should have sub-stories created on the project board.",
+      "status": "in_progress",
+      "priority": "medium",
+      "created_at": "2026-05-16T19:29:30.386Z",
+      "updated_at": "2026-05-16T19:38:25.106Z",
+      "assigned_to": "scrum-master",
+      "claimed_at": "2026-05-16T19:38:22.874Z"
+    },
+    {
+      "id": "5",
+      "title": "Tower 1 narrative content items organized and ready for game-designer",
+      "description": "Scrum master has organized game design content items for Tower 1. All items have Agent=game-designer (frontend), Sprint=3, Status=Todo. Created epic #164 linking all items with dependency documentation. Recommend starting with #119 (biome themes) as foundational work.",
+      "status": "pending",
+      "priority": "medium",
+      "created_at": "2026-05-16T20:09:21.530Z",
+      "updated_at": "2026-05-16T20:09:21.530Z"
+    },
+    {
+      "id": "6",
+      "title": "Priority plan for remaining work",
+      "description": "## Prioritization Strategy\n\n### Priority 1: Tower 1 Design (Items #113-119, Epic #164)\nThese are **foundational** — nothing in Tower 1 can be built without:\n- Biome themes (biomes, colors, visuals)\n- Equipment silhouettes (asset design)\n- Difficulty curve (floor structure)\n- Floor intro texts (narrative tone)\n- Lore fragments (collectible content)\n- Narrative equipment (milestone rewards)\n- NPC dialogues (character content)\n\n**Approach:** Consolidate all 7 design items into a single comprehensive Tower 1 Design Spec document. Then create one implementation epic with stories for each design category.\n\n### Priority 2: Drop Feedback Animation (#109, Epic #82)\nPhase 2 completion blocker. The drop system is merged (#142) but lacks the visual feedback layer. This is a focused frontend task — SVG-based animations for 3 reward types.\n\n**Approach:** Implement directly as a frontend story.\n\n### Priority 3: Phase 3 Epics (#81, #83)\nNPC & dialogue system + narrative notifications. These **depend on Tower 1 design** (NPC profiles, dialogue content, narrative structure). Can only start after Priority 1 is complete.\n\n**Approach:** Keep on backlog, reference Tower 1 design spec once created.\n\n---\n\n## Execution Order\n1. Game Designer → consolidate Tower 1 design items into single spec\n2. Frontend → implement drop feedback animation (#109)\n3. After Tower 1 design → create implementation stories for each design category\n4. After Tower 1 design → tackle Phase 3 epics",
+      "testStrategy": "Manual review of prioritization logic and task creation",
+      "status": "pending",
+      "priority": "medium",
+      "created_at": "2026-05-16T20:18:54.999Z",
+      "updated_at": "2026-05-16T20:18:54.999Z"
+    },
+    {
+      "id": "7",
+      "title": "Consolidate Tower 1 design items into single spec",
+      "description": "Consolidate all 7 Tower 1 design items (#113-119) into a single comprehensive design spec document.",
+      "status": "claimed",
+      "priority": "medium",
+      "created_at": "2026-05-16T20:19:00.280Z",
+      "updated_at": "2026-05-16T20:20:30.679Z",
+      "assigned_to": "game-designer",
+      "claimed_at": "2026-05-16T20:20:30.679Z"
+    },
+    {
+      "id": "8",
+      "title": "Implement drop feedback animation (Phase 2 completion)",
+      "description": "Implement SVG-based drop feedback animations for 3 reward types (guaranteed, bonus, milestone) as per AC in issue #109.",
+      "status": "claimed",
+      "priority": "medium",
+      "created_at": "2026-05-16T20:20:07.697Z",
+      "updated_at": "2026-05-16T20:20:30.911Z",
+      "assigned_to": "frontend",
+      "claimed_at": "2026-05-16T20:20:30.911Z"
+    },
+    {
+      "id": "9",
+      "title": "Create Phase 3 implementation stories from Tower 1 Design Spec",
+      "description": "Create implementation stories from Tower 1 Design Spec for NPC system and narrative notifications.",
+      "status": "pending",
+      "priority": "medium",
+      "created_at": "2026-05-16T20:20:11.029Z",
+      "updated_at": "2026-05-16T20:20:11.029Z"
+    },
+    {
+      "id": "10",
+      "title": "Fix PR #178 lint errors and merge",
+      "project": "RPG Fit",
+      "description": "## Task: Fix PR #178 ESLint failures and merge\n\nPR #178 (Traveling Merchant NPC) is blocked by ESLint errors treated as build errors:\n\n### Required lint fixes:\n1. **SkillTree.jsx line 5**: Remove unused import `MAX_LEVEL`\n2. **useDialogue.js line 31**: Remove unused import `getNpcById`\n3. **AdventurePage.jsx**:\n   - Line 49: Remove unused variable `metCount`\n   - Line 71: Add `activeDialogueNpcId` to useEffect dependency array\n   - Line 94: Remove unused variable `getDialogueForNpc`\n   - Line 101: Remove unused variable `getActiveDialogueId`\n4. **dialogueService.js**:\n   - Line 18: Remove unused import `NPC_DATA`\n   - Line 347: Assign object to a variable before exporting as module default\n\n### Steps:\n1. `git checkout -b fix/pr-178-lint origin/master`\n2. `git fetch origin pull/178/head && git cherry-pick origin/pr/178/head` or apply the same changes to fix the lint errors\n3. Apply the lint fixes above\n4. `npm test -- --watchAll=false && npm run build` to self-verify\n5. Push: `git push origin fix/pr-178-lint`\n6. Comment on PR #178 with the fix summary\n7. Wait for CI to re-run (30 seconds)\n8. If CI passes, approve and squash merge: `gh pr review 178 --repo entechsiast/rpgfit --approve --body \"Approved. Lint fixes applied.\"` then `gh pr merge 178 --repo entechsiast/rpgfit --squash`\n9. Close Issue #168: `gh issue close 168 --repo entechsiast/rpgfit`\n10. Update project board: set item status to Done\n\n### Project item ID for #168: PVTI_lAHOAWZJdM4BXz_qzgs7nrU\n\nComment on issue #168 with results before calling me back.",
+      "testStrategy": "CI passes (tests + build), PR #178 merged, Issue #168 closed, project status set to Done",
+      "status": "claimed",
+      "priority": "medium",
+      "created_at": "2026-05-17T10:47:33.314Z",
+      "updated_at": "2026-05-17T10:47:37.632Z",
+      "assigned_to": "frontend",
+      "claimed_at": "2026-05-17T10:47:37.632Z"
+    },
+    {
+      "id": "11",
+      "title": "Fix STARTING_EQUIPMENT bug (Issue #192)",
+      "project": "RPG Fit",
+      "description": "## Task: Fix STARTING_EQUIPMENT system (Issue #192)\n\n### Problem\nThe STARTING_EQUIPMENT system is completely disconnected from the character creation flow:\n\n**Problem A: Key mismatch** — STARTING_EQUIPMENT keys use display names (Fighter, Wizard, Ranger, Paladin) while classes.js uses internal IDs (warrior, wizard, ranger, paladin). `getStartingEquipment(classId)` looks up by classId, so it always returns null for \"warrior\" (key is \"Fighter\"). Classes mage, rogue, and cleric have no STARTING_EQUIPMENT entries.\n\n**Problem B: Never called** — `getStartingEquipment` is defined in equipment.js but never imported or called in the app. The SET_CLASS reducer case does not assign any starting equipment.\n\n### Fix Required\n1. Rename STARTING_EQUIPMENT keys in equipment.js to match class IDs: Fighter→warrior, Wizard→wizard, Ranger→ranger, Paladin→paladin\n2. Add STARTING_EQUIPMENT entries for mage, rogue, and cleric classes\n3. Import and call `getStartingEquipment(state.class.id)` inside the SET_CLASS reducer case in CharacterContext.jsx\n4. Assign the result to the equipment inventory\n5. Write tests verifying each of the 7 classes gets correct starting equipment\n\n### Files to Modify\n- `my-react-app/src/data/equipment.js` — fix STARTING_EQUIPMENT keys + add missing entries\n- `my-react-app/src/contexts/CharacterContext.jsx` — import and call getStartingEquipment in SET_CLASS case\n- `my-react-app/src/contexts/CharacterContext.test.jsx` or new test file — verify starting equipment per class\n\n### GitHub Issue: https://github.com/entechsiast/rpgfit/issues/192\n\nComment on issue #192 with results before calling me back.",
+      "testStrategy": "Each of 7 classes gets correct starting equipment, all tests pass, build compiles",
+      "status": "claimed",
+      "priority": "medium",
+      "created_at": "2026-05-17T10:47:41.902Z",
+      "updated_at": "2026-05-17T10:47:43.785Z",
+      "assigned_to": "frontend",
+      "claimed_at": "2026-05-17T10:47:43.785Z"
+    },
+    {
+      "id": "12",
+      "title": "Fix CI on 3 orphaned PRs (#177, #176, #165)",
+      "description": "PRs #177, #176, and #165 have failed CI and are orphaned (their linked issues #167, #166, #109 were prematurely closed). I've reopened the issues and set them to In Progress on the project board.\n\nPlease:\n1. Check out each PR branch and fix the CI failures.\n2. Get each PR's CI to pass.\n3. Approve and squash merge each PR.\n4. Close the corresponding issue (#167, #166, #109) ONLY AFTER the PR is merged.\n5. Update the project board status to \"Done\" for each issue.\n\nCI failure details are in the PR checks. Start with #177, then #176, then #165. Hand back when all 3 are merged and issues are closed.",
+      "testStrategy": "All 3 PRs (177, 176, 165) have passing CI, are merged to main, and their linked issues (#167, #166, #109) are closed on GitHub.",
+      "status": "pending",
+      "priority": "medium",
+      "created_at": "2026-05-17T13:54:14.597Z",
+      "updated_at": "2026-05-17T13:54:14.597Z"
     }
   ],
-  "agents": [],
-  "updated_at": "2026-05-15T20:29:35.384Z"
+  "agents": [
+    {
+      "id": "frontend",
+      "role": "worker",
+      "registered_at": "2026-05-16T19:38:22.512Z",
+      "last_seen": "2026-05-17T10:47:43.785Z"
+    },
+    {
+      "id": "scrum-master",
+      "role": "worker",
+      "registered_at": "2026-05-16T19:38:22.874Z",
+      "last_seen": "2026-05-16T19:38:22.874Z"
+    }
+  ],
+  "updated_at": "2026-05-17T13:54:14.597Z"
 }

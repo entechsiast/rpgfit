@@ -1423,4 +1423,30 @@ describe('CharacterContext full reducer', () => {
       expect(result.currentMP).toBe(result.maxMP);
     });
   });
+
+  describe('TOGGLE_ANIMATION', () => {
+    it('should default to true in initialState', () => {
+      expect(initialState.animationEnabled).toBe(true);
+    });
+
+    it('should toggle animationEnabled to false', () => {
+      const newState = reducer(state, { type: 'TOGGLE_ANIMATION', payload: false });
+      expect(newState.animationEnabled).toBe(false);
+    });
+
+    it('should toggle animationEnabled to true', () => {
+      let s = reducer(state, { type: 'TOGGLE_ANIMATION', payload: false });
+      const newState = reducer(s, { type: 'TOGGLE_ANIMATION', payload: true });
+      expect(newState.animationEnabled).toBe(true);
+    });
+
+    it('should not affect other state fields', () => {
+      const newState = reducer(state, { type: 'TOGGLE_ANIMATION', payload: false });
+      expect(newState.name).toBe('');
+      expect(newState.class).toBeNull();
+      expect(newState.gold).toBe(0);
+      expect(newState.level).toBe(1);
+      expect(newState.rewardLog).toEqual([]);
+    });
+  });
 });

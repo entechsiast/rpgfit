@@ -14,9 +14,6 @@ tools:
 permission:
   task:
     "*": deny
-    test: allow
-    document: allow
-    release: allow
     engineering-lead: allow
 ---
 
@@ -65,39 +62,84 @@ npm start            # Dev server on port 3000
 
 ## Workflow
 
-- You receive work from the **Engineering Lead** referencing a **GitHub Issue** (`#<number>`)
-- **Create your feature branch** before starting:
-  ```bash
-  git checkout -b feature/<issue-number>-<short-desc>
-  ```
-- **Read your assigned ticket** for context:
-  ```bash
-  gh issue view <number> --repo entechsiast/rpgfit
-  ```
-- **Comment on your ticket** with progress and findings:
-  ```bash
-  gh issue comment <number> --repo entechsiast/rpgfit --body "<summary of work done, files changed, decisions made>"
-  ```
-- **Commit frequently** with descriptive messages:
-  ```bash
-  git add <files>
-  git commit -m "feat: <description>"
-  ```
-- **Create new issues** for bugs or problems you discover during work
-- **If resuming interrupted work**, read issue comments for previous progress
-- **Run unit tests and confirm all pass** before pushing:
-  ```bash
-  cd my-react-app
-  npm test -- --watchAll=false
-  ```
-  If any test fails, fix them before proceeding.
-- **When done**, push and create a PR:
-  ```bash
-  git push -u origin feature/<issue-number>-<short-desc>
-  gh pr create --base main --title "feat: <description>" --body "Closes #<number>"
-  ```
-- **Comment on your issue** with a summary (files changed, what was implemented, test results, issues created), then call the Engineering Lead via task tool to hand off verification:
-  ```
-  task: "Hand off work for verification and kanban update"
-  prompt: "I've completed the assigned work. PR: <pr-url>. Summary: [files changed, what was implemented, test results, issues created]. Please verify the work, update the kanban (Status=Done), and assign to release agent for shipping."
-  ```
+- You receive work from the **Engineering Lead** referencing a **GitHub Issue** (`#<number>`) with an item ID
+
+### 1. Verify Assignment
+
+```bash
+gh issue view <number> --repo entechsiast/rpgfit
+```
+
+Check the issue body for the item ID. If Agent is not `frontend` or Status is not `In Progress`, **do not proceed** — call engineering lead back:
+
+```
+task: "Issue #<N> is not ready"
+prompt: "Issue #<N> does not have Agent=frontend or Status=In Progress. Please set the board fields and delegate again."
+```
+
+### 1b. Fix a PR (alternate entry)
+
+If engineering lead says "Fix PR #<N>", do NOT create a new branch or check the board:
+
+```bash
+gh pr checkout <number>
+gh pr view <number>
+```
+
+1. Understand the failure from the prompt's error snippet or CI logs
+2. Fix the code on this branch
+3. `cd my-react-app && npm test -- --watchAll=false && npm run build`
+4. `git add <files> && git commit -m "fix: <description>"`
+5. `git push`
+6. Comment on the PR:
+   ```bash
+   gh pr comment <number> --body "Fixed: [what was wrong, what was changed, test results]"
+   ```
+7. Hand back:
+   ```
+   task: "PR #<N> fixed"
+   prompt: "Fixed [describe fix] on PR #<N>. Tests pass, build succeeds. Please review."
+   ```
+
+If the fix reveals a deeper bug that can't be resolved inline: create a new GitHub issue documenting it, then hand back saying *"Fix applied, but opened issue #<N> for the deeper problem."*
+
+### 2. Implement
+
+```bash
+git checkout -b feature/<issue-number>-<short-desc>
+```
+
+Work through the acceptance criteria. Commit frequently:
+
+```bash
+git add <files>
+git commit -m "feat: <description>"
+```
+
+Create new issues for bugs or problems you discover during work. If resuming interrupted work, read issue comments for previous progress.
+
+### 3. Self-Verify
+
+```bash
+cd my-react-app
+npm test -- --watchAll=false
+npm run build
+```
+
+If any test fails, fix before proceeding.
+
+### 4. Push and Open PR
+
+```bash
+git push -u origin feature/<issue-number>-<short-desc>
+gh pr create --base main --title "feat: <description>" --body "Closes #<number>"
+```
+
+### 5. Hand Back
+
+Comment on the issue with a summary, then call engineering lead:
+
+```
+task: "Hand off work for verification"
+prompt: "Completed issue #<N>. PR: <pr-url>. Summary: [files changed, what was implemented, test results]. Please verify and merge."
+```
