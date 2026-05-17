@@ -45,6 +45,7 @@ const BUBBLE_ANIMATE_DELAY_MS = 50;
  * Displays an NPC dialogue in a manhwa-style speech bubble.
  * @param {NpcDialogueProps} props
  */
+/* eslint-disable-next-line complexity */
 const NpcDialogue = React.memo(function NpcDialogue({
   npcId,
   dialogues,
