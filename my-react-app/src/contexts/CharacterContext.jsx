@@ -1,16 +1,14 @@
 /* eslint-disable max-lines */
 import React, { createContext, useContext, useReducer, useMemo } from 'react';
-import { getClassById } from '../data/classes';
-import { getRaceById } from '../data/races';
-import { STATS, BASE_STAT, MAX_STAT, TOTAL_POINTS } from '../data/stats';
-import { getDungeonsForLevel } from '../data/dungeons';
-import { calculateMaxHp, calculateHpGainOnLevelUp, calculateMaxMp, calculateMpGainOnLevelUp } from '../data/combat';
+import { getDungeonById, getDungeonsForLevel } from '../data/dungeons';
+import { getMonstersByDungeon, getBossByDungeon } from '../data/monsters';
+import { calculateHpGainOnLevelUp, calculateMaxHp, calculateMaxMp, calculateMpGainOnLevelUp } from '../data/combat';
 import { getXpToNextLevel, getTotalXpToLevel, getXpProgress, MAX_LEVEL } from '../data/xp';
 import { CONSUMABLES } from '../data/consumables';
 import { getFloorRequirements, getFloorCelebrationText } from '../data/floors';
-import { getAllItems, getStartingEquipment, SLOT_ORDER } from '../data/equipment';
-import { combatReducer, isCombatAction } from './reducers/combat';
-import { equipmentReducer } from './reducers/equipment';
+import { getAllItems, SLOT_ORDER } from '../data/equipment';
+import { BASE_STAT, TOTAL_POINTS } from '../data/stats';
+import { characterCoreReducer } from './reducers/characterCore';
 
 const createEmptyEquipment = () => {
   const eq = {};
@@ -57,11 +55,6 @@ const initialState = {
   animationEnabled: true,
 };
 
-function calculatePointsRemaining(stats) {
-  const totalSpent = Object.values(stats).reduce((sum, val) => sum + (val - BASE_STAT), 0);
-  return TOTAL_POINTS - totalSpent;
-}
-
 function getEquippedBonuses(equipment) {
   const bonuses = { str: 0, dex: 0, con: 0, int: 0, wis: 0, cha: 0 };
   SLOT_ORDER.forEach(slot => {
@@ -107,78 +100,41 @@ function recalcHPAndMP(state) {
 
 /* eslint-disable-next-line complexity */
 function reducer(state, action) {
-  if (isCombatAction(action.type)) return combatReducer(state, action);
+  // Dispatch core cases to sub-reducer
+  const coreResult = characterCoreReducer(state, action);
+  if (coreResult !== state) return coreResult;
 
   switch (action.type) {
-    case 'SET_NAME':
-      return { ...state, name: action.payload };
-
-    case 'SET_CLASS': {
-      const cls = getClassById(action.payload);
-      if (!cls) return state;
-      const newStats = { ...state.stats };
-      STATS.forEach(stat => { newStats[stat.id] = BASE_STAT; });
-      const points = calculatePointsRemaining(newStats);
-      const hpMp = { maxHP: calculateMaxHp(cls.id, BASE_STAT, 1), currentHP: calculateMaxHp(cls.id, BASE_STAT, 1), maxMP: calculateMaxMp(BASE_STAT, BASE_STAT, 1), currentMP: calculateMaxMp(BASE_STAT, BASE_STAT, 1) };
-      const startingEq = getStartingEquipment(cls.id) || createEmptyEquipment();
-      const ownedStartingEq = Object.values(startingEq).filter(Boolean);
+    case 'EQUIP_ITEM': {
+      const { slot, item } = action.payload;
+      const newEquipment = { ...state.equipment };
+      newEquipment[slot] = item;
+      const newOwned = state.ownedEquipment?.filter(id => id !== item.id) || [];
+      const hpMp = recalcHPAndMP({ ...state, equipment: newEquipment });
       return {
         ...state,
-        class: cls,
-        stats: newStats,
-        pointsRemaining: points,
-        selectedSkillIds: new Set(cls.startingSkills),
-        equipment: startingEq,
-        ownedEquipment: ownedStartingEq,
+        equipment: newEquipment,
+        ownedEquipment: newOwned,
         ...hpMp,
       };
     }
 
-    case 'SET_RACE': {
-      const race = getRaceById(action.payload);
-      if (!race) return state;
-      return { ...state, race };
-    }
-
-    case 'INCREMENT_STAT': {
-      const statId = action.payload;
-      const currentStat = state.stats[statId];
-      if (currentStat >= MAX_STAT) return state;
-      if (state.pointsRemaining <= 0) return state;
-      const newStats = { ...state.stats, [statId]: currentStat + 1 };
+    case 'UNEQUIP_ITEM': {
+      const slot = action.payload;
+      const item = state.equipment[slot];
+      const newEquipment = { ...state.equipment };
+      newEquipment[slot] = null;
+      let newOwned = [...(state.ownedEquipment || [])];
+      if (item && !newOwned.includes(item.id)) {
+        newOwned.push(item.id);
+      }
+      const hpMp = recalcHPAndMP({ ...state, equipment: newEquipment });
       return {
         ...state,
-        stats: newStats,
-        pointsRemaining: calculatePointsRemaining(newStats),
-        ...recalcHPAndMP({ ...state, stats: newStats }),
+        equipment: newEquipment,
+        ownedEquipment: newOwned,
+        ...hpMp,
       };
-    }
-
-    case 'DECREMENT_STAT': {
-      const statId = action.payload;
-      const currentStat = state.stats[statId];
-      if (currentStat <= BASE_STAT) return state;
-      const newStats = { ...state.stats, [statId]: currentStat - 1 };
-      return {
-        ...state,
-        stats: newStats,
-        pointsRemaining: calculatePointsRemaining(newStats),
-        ...recalcHPAndMP({ ...state, stats: newStats }),
-      };
-    }
-
-    case 'SET_APPEARANCE':
-      return {
-        ...state,
-        appearance: { ...state.appearance, [action.payload.key]: action.payload.value },
-      };
-
-    case 'TOGGLE_SKILL': {
-      const skillId = action.payload;
-      const newSet = new Set(state.selectedSkillIds);
-      if (newSet.has(skillId)) newSet.delete(skillId);
-      else newSet.add(skillId);
-      return { ...state, selectedSkillIds: newSet };
     }
 
     case 'GAIN_XP': {
@@ -208,28 +164,6 @@ function reducer(state, action) {
         currentMP: newState.currentMP + mpGain,
       };
       return newState;
-    }
-
-    case 'DISTRIBUTE_STAT': {
-      const { statId, value } = action.payload;
-      const currentStat = state.stats[statId];
-      const newStats = { ...state.stats, [statId]: currentStat + value };
-      const newPointsRemaining = state.pointsRemaining - value;
-      const equippedBonuses = getEquippedBonuses(state.equipment);
-      const effectiveCon = newStats.con + equippedBonuses.con;
-      const effectiveInt = newStats.int + equippedBonuses.int;
-      const effectiveWis = newStats.wis + equippedBonuses.wis;
-      const hpMp = {
-        maxHP: calculateMaxHp(state.class?.id, effectiveCon, state.level),
-        maxMP: calculateMaxMp(effectiveInt, effectiveWis, state.level),
-      };
-      return {
-        ...state,
-        stats: newStats,
-        pointsRemaining: newPointsRemaining,
-        statPointsToSpend: Math.max(0, state.statPointsToSpend - value),
-        ...hpMp,
-      };
     }
 
     case 'ADD_GOLD':

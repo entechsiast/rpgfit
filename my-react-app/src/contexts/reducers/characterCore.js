@@ -4,7 +4,7 @@ import { getStartingEquipment, SLOT_ORDER } from '../../data/equipment';
 import { STATS, BASE_STAT, MAX_STAT, TOTAL_POINTS } from '../../data/stats';
 import { calculateMaxHp, calculateMaxMp } from '../../data/combat';
 
-// ÔöÇÔöÇÔöÇ Helpers ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+// ─── Helpers ───────────────────────────────────────────────────────────────────
 
 function createEmptyEquipment() {
   const eq = {};
@@ -17,7 +17,7 @@ function calculatePointsRemaining(stats) {
   return TOTAL_POINTS - totalSpent;
 }
 
-export function getEquippedBonuses(equipment) {
+function getEquippedBonuses(equipment) {
   const bonuses = { str: 0, dex: 0, con: 0, int: 0, wis: 0, cha: 0 };
   SLOT_ORDER.forEach(slot => {
     const item = equipment[slot];
@@ -46,7 +46,7 @@ function recalcHPAndMP(state) {
   };
 }
 
-// ÔöÇÔöÇÔöÇ Named case handlers ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+// ─── Named case handlers ───────────────────────────────────────────────────────
 
 export function setName(state, action) {
   return { ...state, name: action.payload };
@@ -148,7 +148,7 @@ export function distributeStat(state, action) {
   };
 }
 
-// ÔöÇÔöÇÔöÇ Sub-reducer ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+// ─── Sub-reducer ───────────────────────────────────────────────────────────────
 
 const coreCaseMap = {
   SET_NAME: setName,
