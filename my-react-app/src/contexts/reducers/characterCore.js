@@ -3,6 +3,7 @@ import { getRaceById } from '../../data/races';
 import { getStartingEquipment, SLOT_ORDER } from '../../data/equipment';
 import { STATS, BASE_STAT, MAX_STAT, TOTAL_POINTS } from '../../data/stats';
 import { calculateMaxHp, calculateMaxMp } from '../../data/combat';
+import { getEquippedBonuses } from './hpMpRecalc';
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -17,18 +18,7 @@ function calculatePointsRemaining(stats) {
   return TOTAL_POINTS - totalSpent;
 }
 
-function getEquippedBonuses(equipment) {
-  const bonuses = { str: 0, dex: 0, con: 0, int: 0, wis: 0, cha: 0 };
-  SLOT_ORDER.forEach(slot => {
-    const item = equipment[slot];
-    if (item && item.statBonuses) {
-      Object.entries(item.statBonuses).forEach(([stat, val]) => {
-        bonuses[stat] = (bonuses[stat] || 0) + val;
-      });
-    }
-  });
-  return bonuses;
-}
+
 
 function recalcHPAndMP(state) {
   if (!state.class) return { maxHP: 10, currentHP: state.currentHP, maxMP: 5, currentMP: state.currentMP };

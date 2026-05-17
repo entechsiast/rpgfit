@@ -14,21 +14,7 @@ import { getDungeonById } from '../../data/dungeons';
 import { getMonstersByDungeon, getBossByDungeon } from '../../data/monsters';
 import { getItemById, getRandomLoot } from '../../data/loot';
 import { SLOT_ORDER } from '../../data/equipment';
-
-// ─── Helpers ───────────────────────────────────────────────────────────────────
-
-function getEquippedBonuses(equipment) {
-  const bonuses = { str: 0, dex: 0, con: 0, int: 0, wis: 0, cha: 0 };
-  SLOT_ORDER.forEach(slot => {
-    const item = equipment[slot];
-    if (item && item.statBonuses) {
-      Object.entries(item.statBonuses).forEach(([stat, val]) => {
-        bonuses[stat] = (bonuses[stat] || 0) + val;
-      });
-    }
-  });
-  return bonuses;
-}
+import { getEquippedBonuses } from './hpMpRecalc';
 
 // ─── Named case handlers ───────────────────────────────────────────────────────
 
