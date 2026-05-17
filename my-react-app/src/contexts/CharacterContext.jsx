@@ -9,6 +9,7 @@ import { getXpToNextLevel, getTotalXpToLevel, getXpProgress, MAX_LEVEL } from '.
 import { CONSUMABLES } from '../data/consumables';
 import { getFloorRequirements, getFloorCelebrationText } from '../data/floors';
 import { getAllItems, getStartingEquipment, SLOT_ORDER } from '../data/equipment';
+import { characterCoreReducer } from './reducers/characterCore';
 import { combatReducer, isCombatAction } from './reducers/combat';
 
 const createEmptyEquipment = () => {
@@ -106,6 +107,10 @@ function recalcHPAndMP(state) {
 
 /* eslint-disable-next-line complexity */
 function reducer(state, action) {
+  // Dispatch core cases to sub-reducers
+  const coreResult = characterCoreReducer(state, action);
+  if (coreResult !== state) return coreResult;
+
   if (isCombatAction(action.type)) return combatReducer(state, action);
 
   switch (action.type) {
