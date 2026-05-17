@@ -1,0 +1,41 @@
+name: BDD Tests (Hourly Scheduled)
+on:
+  schedule:
+    # Run every hour
+    - cron: '0 * * * *'
+  workflow_dispatch:
+
+jobs:
+  bdd-tests:
+    name: BDD Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: my-react-app/package-lock.json
+
+      - name: Install dependencies
+        working-directory: my-react-app
+        run: npm ci
+
+      - name: Install Playwright browsers
+        working-directory: my-react-app
+        run: npx playwright install --with-deps chromium
+
+      - name: Run BDD tests
+        working-directory: my-react-app
+        run: npm run test:bdd:ci
+        env:
+          PLAYWRIGHT_HEADLESS: 'true'
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bdd-test-results
+          path: my-react-app/cucumber.json
+          retention-days: 30
