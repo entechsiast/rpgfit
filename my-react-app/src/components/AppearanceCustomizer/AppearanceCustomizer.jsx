@@ -14,7 +14,7 @@ export default function AppearanceCustomizer() {
         {options.map(opt => (
           <button
             key={opt.id}
-            className={`appearance-option-btn color-btn ${character.appearance[key] === opt.id ? 'selected' : ''}`}
+            className={`appearance-option-btn color-btn ${character.appearance[key] === opt.id ? 'appearance-option--selected' : ''}`}
             style={{ '--option-color': opt.hex }}
             onClick={() => dispatch({ type: 'SET_APPEARANCE', payload: { key, value: opt.id } })}
             title={opt.name}
@@ -32,7 +32,7 @@ export default function AppearanceCustomizer() {
         {options.map(opt => (
           <button
             key={opt.id}
-            className={`appearance-option-btn text-btn ${character.appearance[key] === opt.id ? 'selected' : ''}`}
+            className={`appearance-option-btn text-btn ${character.appearance[key] === opt.id ? 'appearance-option--selected' : ''}`}
             onClick={() => dispatch({ type: 'SET_APPEARANCE', payload: { key, value: opt.id } })}
             data-testid={`${key}-${opt.id}`}
           >
